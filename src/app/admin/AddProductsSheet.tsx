@@ -31,6 +31,7 @@ import { uploadImageToS3, generateImageKey } from "@/lib/aws-s3";
 import Image from "next/image";
 import { addProduct } from "@/lib/products";
 import { getNewProductDocId } from "@/lib/firebase";
+import { compressImage } from "@/lib/images";
 
 // Helper function to clean object of undefined/empty values
 const cleanObject = (obj: unknown): unknown => {
@@ -102,7 +103,10 @@ export function AddProductsSheet() {
       for (const imageState of imageStates) {
         if (imageState.file) {
           const imageKey = generateImageKey(imageState.file.name, productId);
-          const uploadedUrl = await uploadImageToS3(imageState.file, imageKey);
+
+          const compressedImage = await compressImage(imageState.file);
+
+          const uploadedUrl = await uploadImageToS3(compressedImage, imageKey);
           uploadedImageUrls.push(uploadedUrl);
         }
       }
