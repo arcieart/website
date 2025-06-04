@@ -59,14 +59,11 @@ const cleanObject = (obj: unknown): unknown => {
         cleanedValue !== "" &&
         cleanedValue !== 0
       ) {
-        if (Array.isArray(cleanedValue) && cleanedValue.length > 0) {
+        if (Array.isArray(cleanedValue)) {
           cleaned[key] = cleanedValue;
-        } else if (
-          typeof cleanedValue === "object" &&
-          Object.keys(cleanedValue).length > 0
-        ) {
+        } else if (typeof cleanedValue === "object") {
           cleaned[key] = cleanedValue;
-        } else if (typeof cleanedValue !== "object") {
+        } else {
           cleaned[key] = cleanedValue;
         }
       }
