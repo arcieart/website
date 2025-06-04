@@ -7,6 +7,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { hash } from "@/utils/misc";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { AddProductsSheet } from "./AddProductsSheet";
+import { signInWithEmailAndPasswordAuth } from "@/lib/firebase-auth";
 
 export default function ProtectedAdminPage() {
   const isMobile = useIsMobile();
@@ -31,6 +32,7 @@ export default function ProtectedAdminPage() {
 
     if (hashedPassword === adminHash) {
       localStorage.setItem("ADMIN_PASSWORD_HASH", adminHash);
+      await signInWithEmailAndPasswordAuth("myarcieart@gmail.com", adminHash);
       setIsAdmin(true);
     } else {
       setError("Invalid password");

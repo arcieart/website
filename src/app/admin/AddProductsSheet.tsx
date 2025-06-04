@@ -29,6 +29,8 @@ import { DBProduct } from "@/types/product";
 import { DBCustomization } from "@/types/customization";
 import { uploadImageToS3, generateImageKey } from "@/lib/aws-s3";
 import Image from "next/image";
+import { addProduct } from "@/lib/products";
+import { getNewProductDocId } from "@/lib/firebase";
 
 // Helper function to clean object of undefined/empty values
 const cleanObject = (obj: unknown): unknown => {
@@ -66,18 +68,20 @@ interface ImageState {
   uploaded?: boolean;
 }
 
+const defaultProductData: DBProduct = {
+  id: "",
+  name: "",
+  description: "",
+  images: [],
+  price: 0,
+  categoryId: "keychains",
+  customizationOptions: [],
+};
+
 export function AddProductsSheet() {
   const [isOpen, setIsOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [productData, setProductData] = useState<DBProduct>({
-    id: "",
-    name: "",
-    description: "",
-    images: [],
-    price: 0,
-    categoryId: "keychains",
-    customizationOptions: [],
-  });
+  const [productData, setProductData] = useState<DBProduct>(defaultProductData);
 
   // Separate state for handling file uploads and previews
   const [imageStates, setImageStates] = useState<ImageState[]>([
@@ -92,38 +96,35 @@ export function AddProductsSheet() {
       // Upload images to S3
       const uploadedImageUrls: string[] = [];
 
+      const productId = await getNewProductDocId();
+      console.log("Product ID:", productId);
+
       for (const imageState of imageStates) {
         if (imageState.file) {
-          const imageKey = generateImageKey(imageState.file.name, "123");
+          const imageKey = generateImageKey(imageState.file.name, productId);
           const uploadedUrl = await uploadImageToS3(imageState.file, imageKey);
           uploadedImageUrls.push(uploadedUrl);
         }
       }
 
       // Update product data with uploaded image URLs
-      const finalProductData = {
+      const finalProductData: DBProduct = {
         ...productData,
         images: uploadedImageUrls,
       };
 
-      const cleanedData = cleanObject(finalProductData);
+      const cleanedData: DBProduct = cleanObject(finalProductData) as DBProduct;
       console.log("Clean Product data:", cleanedData);
 
+      await addProduct(productId, cleanedData);
+
       // Reset form
-      setProductData({
-        id: "",
-        name: "",
-        description: "",
-        images: [],
-        price: 0,
-        categoryId: "keychains",
-        customizationOptions: [],
-      });
+      setProductData(defaultProductData);
       setImageStates([{ file: null, preview: "" }]);
       setIsOpen(false);
     } catch (error) {
       console.error("Error saving product:", error);
-      alert("Error uploading images. Please try again.");
+      alert("Error saving product. Please try again.");
     } finally {
       setIsUploading(false);
     }
@@ -232,7 +233,7 @@ export function AddProductsSheet() {
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button>
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="w-4 h-4 mr-1" />
           Add Product
         </Button>
       </SheetTrigger>
