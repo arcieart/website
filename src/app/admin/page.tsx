@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useIsMobile from "@/hooks/useIsMobile";
 import { hash } from "@/utils/misc";
 import { useEffect, useLayoutEffect, useState } from "react";
+import { AddProductsSheet } from "./AddProductsSheet";
 
 export default function ProtectedAdminPage() {
   const isMobile = useIsMobile();
@@ -65,7 +66,7 @@ export default function ProtectedAdminPage() {
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">Products</h2>
-              <Button>Refresh</Button>
+              <AddProductsSheet />
             </div>
             <div className="border rounded-lg p-6 text-center text-muted-foreground">
               <p>Product list will be displayed here</p>
