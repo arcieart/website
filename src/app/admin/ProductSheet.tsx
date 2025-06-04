@@ -666,24 +666,3 @@ export function AddProductSheet({
     />
   );
 }
-
-export function EditProductSheet({
-  product,
-  isOpen,
-  onOpenChange,
-  onProductUpdated,
-}: {
-  product: DBProduct;
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  onProductUpdated?: () => void;
-}) {
-  return (
-    <ProductSheet
-      product={product}
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      onProductSaved={onProductUpdated}
-    />
-  );
-}

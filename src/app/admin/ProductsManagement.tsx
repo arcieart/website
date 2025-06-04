@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { AddProductSheet, EditProductSheet } from "./ProductSheet";
+import { AddProductSheet } from "./ProductSheet";
+import { ProductJSONDialog } from "./ProductJSONDialog";
 import { useProductsAdmin } from "@/hooks/useProductsAdmin";
 import {
   BaseCategoriesIds,
@@ -170,6 +171,7 @@ export const ProductsManagement = () => {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>ID</TableHead>
               <TableHead className="w-16">Image</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Category</TableHead>
@@ -203,6 +205,7 @@ export const ProductsManagement = () => {
             ) : (
               products.map((product) => (
                 <TableRow key={product.id}>
+                  <TableCell>{product.id}</TableCell>
                   <TableCell>
                     {product.images && product.images.length > 0 ? (
                       <div className="relative w-12 h-12 rounded-md overflow-hidden">
@@ -317,7 +320,7 @@ export const ProductsManagement = () => {
 
       {/* Edit Product Sheet - Rendered once */}
       {editingProduct && (
-        <EditProductSheet
+        <ProductJSONDialog
           product={editingProduct}
           onProductUpdated={handleProductUpdated}
           isOpen={!!editingProduct}
