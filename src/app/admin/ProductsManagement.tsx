@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AddProductsSheet } from "./AddProductsSheet";
-import { EditProductSheet } from "./EditProductSheet";
+import { AddProductSheet, EditProductSheet } from "./ProductSheet";
 import { useProductsAdmin } from "@/hooks/useProductsAdmin";
 import {
   BaseCategoriesIds,
@@ -127,7 +126,7 @@ export const ProductsManagement = () => {
             Manage your product catalog with search and pagination
           </p>
         </div>
-        <AddProductsSheet />
+        <AddProductSheet onProductSaved={refetch} />
       </div>
 
       {/* Filters */}

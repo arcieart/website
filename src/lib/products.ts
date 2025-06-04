@@ -4,7 +4,7 @@ import { db } from "./firebase";
 import { setDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { doc } from "firebase/firestore";
 
-export const addProduct = async (id: string, product: DBProduct) => {
+export const addProduct = async (id: string, product: Omit<DBProduct, "id">) => {
   try {
     const productRef = doc(db, Collections.Products, id);
     await setDoc(productRef, product);
@@ -14,7 +14,7 @@ export const addProduct = async (id: string, product: DBProduct) => {
   }
 };
 
-export const updateProduct = async (id: string, product: DBProduct) => {
+export const updateProduct = async (id: string, product: Omit<DBProduct, "id">) => {
   try {
     const productRef = doc(db, Collections.Products, id);
     await updateDoc(productRef, product);

@@ -2,7 +2,7 @@ import { BaseCategoriesIds } from "@/data/categories";
 
 export type Customization = InputCustomization | CheckboxCustomization | ImageCustomization | FixedColorPickerCustomization;
 
-export type DBCustomization = Partial<Customization> & {
+export type DBCustomization = {
   customizationRefId: string;
 }
 
@@ -12,7 +12,6 @@ export type BaseCustomization = {
   required: boolean;
   priceAdd: number;
   categoryId: BaseCategoriesIds;
-
 };
 
 
