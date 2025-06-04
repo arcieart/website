@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash2, X, Upload, Image as ImageIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,24 +27,20 @@ import { BaseCategories, BaseCategoriesIds } from "@/data/categories";
 import { BaseCustomizations } from "@/data/customizations";
 import { DBProduct } from "@/types/product";
 import { DBCustomization } from "@/types/customization";
+import { uploadImageToS3, generateImageKey } from "@/lib/aws-s3";
+import Image from "next/image";
 
 // Helper function to clean object of undefined/empty values
 const cleanObject = (obj: unknown): unknown => {
   if (Array.isArray(obj)) {
-    return obj
-      .map(cleanObject)
-      .filter((item) => item !== null && item !== undefined && item !== "");
+    return obj.map(cleanObject).filter(Boolean);
   }
 
   if (obj !== null && typeof obj === "object") {
     const cleaned: Record<string, unknown> = {};
     Object.entries(obj).forEach(([key, value]) => {
       const cleanedValue = cleanObject(value);
-      if (
-        cleanedValue !== null &&
-        cleanedValue !== undefined &&
-        cleanedValue !== ""
-      ) {
+      if (cleanedValue) {
         if (Array.isArray(cleanedValue) && cleanedValue.length > 0) {
           cleaned[key] = cleanedValue;
         } else if (
@@ -63,22 +59,54 @@ const cleanObject = (obj: unknown): unknown => {
   return obj;
 };
 
+// Type for image state to handle both files and preview URLs
+interface ImageState {
+  file: File | null;
+  preview: string;
+  uploaded?: boolean;
+}
+
 export function AddProductsSheet() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [productData, setProductData] = useState<DBProduct>({
     id: "",
     name: "",
     description: "",
-    images: [""],
+    images: [],
     price: 0,
     categoryId: "keychains",
     customizationOptions: [],
   });
 
+  // Separate state for handling file uploads and previews
+  const [imageStates, setImageStates] = useState<ImageState[]>([
+    { file: null, preview: "" },
+  ]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsUploading(true);
+
     try {
-      const cleanedData = cleanObject(productData);
+      // Upload images to S3
+      const uploadedImageUrls: string[] = [];
+
+      for (const imageState of imageStates) {
+        if (imageState.file) {
+          const imageKey = generateImageKey(imageState.file.name, "123");
+          const uploadedUrl = await uploadImageToS3(imageState.file, imageKey);
+          uploadedImageUrls.push(uploadedUrl);
+        }
+      }
+
+      // Update product data with uploaded image URLs
+      const finalProductData = {
+        ...productData,
+        images: uploadedImageUrls,
+      };
+
+      const cleanedData = cleanObject(finalProductData);
       console.log("Clean Product data:", cleanedData);
 
       // Reset form
@@ -86,14 +114,18 @@ export function AddProductsSheet() {
         id: "",
         name: "",
         description: "",
-        images: [""],
+        images: [],
         price: 0,
         categoryId: "keychains",
         customizationOptions: [],
       });
+      setImageStates([{ file: null, preview: "" }]);
       setIsOpen(false);
     } catch (error) {
       console.error("Error saving product:", error);
+      alert("Error uploading images. Please try again.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -110,18 +142,12 @@ export function AddProductsSheet() {
   };
 
   const addImage = () => {
-    setProductData((prev) => ({
-      ...prev,
-      images: [...prev.images, ""],
-    }));
+    setImageStates((prev) => [...prev, { file: null, preview: "" }]);
   };
 
   const removeImage = (index: number) => {
-    if (productData.images.length > 1) {
-      setProductData((prev) => ({
-        ...prev,
-        images: prev.images.filter((_, i) => i !== index),
-      }));
+    if (imageStates.length > 1) {
+      setImageStates((prev) => prev.filter((_, i) => i !== index));
     }
   };
 
@@ -134,11 +160,24 @@ export function AddProductsSheet() {
     }));
   };
 
-  const updateImage = (index: number, value: string) => {
-    setProductData((prev) => ({
-      ...prev,
-      images: prev.images.map((img, i) => (i === index ? value : img)),
-    }));
+  const handleImageChange = (index: number, file: File | null) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImageStates((prev) =>
+          prev.map((state, i) =>
+            i === index ? { file, preview: e.target?.result as string } : state
+          )
+        );
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImageStates((prev) =>
+        prev.map((state, i) =>
+          i === index ? { file: null, preview: "" } : state
+        )
+      );
+    }
   };
 
   const updateCustomization = (
@@ -301,26 +340,72 @@ export function AddProductsSheet() {
               </Button>
             </div>
 
-            <div className="space-y-3">
-              {productData.images.map((image, index) => (
-                <div key={index} className="flex gap-3">
-                  <div className="flex-1 space-y-2">
-                    <Input
-                      placeholder="Image URL"
-                      value={image}
-                      onChange={(e) => updateImage(index, e.target.value)}
-                    />
+            <div className="space-y-4">
+              {imageStates.map((imageState, index) => (
+                <div key={index} className="border rounded-lg p-4">
+                  <div className="flex gap-4">
+                    {/* Image Preview */}
+                    <div className="flex-shrink-0">
+                      {imageState.preview ? (
+                        <div className="relative">
+                          <Image
+                            src={imageState.preview}
+                            alt={`Preview ${index + 1}`}
+                            width={80}
+                            height={80}
+                            className="w-20 h-20 object-cover rounded-md border"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="absolute -top-2 -right-2 h-6 w-6"
+                            onClick={() => handleImageChange(index, null)}
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center">
+                          <ImageIcon className="w-8 h-8 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* File Input */}
+                    <div className="flex-1 space-y-2">
+                      <label className="text-sm font-medium">
+                        Image {index + 1}
+                      </label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0] || null;
+                            handleImageChange(index, file);
+                          }}
+                          className="flex-1"
+                        />
+                        {imageStates.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => removeImage(index)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                      {imageState.file && (
+                        <p className="text-xs text-muted-foreground">
+                          {imageState.file.name} (
+                          {Math.round(imageState.file.size / 1024)} KB)
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  {productData.images.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => removeImage(index)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  )}
                 </div>
               ))}
             </div>
@@ -555,10 +640,20 @@ export function AddProductsSheet() {
               type="button"
               variant="outline"
               onClick={() => setIsOpen(false)}
+              disabled={isUploading}
             >
               Cancel
             </Button>
-            <Button type="submit">Add Product</Button>
+            <Button type="submit" disabled={isUploading}>
+              {isUploading ? (
+                <>
+                  <Upload className="w-4 h-4 mr-2 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                "Add Product"
+              )}
+            </Button>
           </div>
         </form>
       </SheetContent>
