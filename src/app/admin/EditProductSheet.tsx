@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Trash2, X, Image as ImageIcon, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Trash2, X, Image as ImageIcon, Loader2, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,6 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 
 import { BaseCategories, BaseCategoriesIds } from "@/data/categories";
@@ -29,8 +28,7 @@ import { DBProduct } from "@/types/product";
 import { DBCustomization } from "@/types/customization";
 import { uploadImageToS3, generateImageKey } from "@/lib/aws-s3";
 import Image from "next/image";
-import { addProduct } from "@/lib/products";
-import { getNewProductDocId } from "@/lib/firebase";
+import { updateProduct } from "@/lib/products";
 import { compressImage } from "@/lib/images";
 
 // Helper function to clean object of undefined/empty values
@@ -77,68 +75,84 @@ interface ImageState {
   file: File | null;
   preview: string;
   uploaded?: boolean;
+  isExisting?: boolean; // Track if this is an existing image URL
 }
 
-const defaultProductData: DBProduct = {
-  id: "",
-  name: "",
-  description: "",
-  images: [],
-  price: 0,
-  categoryId: "keychains",
-  customizationOptions: [],
-};
+interface EditProductSheetProps {
+  product: DBProduct;
+  onProductUpdated: () => void;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}
 
-export function AddProductsSheet() {
-  const [isOpen, setIsOpen] = useState(false);
+export function EditProductSheet({
+  product,
+  onProductUpdated,
+  isOpen,
+  onOpenChange,
+}: EditProductSheetProps) {
   const [isUploading, setIsUploading] = useState(false);
-  const [productData, setProductData] = useState<DBProduct>(defaultProductData);
+  const [productData, setProductData] = useState<DBProduct>(product);
 
   // Separate state for handling file uploads and previews
-  const [imageStates, setImageStates] = useState<ImageState[]>([
-    { file: null, preview: "" },
-  ]);
+  const [imageStates, setImageStates] = useState<ImageState[]>([]);
+
+  // Initialize form data when product changes or component mounts
+  useEffect(() => {
+    setProductData(product);
+
+    // Initialize image states from existing product images
+    const initialImageStates: ImageState[] =
+      product.images.length > 0
+        ? product.images.map((imageUrl) => ({
+            file: null,
+            preview: imageUrl,
+            uploaded: true,
+            isExisting: true,
+          }))
+        : [{ file: null, preview: "", uploaded: false, isExisting: false }];
+
+    setImageStates(initialImageStates);
+  }, [product]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsUploading(true);
 
     try {
-      // Upload images to S3
-      const uploadedImageUrls: string[] = [];
-
-      const productId = await getNewProductDocId();
-      console.log("Product ID:", productId);
+      // Upload new images to S3 and keep existing ones
+      const finalImageUrls: string[] = [];
 
       for (const imageState of imageStates) {
-        if (imageState.file) {
-          const imageKey = generateImageKey(imageState.file.name, productId);
-
+        if (imageState.isExisting && imageState.preview) {
+          // Keep existing image URL
+          finalImageUrls.push(imageState.preview);
+        } else if (imageState.file && !imageState.isExisting) {
+          // Upload new image
+          const imageKey = generateImageKey(imageState.file.name, product.id);
           const compressedImage = await compressImage(imageState.file);
-
           const uploadedUrl = await uploadImageToS3(compressedImage, imageKey);
-          uploadedImageUrls.push(uploadedUrl);
+          finalImageUrls.push(uploadedUrl);
         }
       }
 
-      // Update product data with uploaded image URLs
+      // Update product data with final image URLs
       const finalProductData: DBProduct = {
         ...productData,
-        images: uploadedImageUrls,
+        images: finalImageUrls,
       };
 
+      console.log("Final Product data:", finalProductData);
       const cleanedData: DBProduct = cleanObject(finalProductData) as DBProduct;
       console.log("Clean Product data:", cleanedData);
 
-      await addProduct(productId, cleanedData);
+      await updateProduct(product.id, cleanedData);
 
-      // Reset form
-      setProductData(defaultProductData);
-      setImageStates([{ file: null, preview: "" }]);
-      setIsOpen(false);
+      // Trigger refresh of product list
+      onProductUpdated();
     } catch (error) {
-      console.error("Error saving product:", error);
-      alert("Error saving product. Please try again.");
+      console.error("Error updating product:", error);
+      alert("Error updating product. Please try again.");
     } finally {
       setIsUploading(false);
     }
@@ -157,7 +171,10 @@ export function AddProductsSheet() {
   };
 
   const addImage = () => {
-    setImageStates((prev) => [...prev, { file: null, preview: "" }]);
+    setImageStates((prev) => [
+      ...prev,
+      { file: null, preview: "", uploaded: false, isExisting: false },
+    ]);
   };
 
   const removeImage = (index: number) => {
@@ -181,7 +198,14 @@ export function AddProductsSheet() {
       reader.onload = (e) => {
         setImageStates((prev) =>
           prev.map((state, i) =>
-            i === index ? { file, preview: e.target?.result as string } : state
+            i === index
+              ? {
+                  file,
+                  preview: e.target?.result as string,
+                  uploaded: false,
+                  isExisting: false,
+                }
+              : state
           )
         );
       };
@@ -189,7 +213,14 @@ export function AddProductsSheet() {
     } else {
       setImageStates((prev) =>
         prev.map((state, i) =>
-          i === index ? { file: null, preview: "" } : state
+          i === index
+            ? {
+                file: null,
+                preview: "",
+                uploaded: false,
+                isExisting: false,
+              }
+            : state
         )
       );
     }
@@ -244,18 +275,12 @@ export function AddProductsSheet() {
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
-        <Button>
-          <Plus className="w-4 h-4 mr-1" />
-          Add Product
-        </Button>
-      </SheetTrigger>
+    <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent className="w-[700px] sm:max-w-none overflow-y-auto p-8">
         <SheetHeader className="pb-6">
-          <SheetTitle className="text-2xl">Add New Product</SheetTitle>
+          <SheetTitle className="text-2xl">Edit Product</SheetTitle>
           <SheetDescription className="text-base">
-            Create a new product with customization options
+            Update product information and customization options
           </SheetDescription>
         </SheetHeader>
 
@@ -311,7 +336,7 @@ export function AddProductsSheet() {
               <Textarea
                 placeholder="Enter product description"
                 className="min-h-24"
-                value={productData.description}
+                value={productData.description || ""}
                 onChange={(e) =>
                   setProductData((prev) => ({
                     ...prev,
@@ -328,7 +353,7 @@ export function AddProductsSheet() {
               <Input
                 type="number"
                 placeholder="0.00"
-                value={productData.price}
+                value={productData.price || 0}
                 onChange={(e) =>
                   setProductData((prev) => ({
                     ...prev,
@@ -350,7 +375,7 @@ export function AddProductsSheet() {
                 size="sm"
                 onClick={addImage}
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <ImageIcon className="w-4 h-4 mr-2" />
                 Add Image
               </Button>
             </div>
@@ -391,6 +416,11 @@ export function AddProductsSheet() {
                     <div className="flex-1 space-y-2">
                       <label className="text-sm font-medium">
                         Image {index + 1}
+                        {imageState.isExisting && (
+                          <span className="text-xs text-muted-foreground ml-2">
+                            (Existing)
+                          </span>
+                        )}
                       </label>
                       <div className="flex gap-2">
                         <Input
@@ -654,7 +684,7 @@ export function AddProductsSheet() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => setIsOpen(false)}
+              onClick={() => onOpenChange(false)}
               disabled={isUploading}
             >
               Cancel
@@ -663,10 +693,10 @@ export function AddProductsSheet() {
               {isUploading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Uploading...
+                  Updating...
                 </>
               ) : (
-                "Add Product"
+                "Update Product"
               )}
             </Button>
           </div>

@@ -6,8 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useIsMobile from "@/hooks/useIsMobile";
 import { hash } from "@/utils/misc";
 import { useEffect, useLayoutEffect, useState } from "react";
-import { AddProductsSheet } from "./AddProductsSheet";
 import { signInWithEmailAndPasswordAuth } from "@/lib/firebase-auth";
+import { ProductsManagement } from "./ProductsManagement";
 
 export default function ProtectedAdminPage() {
   const isMobile = useIsMobile();
@@ -19,8 +19,10 @@ export default function ProtectedAdminPage() {
 
   useLayoutEffect(() => {
     const storedHash = localStorage.getItem("ADMIN_PASSWORD_HASH");
-    if (storedHash) checkAdmin(storedHash);
-    setIsLoading(false);
+    (async () => {
+      if (storedHash) await checkAdmin(storedHash);
+      setIsLoading(false);
+    })();
   }, []);
 
   useEffect(() => {
@@ -66,16 +68,7 @@ export default function ProtectedAdminPage() {
 
         <TabsContent value="products" className="space-y-4">
           <div className="flex flex-col gap-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Products</h2>
-              <AddProductsSheet />
-            </div>
-            <div className="border rounded-lg p-6 text-center text-muted-foreground">
-              <p>Product list will be displayed here</p>
-              <p className="text-sm mt-2">
-                Connect your product database to view and manage products
-              </p>
-            </div>
+            <ProductsManagement />
           </div>
         </TabsContent>
 
