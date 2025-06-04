@@ -1,4 +1,4 @@
-import { Customization } from "@/types/customization";
+import { Customization, FilamentColor } from "@/types/customization";
 
 export const BaseCustomizations: Record<string, Customization> = {
   "keychain-color-1": {
@@ -36,23 +36,26 @@ export const BaseCustomizations: Record<string, Customization> = {
   },
 };
 
-export const FilamentColors = [
+export const FilamentColors: FilamentColor[] = [
   {
-    id: "candy-red",
-    label: "Red",
+    id: "candy-red-pla",
+    label: "Red PLA",
     value: "#FF0000",
     available: true,
+    priceAdd: 0,
   },
   {
-    id: "midnight-black",
-    label: "Black",
+    id: "midnight-black-pla",
+    label: "Black PLA",
     value: "#000000",
     available: true,
+    priceAdd: 0,
   },
   {
-    id: "natural-white",
-    label: "White",
+    id: "natural-white-pla",
+    label: "White PLA",
     value: "#FFFFFF",
     available: true,
+    priceAdd: 0,
   },
 ];

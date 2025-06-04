@@ -36,3 +36,11 @@ export type ImageCustomization = BaseCustomization & {
 export type FixedColorPickerCustomization = BaseCustomization & {
   type: "fixed-color-picker";
 };
+
+export type FilamentColor = {
+  id: string;
+  label: string;
+  value: string;
+  available: boolean;
+  priceAdd: number;
+};
