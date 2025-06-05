@@ -1,3 +1,4 @@
+import { Collections } from "@/constants/Collections";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { nanoid } from "nanoid";
 
@@ -35,5 +36,5 @@ export async function uploadImageToS3(file: File, key: string): Promise<string> 
 export function generateImageKey(fileName: string, docId: string): string {
   const extension = fileName.split('.').pop() || '';
   const imageId = nanoid(12);
-  return `products/${docId}/${imageId}.${extension}`;
-} 
+  return `${Collections.Products}/${docId}/${imageId}.${extension}`;
+}
