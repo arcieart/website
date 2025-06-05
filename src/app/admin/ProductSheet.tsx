@@ -31,6 +31,7 @@ import { addProduct } from "@/lib/products";
 import { getNewProductDocId } from "@/lib/firebase";
 import { compressImage } from "@/lib/images";
 import { DBCustomization } from "@/types/customization";
+import { getTimestamp } from "@/utils/misc";
 
 // Helper function to clean object of undefined/empty values
 const cleanObject = (obj: unknown): unknown => {
@@ -84,7 +85,7 @@ const defaultProductData = {
   customizationOptions: [] as DBCustomization[],
   available: true,
   isBestSeller: false,
-  createdAt: new Date(),
+  createdAt: getTimestamp(),
 };
 
 interface ProductSheetProps {
@@ -135,7 +136,7 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
       const finalProductData: DBProduct = {
         ...productData,
         images: finalImageUrls,
-        createdAt: new Date(),
+        createdAt: getTimestamp(),
       };
 
       const cleanedData: DBProduct = cleanObject(finalProductData) as DBProduct;
@@ -212,12 +213,7 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
     } else {
       setImageStates((prev) =>
         prev.map((state, i) =>
-          i === index
-            ? {
-                file: null,
-                preview: "",
-              }
-            : state
+          i === index ? { file: null, preview: "" } : state
         )
       );
     }

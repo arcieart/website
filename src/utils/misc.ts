@@ -37,3 +37,7 @@ export function invertColor(hex: string) {
   const L = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
   return L <= 0.179 ? "#ffffff" : "#000000";
 }
+
+export const getTimestamp = (): number => {
+  return Math.floor(Date.now() / 1000);
+};

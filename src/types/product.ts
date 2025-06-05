@@ -8,7 +8,7 @@ export type BaseProduct = {
   categoryId: BaseCategoriesIds;
   available: boolean;
   isBestSeller: boolean;
-  createdAt: Date;
+  createdAt: number;
   description?: string;
 };
 
