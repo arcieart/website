@@ -1,4 +1,4 @@
-import { BaseCategoriesIds } from "@/data/categories";
+import { BaseCategoriesIds, Category } from "@/data/categories";
 import { Customization, DBCustomization } from "./customization";
 
 export type BaseProduct = {
@@ -6,18 +6,19 @@ export type BaseProduct = {
   name: string;
   images: string[];
   categoryId: BaseCategoriesIds;
+  available: boolean;
+  isBestSeller: boolean;
+  createdAt: Date;
+  description?: string;
 };
 
 export type DBProduct = BaseProduct & {
   price?: number;
-  description?: string;
   customizationOptions: DBCustomization[];
 };
 
-export type UIProduct = BaseProduct & {
-  baseDescription: string;
+export type UIProduct = BaseProduct & Category & {
   price: number;
   customizationOptions: Customization[];
-  description?: string;
 };
 

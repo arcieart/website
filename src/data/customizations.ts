@@ -4,7 +4,7 @@ export const BaseCustomizations: Record<string, Customization> = {
   "keychain-color-1": {
     id: "keychain-color-1",
     categoryId: "keychains",
-    label: "Select Text Color",
+    label: "Select Primary Color",
     type: "fixed-color-picker",
     required: true,
     priceAdd: 0,
@@ -38,21 +38,21 @@ export const BaseCustomizations: Record<string, Customization> = {
 
 export const FilamentColors: FilamentColor[] = [
   {
-    id: "candy-red-pla",
+    id: "pla-candy-red",
     label: "Red PLA",
     value: "#FF0000",
     available: true,
     priceAdd: 0,
   },
   {
-    id: "midnight-black-pla",
+    id: "pla-midnight-black",
     label: "Black PLA",
     value: "#000000",
     available: true,
     priceAdd: 0,
   },
   {
-    id: "natural-white-pla",
+    id: "pla-natural-white",
     label: "White PLA",
     value: "#FFFFFF",
     available: true,

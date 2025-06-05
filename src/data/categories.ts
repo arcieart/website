@@ -1,7 +1,7 @@
-type Category = {
+export type Category = {
   id: string;
   name: string;
-  description: string;
+  baseDescription: string;
   images: string[];
   price: number;
 };
@@ -10,7 +10,7 @@ export const BaseCategories: Category[] = [
   {
     id: "keychains",
     name: "Keychains",
-    description:
+    baseDescription:
       "Keychains are a great way to show off your personality and style. They are small, portable, and can be customized to your liking.",
     images: [],
     price: 150,
@@ -18,7 +18,7 @@ export const BaseCategories: Category[] = [
   {
     id: "earrings",
     name: "Earrings",
-    description:
+    baseDescription:
       "Earrings are a great way to show off your personality and style. They are small, portable, and can be customized to your liking.",
     images: [],
     price: 150,
@@ -26,7 +26,7 @@ export const BaseCategories: Category[] = [
   {
     id: "lithophanes",
     name: "Lithophanes",
-    description:
+    baseDescription:
       "Lithophanes are a great way to show off your personality and style. They are small, portable, and can be customized to your liking.",
     images: [],
     price: 150,
@@ -34,7 +34,7 @@ export const BaseCategories: Category[] = [
   {
     id: "coasters",
     name: "Coasters",
-    description:
+    baseDescription:
       "Coasters are a great way to show off your personality and style. They are small, portable, and can be customized to your liking.",
     images: [],
     price: 150,

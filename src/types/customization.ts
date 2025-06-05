@@ -26,6 +26,11 @@ export type CheckboxCustomization = BaseCustomization & {
   type: "checkbox";
 };
 
+export type SelectCustomization = BaseCustomization & {
+  type: "select";
+  options: { id: string; label: string; }[];
+};
+
 export type ImageCustomization = BaseCustomization & {
   type: "image";
   maxImages: number;
