@@ -183,7 +183,7 @@ export const ProductsManagement = () => {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12">
+                <TableCell colSpan={7} className="text-center py-12">
                   <div className="flex items-center justify-center">
                     <Loader2 className="h-6 w-6 animate-spin mr-2" />
                     Loading products...
@@ -192,7 +192,7 @@ export const ProductsManagement = () => {
               </TableRow>
             ) : products.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12">
+                <TableCell colSpan={7} className="text-center py-12">
                   <div className="text-muted-foreground">
                     {categoryFilter === "all"
                       ? "No products found. Add your first product to get started."
@@ -249,7 +249,7 @@ export const ProductsManagement = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-destructive hover:text-destructive"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 hover:border-destructive/20"
                         onClick={() =>
                           handleDeleteProduct(product.id, product.name)
                         }

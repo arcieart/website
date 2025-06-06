@@ -361,8 +361,8 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
                         </Button>
                       </div>
                     ) : (
-                      <div className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center">
-                        <ImageIcon className="w-8 h-8 text-gray-400" />
+                      <div className="w-20 h-20 border-2 border-dashed border-border rounded-md flex items-center justify-center">
+                        <ImageIcon className="w-8 h-8 text-muted-foreground" />
                       </div>
                     )}
                   </div>
