@@ -17,6 +17,7 @@ import { useCartStore } from "@/stores/cart";
 import { useFavoritesStore } from "@/stores/favorites";
 import { BaseCategories } from "@/data/categories";
 import Image from "next/image";
+import { FullLogo } from "../logos/FullLogo";
 
 const navigation = [
   { name: "Products", href: "/products" },
@@ -33,13 +34,7 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <Image
-                src="/full-logo.svg"
-                alt="arcie.art logo"
-                width={100}
-                height={100}
-                className="w-24"
-              />
+              <FullLogo />
             </Link>
 
             {/* Desktop Navigation */}
@@ -56,27 +51,22 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center space-x-2">
-            {/* Cart */}
+          <div className="flex items-center">
             <Link href="/cart">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                className="relative group border-gray-200 hover:border-gray-300 hover:bg-gray-50/50 transition-all duration-200"
+                className="relative group text-foreground hover:bg-muted transition-colors"
               >
                 <div className="relative">
-                  <ShoppingCart className="w-4 h-4 text-gray-600 group-hover:text-gray-800 transition-colors" />
+                  <ShoppingCart className="w-4 h-4" />
                   {totalItems > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="absolute -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 text-[10px] font-semibold border-2 border-white"
-                    >
+                    <Badge className="absolute -top-2 -right-3 min-h-4 min-w-4 flex items-center justify-center py-0 px-1 text-[10px] font-semibold border-2 border-background bg-destructive text-white">
                       {totalItems > 99 ? "99+" : totalItems}
                     </Badge>
                   )}
                 </div>
-                <span className="hidden sm:inline ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">
+                <span className="hidden sm:inline ml-2 text-sm font-medium">
                   Cart
                 </span>
               </Button>
@@ -85,25 +75,29 @@ export function Navbar() {
             {/* Favorites */}
             <Link href="/favorites">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                className="relative group border-gray-200 hover:border-pink-200 hover:bg-pink-50/30 transition-all duration-200"
+                className={`relative group transition-colors hover:bg-muted`}
               >
-                <div className="relative">
+                <div
+                  className={`relative ${
+                    favoriteItems.length > 0
+                      ? "text-destructive hover:text-destructive"
+                      : "text-foreground hover:text-destructive"
+                  }`}
+                >
                   <Heart
-                    className={`w-4 h-4 transition-all duration-200 ${
-                      favoriteItems.length > 0
-                        ? "text-pink-500 fill-pink-500 group-hover:text-pink-600 group-hover:fill-pink-600"
-                        : "text-gray-600 group-hover:text-pink-500"
+                    className={`w-4 h-4 transition-all ${
+                      favoriteItems.length > 0 ? "fill-current" : ""
                     }`}
                   />
                   {favoriteItems.length > 0 && (
-                    <Badge className="absolute -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 text-[10px] font-semibold border-2 border-white bg-pink-500 hover:bg-pink-600 text-white">
+                    <Badge className="absolute -top-2 -right-2 min-h-4 min-w-4 flex items-center justify-center py-0 px-1 text-[10px] font-semibold border-2 border-background bg-destructive text-white">
                       {favoriteItems.length > 99 ? "99+" : favoriteItems.length}
                     </Badge>
                   )}
                 </div>
-                <span className="hidden sm:inline ml-2 text-sm font-medium text-gray-700 group-hover:text-pink-600 transition-colors">
+                <span className="hidden sm:inline ml-1 text-sm font-medium">
                   Favorites
                 </span>
               </Button>

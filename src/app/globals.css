@@ -3,9 +3,17 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@layer base {
+  button:not([disabled]),
+  [role="button"]:not([disabled]) {
+    cursor: pointer;
+  }
+}
+
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-poppins);
+  --font-mono: var(--font-poppins);
+  --font-caveat: var(--font-caveat);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -46,6 +54,8 @@
   --color-background: var(--background);
   --color-card: var(--card);
   --color-border: var(--border);
+  --color-pink: var(--pink);
+  --color-pink-foreground: var(--pink-foreground);
 }
 
 :root {
@@ -61,6 +71,9 @@
   --border: #e0e0e0;
   --positive: #4caf50;
   --destructive: #f44336;
+  --pink: #ec4899;
+  --pink-foreground: #ffffff;
+  --muted: #f0f0f0;
 
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -68,7 +81,6 @@
   --primary-foreground: oklch(0.985 0 0);
   --secondary: #f0f0f0;
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: #f0f0f0;
   --accent: #f0f0f0;
   --accent-foreground: oklch(0.205 0 0);
   --input: oklch(0.922 0 0);
@@ -99,6 +111,9 @@
   --border: #333333;
   --positive: #66bb6a;
   --destructive: #ef5350;
+  --pink: #f472b6;
+  --pink-foreground: #ffffff;
+  --muted: #1a1a1a;
 
   --accent: oklch(0.269 0 0);
   --card-foreground: oklch(0.985 0 0);
@@ -107,7 +122,6 @@
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);

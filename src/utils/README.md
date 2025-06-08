@@ -93,23 +93,6 @@ getCurrencySymbol("USD"); // "$"
 getCurrencySymbol("EUR"); // "€"
 ```
 
-### `convertPrice(price, fromCurrency, toCurrency)`
-
-Converts price between currencies (mock implementation).
-
-**Parameters:**
-
-- `price: number` - The price to convert
-- `fromCurrency: Currency` - Source currency
-- `toCurrency: Currency` - Target currency
-
-**Examples:**
-
-```typescript
-convertPrice(100, "USD", "INR"); // ~8300 (mock rate)
-convertPrice(1000, "INR", "USD"); // ~12 (mock rate)
-```
-
 ## Supported Currencies
 
 | Currency      | Code | Symbol |
