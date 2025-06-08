@@ -16,6 +16,8 @@ import { useFavoritesStore } from "@/stores/favorites";
 import { BaseCategories } from "@/data/categories";
 import { FullLogo } from "../logos/FullLogo";
 import CartSheet from "./CartSheet";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { isProduction } from "@/utils/misc";
 
 const navigation = [
   { name: "Products", href: "/products" },
@@ -49,7 +51,8 @@ export function Navbar() {
             </div>
           </div>
 
-          <div className="flex items-center">
+          <div className="flex items-center gap-1">
+            {!isProduction && <ThemeToggle />}
             <Link href="/favorites">
               <Button
                 variant="ghost"
