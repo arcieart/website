@@ -37,6 +37,7 @@ import { Loader2, RefreshCw, AlertCircle, Trash2, Pencil } from "lucide-react";
 import Image from "next/image";
 import { deleteProduct } from "@/lib/products";
 import { DBProduct } from "@/types/product";
+import { formatPrice } from "@/utils/price";
 
 export const ProductsManagement = () => {
   const [categoryFilter, setCategoryFilter] = useState<
@@ -59,9 +60,9 @@ export const ProductsManagement = () => {
     refetch,
   } = useProductsAdmin({ pageSize, categoryFilter });
 
-  const formatPrice = (price?: number) => {
+  const formatPriceAdmin = (price?: number) => {
     if (typeof price !== "number") return "N/A";
-    return `₹${price.toFixed(2)}`;
+    return formatPrice(price);
   };
 
   const getCategoryName = (categoryId: BaseCategoriesIds) => {
@@ -231,7 +232,7 @@ export const ProductsManagement = () => {
                       {getCategoryName(product.categoryId)}
                     </span>
                   </TableCell>
-                  <TableCell>{formatPrice(product.price)}</TableCell>
+                  <TableCell>{formatPriceAdmin(product.price)}</TableCell>
                   <TableCell className="max-w-xs">
                     <div className="truncate text-sm text-muted-foreground">
                       {product.description || "No description"}

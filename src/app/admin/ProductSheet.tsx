@@ -32,6 +32,7 @@ import { getNewProductDocId } from "@/lib/firebase";
 import { compressImage } from "@/lib/images";
 import { DBCustomization } from "@/types/customization";
 import { getTimestamp } from "@/utils/misc";
+import { getCurrencySymbol } from "@/utils/price";
 
 // Helper function to clean object of undefined/empty values
 const cleanObject = (obj: unknown): unknown => {
@@ -303,7 +304,7 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
 
           <div className="space-y-2">
             <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              Price (₹)
+              Price ({getCurrencySymbol()})
             </label>
             <Input
               type="number"
@@ -489,7 +490,7 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
                           Base values:{" "}
                           {BaseCustomizations[option.customizationRefId].label}{" "}
                           •{BaseCustomizations[option.customizationRefId].type}{" "}
-                          • ₹
+                          • {getCurrencySymbol()}
                           {
                             BaseCustomizations[option.customizationRefId]
                               .priceAdd
