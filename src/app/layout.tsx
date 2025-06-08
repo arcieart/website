@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${poppins.className} ${caveat.variable} antialiased min-h-screen flex flex-col`}
+        className={`${poppins.className} ${caveat.variable} antialiased min-h-screen text-foreground bg-background flex flex-col`}
       >
         <PostHogProvider>
           <ThemeProvider

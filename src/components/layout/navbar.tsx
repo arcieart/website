@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, Heart, Menu, X } from "lucide-react";
+import { ShoppingCart, Heart, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -43,7 +43,7 @@ export function Navbar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="text-sm font-medium transition-colors hover:text-primary"
+                  className="text-sm font-medium transition-colors hover:text-primary text-foreground"
                 >
                   {item.name}
                 </Link>
@@ -77,7 +77,7 @@ export function Navbar() {
                     </Badge>
                   )}
                 </div>
-                <span className="hidden sm:inline ml-1 text-sm font-medium">
+                <span className="hidden sm:inline ml-1 text-sm font-medium text-foreground">
                   Favorites
                 </span>
               </Button>

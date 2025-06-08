@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Instagram, Mail, Phone, MapPin } from "lucide-react";
 import { BaseCategories } from "@/data/categories";
-import Image from "next/image";
 import { FullLogo } from "../logos/FullLogo";
 
 const socialLinks = [

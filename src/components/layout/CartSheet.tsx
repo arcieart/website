@@ -12,11 +12,13 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
+import { ShoppingCart, Trash2 } from "lucide-react";
 import Image from "next/image";
 import CouponBanner from "@/components/banners/CouponBanner";
 import { formatPriceLocalized } from "@/utils/price";
 import { QuantityStepper } from "../misc/QuantityStepper";
+import { Badge } from "@/components/ui/badge";
+import { BaseCustomizations } from "@/data/customizations";
 
 interface CartSheetProps {
   children: React.ReactNode;
@@ -26,24 +28,31 @@ export default function CartSheet({ children }: CartSheetProps) {
   const { items, totalItems, totalPrice, updateQuantity, removeItem } =
     useCartStore();
 
-  const getCustomizationText = (customizations: Record<string, any>) => {
+  const getCustomizationItems = (customizations: Record<string, any>) => {
     return Object.entries(customizations)
       .filter(([_, value]) => value && value !== "")
       .map(([key, value]) => {
-        if (typeof value === "object" && value.name) {
-          return `${key}: ${value.name}`;
+        let displayValue;
+        if (typeof value === "object" && value !== null) {
+          // Handle different object structures
+          displayValue =
+            value.label || value.name || value.value || JSON.stringify(value);
+        } else {
+          displayValue = value;
         }
-        return `${key}: ${value}`;
-      })
-      .join(", ");
+        return {
+          key: key.charAt(0).toUpperCase() + key.slice(1),
+          value: displayValue,
+        };
+      });
   };
 
   return (
     <Sheet>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="w-[85%] sm:max-w-lg">
-        <SheetHeader className="space-y-6 px-2 pb-0">
-          <div className="flex items-center justify-center gap-3">
+      <SheetContent className="w-[85%] sm:max-w-sm">
+        <SheetHeader className="space-y-6 px-2 pb-0 pt-3">
+          <div className="flex items-center justify-center">
             <SheetTitle className="text-foreground">Shopping Cart</SheetTitle>
           </div>
           <CouponBanner />
@@ -91,10 +100,32 @@ export default function CartSheet({ children }: CartSheetProps) {
                       <h4 className="font-medium text-foreground leading-none">
                         {item.product.name}
                       </h4>
-                      {getCustomizationText(item.customizations) && (
-                        <p className="text-xs text-muted-foreground">
-                          {getCustomizationText(item.customizations)}
-                        </p>
+                      {getCustomizationItems(item.customizations).length >
+                        0 && (
+                        <div className="space-y-1">
+                          <div className="flex flex-wrap gap-1">
+                            {getCustomizationItems(item.customizations).map(
+                              (customization, index) => (
+                                <Badge
+                                  key={index}
+                                  variant="secondary"
+                                  className="text-xs px-2 py-0.5 h-auto"
+                                >
+                                  <span className="font-medium">
+                                    {
+                                      BaseCustomizations[customization.key]
+                                        .label
+                                    }
+                                    :
+                                  </span>
+                                  <span className="ml-1">
+                                    {customization.value}
+                                  </span>
+                                </Badge>
+                              )
+                            )}
+                          </div>
+                        </div>
                       )}
                       <div className="flex items-center justify-between pt-1">
                         <span className="text-sm font-semibold text-foreground">

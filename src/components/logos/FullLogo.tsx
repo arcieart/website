@@ -12,19 +12,17 @@ export const FullLogo = () => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted) return null;
+  if (!isMounted) return <div className="w-24" />;
 
   const isLight = resolvedTheme === "light";
 
   return (
-    <div>
-      <Image
-        src={isLight ? "/full-logo-dark.svg" : "/full-logo-light.svg"}
-        alt="Arcie Art"
-        width={100}
-        height={100}
-        className="w-24"
-      />
-    </div>
+    <Image
+      src={isLight ? "/full-logo-dark.svg" : "/full-logo-light.svg"}
+      alt="Arcie Art"
+      width={100}
+      height={100}
+      className="w-24"
+    />
   );
 };

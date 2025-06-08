@@ -37,7 +37,6 @@ export function formatPrice(
 ): string {
   const {
     currency = getDefaultCurrency(), // Use configured default currency
-    locale,
     showSymbol = true,
     decimalPlaces = 2,
   } = options;

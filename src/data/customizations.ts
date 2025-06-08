@@ -1,24 +1,24 @@
 import { Customization, FilamentColor } from "@/types/customization";
 
 export const BaseCustomizations: Record<string, Customization> = {
-  "keychain-color-1": {
-    id: "keychain-color-1",
+  "keychain-primary-color": {
+    id: "keychain-primary-color",
     categoryId: "keychains",
-    label: "Select Primary Color",
+    label: "Primary Color",
     type: "fixed-color-picker",
     required: true,
     priceAdd: 0,
   },
-  "keychain-color-2": {
-    id: "keychain-color-2",
+  "keychain-secondary-color": {
+    id: "keychain-secondary-color",
     categoryId: "keychains",
-    label: "Select Background Color",
+    label: "Background Color",
     type: "fixed-color-picker",
     required: true,
     priceAdd: 0,
   },
-  "keychain-text-1": {
-    id: "keychain-text-1",
+  "keychain-text": {
+    id: "keychain-text",
     categoryId: "keychains",
     label: "Enter Text You Want on the Keychain",
     placeholder: "Arsiwala",
@@ -26,10 +26,10 @@ export const BaseCustomizations: Record<string, Customization> = {
     required: true,
     priceAdd: 0,
   },
-  "earrings-color-1": {
-    id: "earrings-color-1",
+  "earrings-primary-color": {
+    id: "earrings-primary-color",
     categoryId: "earrings",
-    label: "Select Color",
+    label: "Primary Color",
     type: "fixed-color-picker",
     required: true,
     priceAdd: 0,
