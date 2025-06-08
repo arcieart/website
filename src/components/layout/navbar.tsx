@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { ShoppingCart, Heart, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,14 +9,13 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { useCartStore } from "@/stores/cart";
 import { useFavoritesStore } from "@/stores/favorites";
 import { BaseCategories } from "@/data/categories";
-import Image from "next/image";
 import { FullLogo } from "../logos/FullLogo";
+import CartSheet from "./CartSheet";
 
 const navigation = [
   { name: "Products", href: "/products" },
@@ -52,27 +50,6 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center">
-            <Link href="/cart">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="relative group text-foreground hover:bg-muted transition-colors"
-              >
-                <div className="relative">
-                  <ShoppingCart className="w-4 h-4" />
-                  {totalItems > 0 && (
-                    <Badge className="absolute -top-2 -right-3 min-h-4 min-w-4 flex items-center justify-center py-0 px-1 text-[10px] font-semibold border-2 border-background bg-destructive text-white">
-                      {totalItems > 99 ? "99+" : totalItems}
-                    </Badge>
-                  )}
-                </div>
-                <span className="hidden sm:inline ml-2 text-sm font-medium">
-                  Cart
-                </span>
-              </Button>
-            </Link>
-
-            {/* Favorites */}
             <Link href="/favorites">
               <Button
                 variant="ghost"
@@ -102,6 +79,26 @@ export function Navbar() {
                 </span>
               </Button>
             </Link>
+
+            <CartSheet>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative group text-foreground hover:bg-muted transition-colors"
+              >
+                <div className="relative">
+                  <ShoppingCart className="w-4 h-4" />
+                  {totalItems > 0 && (
+                    <Badge className="absolute -top-2 -right-3 min-h-4 min-w-4 flex items-center justify-center py-0 px-1 text-[10px] font-semibold border-2 border-background bg-destructive text-white">
+                      {totalItems > 99 ? "99+" : totalItems}
+                    </Badge>
+                  )}
+                </div>
+                <span className="hidden sm:inline ml-2 text-sm font-medium">
+                  Cart
+                </span>
+              </Button>
+            </CartSheet>
 
             {/* Mobile Menu Dropdown */}
             <div className="md:hidden">
