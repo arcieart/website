@@ -34,6 +34,14 @@ export const BaseCustomizations: Record<string, Customization> = {
     required: true,
     priceAdd: 0,
   },
+  "earrings-background-color": {
+    id: "earrings-background-color",
+    categoryId: "earrings",
+    label: "Background Color",
+    type: "fixed-color-picker",
+    required: true,
+    priceAdd: 0,
+  },
 };
 
 export const FilamentColors: FilamentColor[] = [

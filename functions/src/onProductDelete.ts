@@ -14,7 +14,7 @@ export const onProductDeletedFunction = async (event: Event) => {
   const product = event.data?.data();
   console.log(`starting to remove product ${productId} images`);
 
-  if (product) {
+  if (product && product.images) {
     // delete all images from S3
     const images = product.images;
     for (const image of images) {

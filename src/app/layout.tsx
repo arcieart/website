@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 import { Poppins, Caveat } from "next/font/google";
 
 import { PostHogProvider } from "@/providers/posthog";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/providers/theme";
+import { TanstackProvider } from "@/providers/tanstack";
+import { ConditionalLayout } from "@/components/layout/conditional-layout";
 
 const caveat = Caveat({
   variable: "--font-caveat",
@@ -36,17 +36,17 @@ export default function RootLayout({
         className={`${poppins.className} ${caveat.variable} antialiased min-h-screen text-foreground bg-background flex flex-col`}
       >
         <PostHogProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <Toaster />
-          </ThemeProvider>
+          <TanstackProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <ConditionalLayout>{children}</ConditionalLayout>
+              <Toaster richColors position="top-right" />
+            </ThemeProvider>
+          </TanstackProvider>
         </PostHogProvider>
       </body>
     </html>
