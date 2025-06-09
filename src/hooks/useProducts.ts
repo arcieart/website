@@ -8,7 +8,8 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Collections } from "@/constants/Collections";
-import { DBProduct } from "@/types/product";
+import { DBProduct, UIProduct } from "@/types/product";
+import { BaseCategoriesObj } from "@/data/categories";
 
 export const useProducts = () => {
   // First, get the count of products to use as a cache key
@@ -39,9 +40,12 @@ export const useProducts = () => {
       );
       const snapshot = await getDocs(availableProductsQuery);
 
-      const products: DBProduct[] = [];
+      const products: UIProduct[] = [];
       snapshot.forEach((doc) => {
-        products.push({ id: doc.id, ...doc.data() } as DBProduct);
+        const dbProduct = { id: doc.id, ...doc.data() } as DBProduct;
+        const { id, ...restBaseCategory } = BaseCategoriesObj[dbProduct.categoryId];
+        const product: UIProduct = { ...restBaseCategory, ...dbProduct };
+        products.push(product);
       });
 
       return products;
@@ -51,7 +55,7 @@ export const useProducts = () => {
   });
 
   return {
-    data: data || [],
+    products: data || [],
     isLoading: isLoading || productCount === undefined,
     error,
     productCount,

@@ -1,5 +1,5 @@
 import { BaseCategoriesIds, Category } from "@/data/categories";
-import { Customization, DBCustomization } from "./customization";
+import { DBCustomization } from "./customization";
 
 export type BaseProduct = {
   id: string;
@@ -10,15 +10,14 @@ export type BaseProduct = {
   isBestSeller: boolean;
   createdAt: number;
   description?: string;
+  customizationOptions: DBCustomization[];
 };
 
 export type DBProduct = BaseProduct & {
   price?: number;
-  customizationOptions: DBCustomization[];
 };
 
 export type UIProduct = BaseProduct & Category & {
   price: number;
-  customizationOptions: Customization[];
 };
 

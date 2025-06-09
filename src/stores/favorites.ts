@@ -1,13 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { shared } from "use-broadcast-ts";
-import { UIProduct } from "@/types/product";
 
 export type FavoritesStore = {
-  items: UIProduct[];
-  addItem: (product: UIProduct) => void;
+  items: string[];
+  addItem: (productId: string) => void;
   removeItem: (productId: string) => void;
-  toggleItem: (product: UIProduct) => void;
+  toggleItem: (productId: string) => void;
   isInFavorites: (productId: string) => boolean;
   clearFavorites: () => void;
 };
@@ -18,33 +17,31 @@ export const useFavoritesStore = create<FavoritesStore>()(
       (set, get) => ({
         items: [],
 
-        addItem: (product: UIProduct) => {
+        addItem: (productId: string) => {
           const state = get();
-          if (!state.items.find((item) => item.id === product.id)) {
+          if (!state.items.includes(productId)) {
             set({
-              items: [...state.items, product],
+              items: [...state.items, productId],
             });
           }
         },
 
         removeItem: (productId: string) => {
           set({
-            items: get().items.filter((item) => item.id !== productId),
+            items: get().items.filter((id) => id !== productId),
           });
         },
 
-        toggleItem: (product: UIProduct) => {
+        toggleItem: (productId: string) => {
           const state = get();
-          const existingItem = state.items.find(
-            (item) => item.id === product.id
-          );
+          const isInFavorites = state.items.includes(productId);
 
-          if (existingItem) state.removeItem(product.id);
-          else state.addItem(product);
+          if (isInFavorites) state.removeItem(productId);
+          else state.addItem(productId);
         },
 
         isInFavorites: (productId: string) => {
-          return get().items.some((item) => item.id === productId);
+          return get().items.includes(productId);
         },
 
         clearFavorites: () => {

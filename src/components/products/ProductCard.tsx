@@ -41,7 +41,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    toggleItem(product);
+    toggleItem(product.id);
     toast.success(
       isInWishlist
         ? `${product.name} removed from favorites!`

@@ -5,9 +5,16 @@ import { Heart, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFavoritesStore } from "@/stores/favorites";
 import { ProductCard } from "@/components/products/ProductCard";
+import { useProducts } from "@/hooks/useProducts";
 
 export default function FavoritesPage() {
   const { items, clearFavorites } = useFavoritesStore();
+  const { products, isLoading } = useProducts();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  console.log(products);
 
   if (items.length === 0) {
     return (
@@ -58,8 +65,11 @@ export default function FavoritesPage() {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {items.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {items.map((productId) => (
+            <ProductCard
+              key={productId}
+              product={products.find((p) => p.id === productId)!}
+            />
           ))}
         </div>
 

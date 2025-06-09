@@ -26,7 +26,7 @@ const navigation = [
 
 export function Navbar() {
   const totalItems = useCartStore((state) => state.totalItems);
-  const favoriteItems = useFavoritesStore((state) => state.items);
+  const favoriteItemIds = useFavoritesStore((state) => state.items);
 
   return (
     <nav className="bg-background border-b sticky top-0 z-50">
@@ -61,19 +61,21 @@ export function Navbar() {
               >
                 <div
                   className={`relative ${
-                    favoriteItems.length > 0
+                    favoriteItemIds.length > 0
                       ? "text-destructive hover:text-destructive"
                       : "text-foreground hover:text-destructive"
                   }`}
                 >
                   <Heart
                     className={`w-4 h-4 transition-all ${
-                      favoriteItems.length > 0 ? "fill-current" : ""
+                      favoriteItemIds.length > 0 ? "fill-current" : ""
                     }`}
                   />
-                  {favoriteItems.length > 0 && (
+                  {favoriteItemIds.length > 0 && (
                     <Badge className="absolute -top-2 -right-2 min-h-4 min-w-4 flex items-center justify-center py-0 px-1 text-[10px] font-semibold border-2 border-background bg-destructive text-white">
-                      {favoriteItems.length > 99 ? "99+" : favoriteItems.length}
+                      {favoriteItemIds.length > 99
+                        ? "99+"
+                        : favoriteItemIds.length}
                     </Badge>
                   )}
                 </div>
