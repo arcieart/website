@@ -112,11 +112,7 @@ export default function CartSheet({ children }: CartSheetProps) {
                                   className="text-xs px-2 py-0.5 h-auto"
                                 >
                                   <span className="font-medium">
-                                    {
-                                      BaseCustomizations[customization.key]
-                                        .label
-                                    }
-                                    :
+                                    {customization.key}:
                                   </span>
                                   <span className="ml-1">
                                     {customization.value}

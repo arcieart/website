@@ -1,10 +1,6 @@
 import { BaseCategoriesIds } from "@/data/categories";
 
-export type Customization = InputCustomization | CheckboxCustomization | ImageCustomization | FixedColorPickerCustomization;
-
-export type DBCustomization = {
-  customizationRefId: string;
-}
+export type Customization =SelectCustomization | InputCustomization | CheckboxCustomization | ImageCustomization | FixedColorPickerCustomization;
 
 export type BaseCustomization = {
   id: string;
@@ -13,6 +9,10 @@ export type BaseCustomization = {
   priceAdd: number;
   categoryId: BaseCategoriesIds;
 };
+
+export type DBCustomization = Partial<BaseCustomization> & {
+  customizationRefId: string;
+}
 
 
 export type InputCustomization = BaseCustomization & {

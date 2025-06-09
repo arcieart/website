@@ -1,5 +1,14 @@
 import { useState, useEffect } from "react";
-import { collection, query, orderBy, limit, startAfter, where, getDocs, DocumentSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  orderBy,
+  limit,
+  startAfter,
+  where,
+  getDocs,
+  DocumentSnapshot,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Collections } from "@/constants/Collections";
 import { DBProduct } from "@/types/product";
@@ -23,9 +32,9 @@ interface UseProductsReturn {
   refetch: () => void;
 }
 
-export const useProductsAdmin = ({ 
-  pageSize = 10, 
-  categoryFilter = "all" 
+export const useProductsAdmin = ({
+  pageSize = 10,
+  categoryFilter = "all",
 }: UseProductsProps = {}): UseProductsReturn => {
   const [products, setProducts] = useState<DBProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,16 +45,18 @@ export const useProductsAdmin = ({
   // const [firstVisible, setFirstVisible] = useState<DocumentSnapshot | null>(null);
   const [pageHistory, setPageHistory] = useState<DocumentSnapshot[]>([]);
 
-  const fetchProducts = async (direction: "first" | "next" | "prev" = "first") => {
+  const fetchProducts = async (
+    direction: "first" | "next" | "prev" = "first"
+  ) => {
     try {
       setLoading(true);
       setError(null);
 
       const productsRef = collection(db, Collections.Products);
-      
+
       // Build base query
       let q = query(productsRef, orderBy("name"));
-      
+
       // Add category filter if not "all"
       if (categoryFilter !== "all") {
         q = query(q, where("categoryId", "==", categoryFilter));
@@ -56,22 +67,19 @@ export const useProductsAdmin = ({
         q = query(q, startAfter(lastVisible), limit(pageSize));
       } else if (direction === "prev" && pageHistory.length > 0) {
         const prevDoc = pageHistory[pageHistory.length - 2];
-        if (prevDoc) {
-          q = query(q, startAfter(prevDoc), limit(pageSize));
-        } else {
-          q = query(q, limit(pageSize));
-        }
+        if (prevDoc) q = query(q, startAfter(prevDoc), limit(pageSize));
+        else q = query(q, limit(pageSize));
       } else {
         q = query(q, limit(pageSize));
       }
 
       const snapshot = await getDocs(q);
       const fetchedProducts: DBProduct[] = [];
-      
+
       snapshot.forEach((doc) => {
-        fetchedProducts.push({ 
-          id: doc.id, 
-          ...doc.data() 
+        fetchedProducts.push({
+          id: doc.id,
+          ...doc.data(),
         } as DBProduct);
       });
 
@@ -81,24 +89,24 @@ export const useProductsAdmin = ({
       if (snapshot.docs.length > 0) {
         // setFirstVisible(snapshot.docs[0]);
         setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
-        
+
         if (direction === "next") {
-          setPageHistory(prev => [...prev, snapshot.docs[0]]);
+          setPageHistory((prev) => [...prev, snapshot.docs[0]]);
         } else if (direction === "prev") {
-          setPageHistory(prev => prev.slice(0, -1));
+          setPageHistory((prev) => prev.slice(0, -1));
         } else if (direction === "first") {
           setPageHistory([snapshot.docs[0]]);
         }
       }
 
       // Get total count for pagination info
-      const countQuery = categoryFilter !== "all" 
-        ? query(productsRef, where("categoryId", "==", categoryFilter))
-        : query(productsRef);
-      
+      const countQuery =
+        categoryFilter !== "all"
+          ? query(productsRef, where("categoryId", "==", categoryFilter))
+          : query(productsRef);
+
       const countSnapshot = await getDocs(countQuery);
       setTotalProducts(countSnapshot.size);
-
     } catch (err) {
       console.error("Error fetching products:", err);
       setError("Failed to fetch products");
@@ -109,14 +117,14 @@ export const useProductsAdmin = ({
 
   const nextPage = () => {
     if (lastVisible) {
-      setCurrentPage(prev => prev + 1);
+      setCurrentPage((prev) => prev + 1);
       fetchProducts("next");
     }
   };
 
   const prevPage = () => {
     if (currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
+      setCurrentPage((prev) => prev - 1);
       fetchProducts("prev");
     }
   };
@@ -132,7 +140,8 @@ export const useProductsAdmin = ({
     refetch();
   }, [categoryFilter, pageSize]);
 
-  const hasNextPage = products.length === pageSize && (currentPage * pageSize) < totalProducts;
+  const hasNextPage =
+    products.length === pageSize && currentPage * pageSize < totalProducts;
   const hasPrevPage = currentPage > 1;
 
   return {
@@ -145,6 +154,6 @@ export const useProductsAdmin = ({
     totalProducts,
     nextPage,
     prevPage,
-    refetch
+    refetch,
   };
-}; 
+};

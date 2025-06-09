@@ -20,7 +20,7 @@ export const BaseCustomizations: Record<string, Customization> = {
   "keychain-text": {
     id: "keychain-text",
     categoryId: "keychains",
-    label: "Enter Text You Want on the Keychain",
+    label: "Enter Keychain Text",
     placeholder: "Arsiwala",
     type: "input",
     required: true,
