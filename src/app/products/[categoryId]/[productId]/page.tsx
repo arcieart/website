@@ -275,10 +275,12 @@ export default function ProductPage({ params }: ProductPageProps) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Product Images */}
-          <ProductPageImageCarousel
-            images={product.images}
-            alt={product.name}
-          />
+          <div className="md:sticky md:top-18 md:self-start">
+            <ProductPageImageCarousel
+              images={product.images}
+              alt={product.name}
+            />
+          </div>
 
           {/* Product Info */}
           <div className="space-y-6">
