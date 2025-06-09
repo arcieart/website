@@ -16,9 +16,8 @@ import { ShoppingCart, Trash2 } from "lucide-react";
 import Image from "next/image";
 import CouponBanner from "@/components/banners/CouponBanner";
 import { formatPriceLocalized } from "@/utils/price";
-import { QuantityStepper } from "../misc/QuantityStepper";
-import { Badge } from "@/components/ui/badge";
-import { BaseCustomizations } from "@/data/customizations";
+import CartItem from "@/components/cart/CartItem";
+import { useCartSheet } from "@/hooks/useCartSheet";
 
 interface CartSheetProps {
   children: React.ReactNode;
@@ -27,30 +26,12 @@ interface CartSheetProps {
 export default function CartSheet({ children }: CartSheetProps) {
   const { items, totalItems, totalPrice, updateQuantity, removeItem } =
     useCartStore();
-
-  const getCustomizationItems = (customizations: Record<string, any>) => {
-    return Object.entries(customizations)
-      .filter(([_, value]) => value && value !== "")
-      .map(([key, value]) => {
-        let displayValue;
-        if (typeof value === "object" && value !== null) {
-          // Handle different object structures
-          displayValue =
-            value.label || value.name || value.value || JSON.stringify(value);
-        } else {
-          displayValue = value;
-        }
-        return {
-          key: key.charAt(0).toUpperCase() + key.slice(1),
-          value: displayValue,
-        };
-      });
-  };
+  const { cartOpen, setCartOpen } = useCartSheet();
 
   return (
-    <Sheet>
+    <Sheet open={cartOpen} onOpenChange={setCartOpen}>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="w-[85%] sm:max-w-sm">
+      <SheetContent className="w-[90%] sm:max-w-sm">
         <SheetHeader className="space-y-6 px-2 pb-0 pt-3">
           <div className="flex items-center justify-center">
             <SheetTitle className="text-foreground">Shopping Cart</SheetTitle>
@@ -58,7 +39,7 @@ export default function CartSheet({ children }: CartSheetProps) {
           <CouponBanner />
         </SheetHeader>
 
-        <div className="flex flex-1 flex-col gap-6">
+        <div className="flex flex-1 flex-col gap-6 overflow-y-scroll">
           {items.length === 0 ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-6 py-12">
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
@@ -76,86 +57,21 @@ export default function CartSheet({ children }: CartSheetProps) {
           ) : (
             <>
               {/* Cart Items */}
-              <div className="flex-1 space-y-4 p-2 pt-0">
+              <div className="space-y-4 p-2 pt-0">
                 {items.map((item) => (
-                  <div
+                  <CartItem
                     key={item.id}
-                    className="flex gap-4 rounded-lg border bg-card p-2"
-                  >
-                    <div className="relative h-16 w-16 overflow-hidden rounded-md bg-muted">
-                      {item.product.images && item.product.images[0] ? (
-                        <Image
-                          src={item.product.images[0]}
-                          alt={item.product.name}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                          <ShoppingCart className="h-6 w-6" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <h4 className="font-medium text-foreground leading-none">
-                        {item.product.name}
-                      </h4>
-                      {getCustomizationItems(item.customizations).length >
-                        0 && (
-                        <div className="space-y-1">
-                          <div className="flex flex-wrap gap-1">
-                            {getCustomizationItems(item.customizations).map(
-                              (customization, index) => (
-                                <Badge
-                                  key={index}
-                                  variant="secondary"
-                                  className="text-xs px-2 py-0.5 h-auto"
-                                >
-                                  <span className="font-medium">
-                                    {customization.key}:
-                                  </span>
-                                  <span className="ml-1">
-                                    {customization.value}
-                                  </span>
-                                </Badge>
-                              )
-                            )}
-                          </div>
-                        </div>
-                      )}
-                      <div className="flex items-center justify-between pt-1">
-                        <span className="text-sm font-semibold text-foreground">
-                          {formatPriceLocalized(item.totalPrice)}
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <QuantityStepper
-                            quantity={item.quantity}
-                            increment={() =>
-                              updateQuantity(item.id, item.quantity + 1)
-                            }
-                            decrement={() =>
-                              updateQuantity(item.id, item.quantity - 1)
-                            }
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => removeItem(item.id)}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    item={item}
+                    onUpdateQuantity={updateQuantity}
+                    onRemoveItem={removeItem}
+                  />
                 ))}
               </div>
             </>
           )}
         </div>
 
-        <SheetFooter className="gap-3 px-0">
+        <SheetFooter className="gap-3 px-0 pt-0">
           <Separator />
 
           <div className="space-y-4 px-2">

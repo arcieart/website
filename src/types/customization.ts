@@ -8,6 +8,7 @@ export type BaseCustomization = {
   required: boolean;
   priceAdd: number;
   categoryId: BaseCategoriesIds;
+  afterSelectionLabel: string;
 };
 
 export type DBCustomization = Partial<BaseCustomization> & {

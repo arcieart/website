@@ -55,6 +55,10 @@ export function formatPrice(
   return `${CURRENCY_SYMBOLS[currency]}${formattedPrice}`;
 }
 
+export const getStrikethroughPrice = (price: number) => {
+  return price * 1.2;
+}
+
 /**
  * Formats a price with localized formatting
  * @param price - The price to format

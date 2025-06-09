@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 import { shared } from "use-broadcast-ts";
 import { UIProduct } from "@/types/product";
 
-// Helper function to create a deterministic ID from product and customizations
+// todo: optionally better handling of customizations
 const createItemId = (
   productId: string,
   customizations: Record<string, any>
@@ -28,6 +28,7 @@ const createItemId = (
   return `${productId}-${Math.abs(hash).toString(36)}`;
 };
 
+// todo: remove any
 export type CartItem = {
   id: string;
   product: UIProduct;

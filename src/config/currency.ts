@@ -9,13 +9,13 @@ export const CURRENCY_CONFIG = {
   DEFAULT_CURRENCY: 'INR' as Currency,
   
   // Free shipping threshold (in the default currency)
-  FREE_SHIPPING_THRESHOLD: 30,
+  FREE_SHIPPING_THRESHOLD: 999,
   
   // Shipping cost (in the default currency)
-  SHIPPING_COST: 5.99,
+  SHIPPING_COST: 100,
   
   // Tax rate (as a decimal, e.g., 0.08 = 8%)
-  TAX_RATE: 0.08,
+  TAX_RATE: 0.18,
 } as const;
 
 /**

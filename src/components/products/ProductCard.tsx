@@ -9,9 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { UIProduct } from "@/types/product";
 import { useCartStore } from "@/stores/cart";
 import { useFavoritesStore } from "@/stores/favorites";
-import { formatPrice } from "@/utils/price";
-import { toast } from "sonner";
+import { formatPrice, getStrikethroughPrice } from "@/utils/price";
 import { BaseCategoriesObj } from "@/data/categories";
+import { useCartSheet } from "@/hooks/useCartSheet";
 
 interface ProductCardProps {
   product: UIProduct;
@@ -22,6 +22,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const addToCart = useCartStore((state) => state.addItem);
   const { toggleItem, isInFavorites } = useFavoritesStore();
   const isInWishlist = isInFavorites(product.id);
+  const { setCartOpen } = useCartSheet();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -35,7 +36,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
     // Add to cart with empty customizations for simple products
     addToCart(product, {});
-    toast.success(`${product.name} added to cart!`);
+    setCartOpen(true);
   };
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
@@ -116,7 +117,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   {formatPrice(product.price)}
                 </span>
                 <span className="text-xs text-muted-foreground line-through">
-                  {formatPrice(product.price * 1.2)}
+                  {getStrikethroughPrice(product.price)}
                 </span>
               </div>
             </div>
