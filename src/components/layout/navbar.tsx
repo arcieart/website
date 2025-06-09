@@ -99,7 +99,7 @@ export function Navbar() {
                     </Badge>
                   )}
                 </div>
-                <span className="hidden sm:inline ml-2 text-sm font-medium">
+                <span className="hidden sm:inline ml-1 text-sm font-medium">
                   Cart
                 </span>
               </Button>

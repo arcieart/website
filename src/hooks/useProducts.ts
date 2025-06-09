@@ -11,16 +11,21 @@ import { Collections } from "@/constants/Collections";
 import { DBProduct, UIProduct } from "@/types/product";
 import { BaseCategoriesObj } from "@/data/categories";
 
+const getProductsRef = () => {
+  const productsRef = collection(db, Collections.Products);
+  const availableProductsQuery = query(
+    productsRef,
+    where("available", "==", true)
+  );
+  return availableProductsQuery;
+};
+
 export const useProducts = () => {
   // First, get the count of products to use as a cache key
   const { data: productCount } = useQuery({
     queryKey: ["products-count"],
     queryFn: async () => {
-      const productsRef = collection(db, Collections.Products);
-      const availableProductsQuery = query(
-        productsRef,
-        where("available", "==", true)
-      );
+      const availableProductsQuery = getProductsRef();
       const snapshot = await getCountFromServer(availableProductsQuery);
       return snapshot.data().count;
     },
@@ -33,11 +38,7 @@ export const useProducts = () => {
     queryKey: ["products", productCount],
     queryFn: async () => {
       console.log("fetching products");
-      const productsRef = collection(db, Collections.Products);
-      const availableProductsQuery = query(
-        productsRef,
-        where("available", "==", true)
-      );
+      const availableProductsQuery = getProductsRef();
       const snapshot = await getDocs(availableProductsQuery);
 
       const products: UIProduct[] = [];
