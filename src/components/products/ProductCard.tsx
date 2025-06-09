@@ -29,7 +29,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
     // For products with customizations, redirect to product page
     if (product.customizationOptions.length > 0) {
-      window.location.href = `/products/${product.id}`;
+      window.location.href = `/products/${product.categoryId}/${product.id}`;
       return;
     }
 
@@ -48,72 +48,81 @@ export function ProductCard({ product }: ProductCardProps) {
     <Card
       className={`group hover:shadow-lg transition-all duration-500 py-0 animate-in slide-in-from-bottom-4 fade-in gap-4 flex justify-between`}
     >
-      <Link href={`/products/${product.id}`}>
-        <div className="relative overflow-hidden rounded-t-lg">
-          {/* Product Image */}
-          <div className="aspect-square relative bg-amber-200">
-            <Image
-              src={product.images[0] || "/placeholder-product.jpg"}
-              alt={product.name}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-200"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-
-            {/* Favorite Button */}
-            <button
-              onClick={handleToggleFavorite}
-              className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 hover:bg-white transition-colors z-10"
-              aria-label={
-                isInWishlist ? "Remove from favorites" : "Add to favorites"
-              }
-            >
-              <Heart
-                className={`w-3.5 h-3.5 ${
-                  isInWishlist
-                    ? "fill-red-500 text-red-500"
-                    : "text-gray-600 hover:text-red-500"
-                }`}
+      <div>
+        <Link href={`/products/${product.categoryId}/${product.id}`}>
+          <div className="relative overflow-hidden rounded-t-lg">
+            {/* Product Image */}
+            <div className="aspect-square relative bg-amber-200">
+              <Image
+                src={product.images[0] || "/placeholder-product.jpg"}
+                alt={product.name}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-200"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
-            </button>
 
-            {/* Badges */}
-            <div className="absolute top-2 left-2 flex flex-col gap-1">
-              {product.isBestSeller && (
-                <Badge variant="default" className="text-[10px] px-1.5 py-0.5">
-                  Best Seller
-                </Badge>
-              )}
+              {/* Favorite Button */}
+              <button
+                onClick={handleToggleFavorite}
+                className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 hover:bg-white transition-colors z-10"
+                aria-label={
+                  isInWishlist ? "Remove from favorites" : "Add to favorites"
+                }
+              >
+                <Heart
+                  className={`w-3.5 h-3.5 ${
+                    isInWishlist
+                      ? "fill-red-500 text-red-500"
+                      : "text-gray-600 hover:text-red-500"
+                  }`}
+                />
+              </button>
+
+              {/* Badges */}
+              <div className="absolute top-2 left-2 flex flex-col gap-1">
+                {product.isBestSeller && (
+                  <Badge
+                    variant="default"
+                    className="text-[10px] px-1.5 py-0.5"
+                  >
+                    Best Seller
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
 
         <CardContent className="p-2 pb-0">
           {/* Brand/Category */}
-          <div className="flex items-center">
-            <span className="text-[10px] text-muted-foreground capitalize">
-              {BaseCategoriesObj[product.categoryId].name}
-            </span>
-          </div>
-
-          {/* Product Name */}
-          <h3 className="font-semibold text-foreground text-xs mb-1.5 line-clamp-2 group-hover:text-primary transition-colors leading-tight">
-            {product.name}
-          </h3>
-
-          {/* Price */}
-          <div className="mb-2">
-            <div className="flex items-baseline gap-1">
-              <span className="text-sm font-bold text-foreground">
-                {formatPrice(product.price)}
-              </span>
-              <span className="text-xs text-muted-foreground line-through">
-                {formatPrice(product.price * 1.2)}
+          <Link href={`/products/${product.categoryId}`}>
+            <div className="flex items-center">
+              <span className="text-[10px] md:text-xs text-muted-foreground capitalize hover:text-primary transition-colors duration-200">
+                {BaseCategoriesObj[product.categoryId].name}
               </span>
             </div>
-          </div>
+          </Link>
+
+          <Link href={`/products/${product.categoryId}/${product.id}`}>
+            {/* Product Name */}
+            <h3 className="font-semibold text-foreground text-xs md:text-sm mb-1.5 line-clamp-2 leading-tight">
+              {product.name}
+            </h3>
+
+            {/* Price */}
+            <div className="mb-2">
+              <div className="flex items-baseline gap-1">
+                <span className="text-sm font-bold text-foreground">
+                  {formatPrice(product.price)}
+                </span>
+                <span className="text-xs text-muted-foreground line-through">
+                  {formatPrice(product.price * 1.2)}
+                </span>
+              </div>
+            </div>
+          </Link>
         </CardContent>
-      </Link>
+      </div>
 
       {/* Add to Cart Button */}
       <div className="px-2 pb-2">

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { UIProduct } from "@/types/product";
 
 export type SortOption =
@@ -21,19 +21,32 @@ export const sortOptions = [
 
 interface UseProductFiltersProps {
   products: UIProduct[];
+  enableCategoryFilter?: boolean;
+  enablePriceFilter?: boolean;
+  baseUrl?: string;
 }
 
-export function useProductFilters({ products }: UseProductFiltersProps) {
+export function useProductFilters({ 
+  products, 
+  enableCategoryFilter = true,
+  enablePriceFilter = true,
+  baseUrl
+}: UseProductFiltersProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Determine the base URL to use
+  const urlBase = baseUrl || (enableCategoryFilter ? '/products' : pathname);
 
   // Initialize state from URL parameters
   const [sortBy, setSortBy] = useState<SortOption>(() => {
     const urlSort = searchParams.get('sort') as SortOption;
-    return sortOptions.find(option => option.value === urlSort) ? urlSort : "newest";
+    return sortOptions.find(option => option.value === urlSort) ? urlSort : "name-a-z";
   });
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
+    if (!enableCategoryFilter) return [];
     const urlCategories = searchParams.get('categories');
     return urlCategories ? urlCategories.split(',').filter(Boolean) : [];
   });
@@ -43,6 +56,7 @@ export function useProductFilters({ products }: UseProductFiltersProps) {
   });
 
   const [priceRange, setPriceRange] = useState<{ min: number; max: number }>(() => {
+    if (!enablePriceFilter) return { min: 0, max: 1000 };
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
     return {
@@ -61,7 +75,7 @@ export function useProductFilters({ products }: UseProductFiltersProps) {
     }
 
     // Add categories parameter
-    if (selectedCategories.length > 0) {
+    if (enableCategoryFilter && selectedCategories.length > 0) {
       params.set('categories', selectedCategories.join(','));
     }
 
@@ -71,23 +85,26 @@ export function useProductFilters({ products }: UseProductFiltersProps) {
     }
 
     // Add price range parameters
-    if (priceRange.min !== 0) {
-      params.set('minPrice', priceRange.min.toString());
-    }
-    if (priceRange.max !== 1000) {
-      params.set('maxPrice', priceRange.max.toString());
+    if (enablePriceFilter) {
+      if (priceRange.min !== 0) {
+        params.set('minPrice', priceRange.min.toString());
+      }
+      if (priceRange.max !== 1000) {
+        params.set('maxPrice', priceRange.max.toString());
+      }
     }
 
     // Update URL without causing a page reload
-    const newUrl = params.toString() ? `?${params.toString()}` : '/products';
+    const newUrl = params.toString() ? `${urlBase}?${params.toString()}` : urlBase;
     router.replace(newUrl, { scroll: false });
-  }, [sortBy, selectedCategories, showBestSellers, priceRange, router]);
+  }, [sortBy, selectedCategories, showBestSellers, priceRange, router, urlBase, enableCategoryFilter, enablePriceFilter]);
 
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = products.filter((product) => {
       // Category filter
       if (
+        enableCategoryFilter &&
         selectedCategories.length > 0 &&
         !selectedCategories.includes(product.categoryId)
       ) {
@@ -100,7 +117,7 @@ export function useProductFilters({ products }: UseProductFiltersProps) {
       }
 
       // Price filter
-      if (product.price < priceRange.min || product.price > priceRange.max) {
+      if (enablePriceFilter && (product.price < priceRange.min || product.price > priceRange.max)) {
         return false;
       }
 
@@ -128,10 +145,12 @@ export function useProductFilters({ products }: UseProductFiltersProps) {
     });
 
     return filtered;
-  }, [products, selectedCategories, showBestSellers, priceRange, sortBy]);
+  }, [products, selectedCategories, showBestSellers, priceRange, sortBy, enableCategoryFilter, enablePriceFilter]);
 
   // Filter management functions
   const handleCategoryChange = (categoryId: string, checked: boolean) => {
+    if (!enableCategoryFilter) return;
+    
     if (checked) {
       setSelectedCategories([...selectedCategories, categoryId]);
     } else {
@@ -142,16 +161,20 @@ export function useProductFilters({ products }: UseProductFiltersProps) {
   };
 
   const clearFilters = () => {
-    setSelectedCategories([]);
+    if (enableCategoryFilter) {
+      setSelectedCategories([]);
+    }
     setShowBestSellers(false);
-    setPriceRange({ min: 0, max: 1000 });
+    if (enablePriceFilter) {
+      setPriceRange({ min: 0, max: 1000 });
+    }
     setSortBy("newest");
-    // Clear URL parameters
-    router.replace('/products', { scroll: false });
   };
 
   const activeFiltersCount =
-    selectedCategories.length + (showBestSellers ? 1 : 0);
+    (enableCategoryFilter ? selectedCategories.length : 0) + 
+    (showBestSellers ? 1 : 0) +
+    (enablePriceFilter && (priceRange.min !== 0 || priceRange.max !== 1000) ? 1 : 0);
 
   return {
     // State

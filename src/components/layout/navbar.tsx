@@ -20,8 +20,8 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { isProduction } from "@/utils/misc";
 
 const navigation = [
-  { name: "Products", href: "/products" },
-  { name: "Categories", href: "/categories" },
+  { name: "All Products", href: "/products" },
+  { name: "Best Sellers", href: "/products?bestSellers=true" },
 ];
 
 export function Navbar() {
@@ -115,12 +115,27 @@ export function Navbar() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>Products</DropdownMenuLabel>
+                  <DropdownMenuLabel>Collections</DropdownMenuLabel>
+                  <DropdownMenuItem asChild>
+                    <Link href={`/products`} className="text-xs">
+                      All Products
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/products?bestSellers=true`}
+                      className="text-xs"
+                    >
+                      Best Sellers
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuLabel>Categories</DropdownMenuLabel>
                   {BaseCategories.map((category) => (
                     <DropdownMenuItem key={category.id} asChild>
                       <Link
                         href={`/products/${category.id}`}
-                        className="w-full"
+                        className="text-xs"
                       >
                         {category.name}
                       </Link>

@@ -27,6 +27,7 @@ interface ProductFiltersProps {
   activeFiltersCount: number;
   handleCategoryChange: (categoryId: string, checked: boolean) => void;
   clearFilters: () => void;
+  hideCategories?: boolean;
 }
 
 export function ProductFilters({
@@ -38,6 +39,7 @@ export function ProductFilters({
   activeFiltersCount,
   handleCategoryChange,
   clearFilters,
+  hideCategories,
 }: ProductFiltersProps) {
   return (
     <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
@@ -59,27 +61,33 @@ export function ProductFilters({
           <DropdownMenuContent className="w-80 p-4" align="start">
             <div className="space-y-4">
               {/* Categories Section */}
-              <div>
-                <DropdownMenuLabel className="px-0 pb-2 text-sm font-semibold">
-                  Categories
-                </DropdownMenuLabel>
-                <div className="space-y-2">
-                  {BaseCategories.map((category) => (
-                    <DropdownMenuCheckboxItem
-                      key={category.id}
-                      checked={selectedCategories.includes(category.id)}
-                      onCheckedChange={(checked) =>
-                        handleCategoryChange(category.id, checked as boolean)
-                      }
-                      className="capitalize"
-                    >
-                      {category.name}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                </div>
-              </div>
-
-              <DropdownMenuSeparator />
+              {!hideCategories && (
+                <>
+                  <div>
+                    <DropdownMenuLabel className="px-0 pb-2 text-sm font-semibold">
+                      Categories
+                    </DropdownMenuLabel>
+                    <div className="space-y-2">
+                      {BaseCategories.map((category) => (
+                        <DropdownMenuCheckboxItem
+                          key={category.id}
+                          checked={selectedCategories.includes(category.id)}
+                          onCheckedChange={(checked) =>
+                            handleCategoryChange(
+                              category.id,
+                              checked as boolean
+                            )
+                          }
+                          className="capitalize"
+                        >
+                          {category.name}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                </>
+              )}
 
               {/* Special Filters Section */}
               <div>
