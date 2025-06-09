@@ -8,15 +8,10 @@ import { ProductCard } from "@/components/products/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
 
 export default function FavoritesPage() {
-  const { items, clearFavorites } = useFavoritesStore();
-  const { products, isLoading } = useProducts();
+  const { itemIds, clearFavorites } = useFavoritesStore();
+  const { products } = useProducts();
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-  console.log(products);
-
-  if (items.length === 0) {
+  if (itemIds.length === 0) {
     return (
       <div className="min-h-screen bg-background">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16">
@@ -49,10 +44,10 @@ export default function FavoritesPage() {
               My Favorites
             </h1>
             <p className="text-base text-muted-foreground">
-              {items.length} {items.length === 1 ? "item" : "items"} saved
+              {itemIds.length} {itemIds.length === 1 ? "item" : "items"} saved
             </p>
           </div>
-          {items.length > 0 && (
+          {itemIds.length > 0 && (
             <Button
               variant="outline"
               onClick={clearFavorites}
@@ -65,12 +60,11 @@ export default function FavoritesPage() {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {items.map((productId) => (
-            <ProductCard
-              key={productId}
-              product={products.find((p) => p.id === productId)!}
-            />
-          ))}
+          {itemIds.map((productId) => {
+            const product = products.find((p) => p.id === productId);
+            if (!product) return null;
+            return <ProductCard key={productId} product={product} />;
+          })}
         </div>
 
         {/* Continue Shopping */}

@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 import { shared } from "use-broadcast-ts";
 
 export type FavoritesStore = {
-  items: string[];
+  itemIds: string[];
   addItem: (productId: string) => void;
   removeItem: (productId: string) => void;
   toggleItem: (productId: string) => void;
@@ -15,37 +15,37 @@ export const useFavoritesStore = create<FavoritesStore>()(
   shared(
     persist(
       (set, get) => ({
-        items: [],
+        itemIds: [],
 
         addItem: (productId: string) => {
           const state = get();
-          if (!state.items.includes(productId)) {
+          if (!state.itemIds.includes(productId)) {
             set({
-              items: [...state.items, productId],
+              itemIds: [...state.itemIds, productId],
             });
           }
         },
 
         removeItem: (productId: string) => {
           set({
-            items: get().items.filter((id) => id !== productId),
+            itemIds: get().itemIds.filter((id) => id !== productId),
           });
         },
 
         toggleItem: (productId: string) => {
           const state = get();
-          const isInFavorites = state.items.includes(productId);
+          const isInFavorites = state.itemIds.includes(productId);
 
           if (isInFavorites) state.removeItem(productId);
           else state.addItem(productId);
         },
 
         isInFavorites: (productId: string) => {
-          return get().items.includes(productId);
+          return get().itemIds.includes(productId);
         },
 
         clearFavorites: () => {
-          set({ items: [] });
+          set({ itemIds: [] });
         },
       }),
       { name: "favorites-storage" }

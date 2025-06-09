@@ -26,7 +26,7 @@ const navigation = [
 
 export function Navbar() {
   const totalItems = useCartStore((state) => state.totalItems);
-  const favoriteItemIds = useFavoritesStore((state) => state.items);
+  const favoriteItemIds = useFavoritesStore((state) => state.itemIds);
 
   return (
     <nav className="bg-background border-b sticky top-0 z-50">
