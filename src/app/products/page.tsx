@@ -1,11 +1,13 @@
 "use client";
 
-import { Filter, Loader2 } from "lucide-react";
+import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductFilters } from "@/components/products/ProductFilters";
+
 import { useProducts } from "@/hooks/useProducts";
 import { useProductFilters } from "@/hooks/useProductFilters";
+import { ProductsGridSkeleton } from "@/components/skeletons/ProductsPageSkeleton";
 
 export default function ProductsPage() {
   const { products, isLoading } = useProducts();
@@ -49,9 +51,7 @@ export default function ProductsPage() {
         {/* Products Grid */}
         <div className="w-full">
           {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            </div>
+            <ProductsGridSkeleton />
           ) : filteredAndSortedProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {filteredAndSortedProducts.map((product, index) => (

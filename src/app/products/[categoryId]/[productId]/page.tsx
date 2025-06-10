@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
@@ -43,6 +44,7 @@ import { QuantityStepper } from "@/components/misc/QuantityStepper";
 import { useCartSheet } from "@/hooks/useCartSheet";
 import { ProductSpecAccordion } from "@/components/accordion/ProductSpecAccordion";
 import { DotSeparator } from "@/components/misc/DotSeparator";
+import { ProductPageSkeleton } from "@/components/skeletons/ProductPageSkeleton";
 
 const CustomizationLabel = ({ label, required }: Partial<Customization>) => (
   <Label className="gap-1">
@@ -80,11 +82,7 @@ export default function ProductPage({ params }: ProductPageProps) {
   }, [products, resolvedParams, isLoading]);
 
   if (!resolvedParams || isLoading || !product) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <ProductPageSkeleton />;
   }
 
   const isInWishlist = isInFavorites(product.id);

@@ -11,6 +11,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { BaseCategoriesObj } from "@/data/categories";
 import { useProductFilters } from "@/hooks/useProductFilters";
+import { ProductsGridSkeleton } from "@/components/skeletons/ProductsPageSkeleton";
 
 export default function CategoryProductsPage() {
   const params = useParams();
@@ -104,9 +105,7 @@ export default function CategoryProductsPage() {
         {/* Products Grid */}
         <div className="w-full">
           {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            </div>
+            <ProductsGridSkeleton showFilters={categoryProducts.length === 0} />
           ) : filteredAndSortedProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {filteredAndSortedProducts.map((product, index) => (
