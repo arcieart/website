@@ -63,9 +63,9 @@ export function ProductPageImageCarousel({
       <div className={cn("space-y-4", className)}>
         <div className="aspect-square relative bg-muted rounded-lg overflow-hidden">
           <Image
+            fill
             src="/placeholder-product.jpg"
             alt={alt}
-            fill
             className="object-cover"
             sizes="(max-width: 1024px) 100vw, 50vw"
           />

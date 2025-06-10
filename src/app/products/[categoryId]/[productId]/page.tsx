@@ -295,7 +295,7 @@ export default function ProductPage({ params }: ProductPageProps) {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 lg:gap-20">
           {/* Product Images */}
           <div className="md:sticky md:top-18 md:self-start">
             <ProductPageImageCarousel

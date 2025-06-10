@@ -7,18 +7,11 @@ import Image from "next/image";
 import { formatPriceLocalized } from "@/utils/price";
 import { QuantityStepper } from "../misc/QuantityStepper";
 import { BaseCustomizations } from "@/data/customizations";
+import Link from "next/link";
+import { type CartItem } from "@/stores/cart";
 
 interface CartItemProps {
-  item: {
-    id: string;
-    product: {
-      name: string;
-      images?: string[];
-    };
-    customizations: Record<string, any>;
-    totalPrice: number;
-    quantity: number;
-  };
+  item: CartItem;
   onUpdateQuantity: (id: string, quantity: number) => void;
   onRemoveItem: (id: string) => void;
 }
@@ -47,24 +40,32 @@ export default function CartItem({
   return (
     <div className="flex gap-4 rounded-lg border bg-card p-2">
       <div className="relative h-16 w-16 overflow-hidden rounded-md bg-muted">
-        {item.product.images && item.product.images[0] ? (
-          <Image
-            width={64}
-            height={64}
-            src={item.product.images[0]}
-            alt={item.product.name}
-            className="object-cover w-full h-full"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-            <ShoppingCart className="h-6 w-6" />
-          </div>
-        )}
+        <Link href={`/products/${item.product.categoryId}/${item.product.id}`}>
+          {item.product.images && item.product.images[0] ? (
+            <Image
+              width={64}
+              height={64}
+              src={item.product.images[0]}
+              alt={item.product.name}
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+              <ShoppingCart className="h-6 w-6" />
+            </div>
+          )}
+        </Link>
       </div>
       <div className="flex-1 space-y-2">
-        <h4 className="text-sm md:text-base font-medium text-foreground leading-none">
-          {item.product.name}
-        </h4>
+        <div>
+          <Link
+            href={`/products/${item.product.categoryId}/${item.product.id}`}
+          >
+            <h4 className="text-sm md:text-base font-medium text-foreground leading-none hover:underline">
+              {item.product.name}
+            </h4>
+          </Link>
+        </div>
         {getCustomizationItems(item.customizations).length > 0 && (
           <div className="space-y-1">
             <div className="flex flex-wrap gap-1">
