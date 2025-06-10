@@ -1,22 +1,36 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "../ui/breadcrumb";
 
 export function ProductPageSkeleton() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb Skeleton */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-2">
-            <Skeleton className="h-4 w-12" />
-            <span className="text-muted-foreground">/</span>
-            <Skeleton className="h-4 w-16" />
-            <span className="text-muted-foreground">/</span>
-            <Skeleton className="h-4 w-20" />
-            <span className="text-muted-foreground">/</span>
-            <Skeleton className="h-4 w-24" />
-          </div>
-        </div>
+        <Breadcrumb className="mb-8">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <Skeleton className="h-4 w-12" />
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <Skeleton className="h-4 w-12" />
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <Skeleton className="h-4 w-12" />
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <Skeleton className="h-4 w-12" />
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Product Images Skeleton */}
