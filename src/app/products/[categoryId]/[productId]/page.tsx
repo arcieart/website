@@ -63,7 +63,9 @@ export default function ProductPage({ params }: ProductPageProps) {
   const [resolvedParams, setResolvedParams] = useState<{ productId: string }>();
   const [product, setProduct] = useState<UIProduct>();
   const [quantity, setQuantity] = useState(1);
-  const [customizations, setCustomizations] = useState<Record<string, any>>({});
+  const [customizations, setCustomizations] = useState<Record<string, string>>(
+    {}
+  );
 
   const addToCart = useCartStore((state) => state.addItem);
   const { setCartOpen } = useCartSheet();
@@ -87,15 +89,19 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   const isInWishlist = isInFavorites(product.id);
 
-  const handleCustomizationChange = (customizationId: string, value: any) => {
+  const handleCustomizationChange = (
+    customizationId: string,
+    value: string
+  ) => {
     setCustomizations((prev) => ({ ...prev, [customizationId]: value }));
   };
 
   const calculateTotalPrice = () => {
     let totalPrice = product.price;
-    Object.values(customizations).forEach((value: any) => {
-      if (value && typeof value === "object" && value.priceAdd) {
-        totalPrice += value.priceAdd;
+    Object.values(customizations).forEach((value: string) => {
+      const customization = BaseCustomizations[value];
+      if (customization && customization.priceAdd) {
+        totalPrice += customization.priceAdd;
       }
     });
     return totalPrice * quantity;
@@ -136,7 +142,7 @@ export default function ProductPage({ params }: ProductPageProps) {
       BaseCustomizations[customizationParam.customizationRefId];
     if (!baseCustomization) return null;
 
-    const customization = {
+    const customization: Customization = {
       ...baseCustomization,
       ...customizationParam,
     };
@@ -171,6 +177,9 @@ export default function ProductPage({ params }: ProductPageProps) {
 
       case "fixed-color-picker":
         const selectedColor = customizations[customization.id];
+        const selectedColorObj = FilamentColors.find(
+          (c) => c.id === selectedColor
+        );
         return (
           <div key={customization.id} className="space-y-2">
             <CustomizationLabel
@@ -184,10 +193,10 @@ export default function ProductPage({ params }: ProductPageProps) {
                     <TooltipTrigger asChild>
                       <button
                         onClick={() =>
-                          handleCustomizationChange(customization.id, color)
+                          handleCustomizationChange(customization.id, color.id)
                         }
                         className={`relative w-10 h-10 rounded-full border-1 transition-all hover:scale-110 focus:outline-none ${
-                          customizations[customization.id]?.id === color.id
+                          customization.id === color.id
                             ? "shadow-lg border-primary border-2"
                             : "border-border hover:shadow-md"
                         }`}
@@ -209,21 +218,21 @@ export default function ProductPage({ params }: ProductPageProps) {
                 ))}
               </div>
             </TooltipProvider>
-            {selectedColor && (
+            {selectedColorObj && (
               <div className="mt-3 p-3 bg-muted/50 rounded-lg border">
                 <div className="flex items-center justify-start gap-2">
                   <div className="flex items-center gap-2">
                     <div
                       className="w-4 h-4 rounded-full border border-border"
-                      style={{ backgroundColor: selectedColor.value }}
+                      style={{ backgroundColor: selectedColorObj.value }}
                     />
                     <span className="text-sm font-medium">
-                      {selectedColor.label}
+                      {selectedColorObj.label}
                     </span>
                   </div>
-                  {selectedColor.priceAdd > 0 && (
+                  {selectedColorObj.priceAdd > 0 && (
                     <span className="text-xs text-muted-foreground">
-                      +{formatPrice(selectedColor.priceAdd)}
+                      +{formatPrice(selectedColorObj.priceAdd)}
                     </span>
                   )}
                 </div>
@@ -240,19 +249,16 @@ export default function ProductPage({ params }: ProductPageProps) {
               required={customization.required}
             />
             <Select
-              value={customizations[customization.id]?.id || ""}
+              value={customization.id || ""}
               onValueChange={(value) => {
-                const option = (customization as any).options.find(
-                  (opt: any) => opt.id === value
-                );
-                handleCustomizationChange(customization.id, option);
+                handleCustomizationChange(customization.id, value);
               }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select an option" />
               </SelectTrigger>
               <SelectContent>
-                {(customization as any).options.map((option: any) => (
+                {customization.options.map((option) => (
                   <SelectItem key={option.id} value={option.id}>
                     {option.label}
                   </SelectItem>

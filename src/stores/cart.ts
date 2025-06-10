@@ -2,18 +2,19 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { shared } from "use-broadcast-ts";
 import { UIProduct } from "@/types/product";
+import { BaseCustomizations } from "@/data/customizations";
 
 // todo: optionally better handling of customizations
 const createItemId = (
   productId: string,
-  customizations: Record<string, any>
+  customizations: Record<string, string>
 ): string => {
   // Sort keys to ensure consistent ordering
   const sortedKeys = Object.keys(customizations).sort();
   const normalizedCustomizations = sortedKeys.reduce((acc, key) => {
     acc[key] = customizations[key];
     return acc;
-  }, {} as Record<string, any>);
+  }, {} as Record<string, string>);
 
   // Create a deterministic string representation and hash it
   const customizationString = JSON.stringify(normalizedCustomizations);
@@ -28,12 +29,11 @@ const createItemId = (
   return `${productId}-${Math.abs(hash).toString(36)}`;
 };
 
-// todo: remove any
 export type CartItem = {
   id: string;
   product: UIProduct;
   quantity: number;
-  customizations: Record<string, any>;
+  customizations: Record<string, string>;
   totalPrice: number;
 };
 
@@ -41,7 +41,7 @@ export type CartStore = {
   items: CartItem[];
   totalItems: number;
   totalPrice: number;
-  addItem: (product: UIProduct, customizations: Record<string, any>) => void;
+  addItem: (product: UIProduct, customizations: Record<string, string>) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
@@ -56,15 +56,16 @@ export const useCartStore = create<CartStore>()(
         totalItems: 0,
         totalPrice: 0,
 
-        addItem: (product: UIProduct, customizations: Record<string, any>) => {
+        addItem: (product: UIProduct, customizations: Record<string, string>) => {
           const state = get();
           const itemId = createItemId(product.id, customizations);
           const existingItem = state.items.find((item) => item.id === itemId);
 
           let customizationPrice = 0;
-          Object.values(customizations).forEach((value: any) => {
-            if (value && typeof value === "object" && value.priceAdd) {
-              customizationPrice += value.priceAdd;
+          Object.values(customizations).forEach((value: string) => {
+            const customization = BaseCustomizations[value];
+            if (customization && customization.priceAdd) {
+              customizationPrice += customization.priceAdd;
             }
           });
 
@@ -145,11 +146,12 @@ export const useCartStore = create<CartStore>()(
               const unitPrice =
                 item.product.price +
                 Object.values(item.customizations).reduce(
-                  (sum: number, value: any) => {
+                  (sum: number, value: string) => {
+                    const customization = BaseCustomizations[value];
                     return (
                       sum +
-                      (value && typeof value === "object" && value.priceAdd
-                        ? value.priceAdd
+                      (customization && customization.priceAdd
+                        ? customization.priceAdd
                         : 0)
                     );
                   },

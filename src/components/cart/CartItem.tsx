@@ -9,28 +9,13 @@ import { QuantityStepper } from "../misc/QuantityStepper";
 import { BaseCustomizations } from "@/data/customizations";
 import Link from "next/link";
 import { type CartItem } from "@/stores/cart";
+import { CustomizationBadge } from "../products/CustomizationBadge";
 
 interface CartItemProps {
   item: CartItem;
   onUpdateQuantity: (id: string, quantity: number) => void;
   onRemoveItem: (id: string) => void;
 }
-
-const getCustomizationItems = (customizations: Record<string, any>) => {
-  return Object.entries(customizations)
-    .filter(([_, value]) => value && value !== "")
-    .map(([key, value]) => {
-      let displayValue;
-      if (typeof value === "object" && value !== null) {
-        // Handle different object structures
-        displayValue =
-          value.label || value.name || value.value || JSON.stringify(value);
-      } else {
-        displayValue = value;
-      }
-      return { key, value: displayValue };
-    });
-};
 
 export default function CartItem({
   item,
@@ -66,29 +51,18 @@ export default function CartItem({
             </h4>
           </Link>
         </div>
-        {getCustomizationItems(item.customizations).length > 0 && (
+        {Object.keys(item.customizations).length > 0 && (
           <div className="space-y-1">
             <div className="flex flex-wrap gap-1">
-              {getCustomizationItems(item.customizations).map(
-                (customization, index) => {
-                  return (
-                    <Badge
-                      key={index}
-                      variant="secondary"
-                      className="text-[10px] md:text-xs px-2 py-0.5 h-auto"
-                    >
-                      <span className="font-medium">
-                        {
-                          BaseCustomizations[customization.key]
-                            .afterSelectionLabel
-                        }
-                        :
-                      </span>
-                      <span>{customization.value}</span>
-                    </Badge>
-                  );
-                }
-              )}
+              {Object.entries(item.customizations).map(([key, value]) => {
+                return (
+                  <CustomizationBadge
+                    key={`${key}-${value}`}
+                    customizationId={key}
+                    value={value}
+                  />
+                );
+              })}
             </div>
           </div>
         )}
