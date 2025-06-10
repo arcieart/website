@@ -71,26 +71,4 @@ export const FilamentColors: FilamentColor[] = [
     available: true,
     priceAdd: 0,
   },
-  {
-    id: "pla-candy-red1",
-    label: "Candy Red",
-    value: "#FF0000",
-    available: true,
-    priceAdd: 50,
-  },
-  {
-    id: "pla-midnight-black1",
-    label: "Midnight Black",
-    value: "#000000",
-    available: true,
-    priceAdd: 0,
-  },
-  {
-    id: "pla-natural-white1",
-    label: "Natural White",
-    value: "#FFFFFF",
-    available: true,
-    priceAdd: 0,
-  },
-  
 ];
