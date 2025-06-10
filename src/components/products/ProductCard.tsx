@@ -117,7 +117,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   {formatPrice(product.price)}
                 </span>
                 <span className="text-xs text-muted-foreground line-through">
-                  {getStrikethroughPrice(product.price)}
+                  {formatPrice(getStrikethroughPrice(product.price))}
                 </span>
               </div>
             </div>

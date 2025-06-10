@@ -20,6 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -40,6 +41,8 @@ import { Customization, DBCustomization } from "@/types/customization";
 import Link from "next/link";
 import { QuantityStepper } from "@/components/misc/QuantityStepper";
 import { useCartSheet } from "@/hooks/useCartSheet";
+import { ProductSpecAccordion } from "@/components/accordion/ProductSpecAccordion";
+import { DotSeparator } from "@/components/misc/DotSeparator";
 
 const CustomizationLabel = ({ label, required }: Partial<Customization>) => (
   <Label className="gap-1">
@@ -169,6 +172,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         );
 
       case "fixed-color-picker":
+        const selectedColor = customizations[customization.id];
         return (
           <div key={customization.id} className="space-y-2">
             <CustomizationLabel
@@ -207,6 +211,26 @@ export default function ProductPage({ params }: ProductPageProps) {
                 ))}
               </div>
             </TooltipProvider>
+            {selectedColor && (
+              <div className="mt-3 p-3 bg-muted/50 rounded-lg border">
+                <div className="flex items-center justify-start gap-2">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-4 h-4 rounded-full border border-border"
+                      style={{ backgroundColor: selectedColor.value }}
+                    />
+                    <span className="text-sm font-medium">
+                      {selectedColor.label}
+                    </span>
+                  </div>
+                  {selectedColor.priceAdd > 0 && (
+                    <span className="text-xs text-muted-foreground">
+                      +{formatPrice(selectedColor.priceAdd)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         );
 
@@ -333,16 +357,17 @@ export default function ProductPage({ params }: ProductPageProps) {
               </div>
             )}
 
-            <Separator />
-
             {/* Customization Options */}
             {product.customizationOptions.length > 0 && (
-              <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-foreground">
-                  Customize Your Product
-                </h3>
-                {product.customizationOptions.map(renderCustomizationInput)}
-              </div>
+              <>
+                <Separator />
+                <div className="space-y-6">
+                  <h3 className="text-lg font-semibold text-foreground">
+                    Customize Your Product
+                  </h3>
+                  {product.customizationOptions.map(renderCustomizationInput)}
+                </div>
+              </>
             )}
 
             <Separator />
@@ -363,6 +388,8 @@ export default function ProductPage({ params }: ProductPageProps) {
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   Add to Cart
+                  <DotSeparator />
+                  {formatPrice(calculateTotalPrice())}
                 </Button>
                 <Button
                   onClick={handleToggleFavorite}
@@ -373,11 +400,60 @@ export default function ProductPage({ params }: ProductPageProps) {
                     className={`w-5 h-5 ${
                       isInWishlist
                         ? "fill-red-500 text-red-500"
-                        : "text-gray-600"
+                        : "text-foreground/80"
                     }`}
                   />
                 </Button>
               </div>
+            </div>
+
+            <Separator />
+
+            <div className="">
+              <h2 className="text-lg font-semibold text-foreground mb-3">
+                Product Details
+              </h2>
+
+              {product.weight && (
+                <div className="flex py-2">
+                  <span className="font-medium text-foreground text-sm w-24">
+                    Weight:
+                  </span>
+                  <span className="text-muted-foreground text-sm">
+                    {product.weight}g
+                  </span>
+                </div>
+              )}
+
+              <div className="flex py-2">
+                <span className="font-medium text-foreground text-sm w-24">
+                  Material:
+                </span>
+                <span className="text-muted-foreground text-sm">
+                  {product.material}
+                </span>
+              </div>
+
+              {product.dimensions && (
+                <div className="flex py-2">
+                  <span className="font-medium text-foreground text-sm w-24">
+                    Dimensions:
+                  </span>
+                  <span className="text-muted-foreground text-sm">
+                    {product.dimensions}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
+            {/* Product Information */}
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-foreground">
+                Product Specifications
+              </h3>
+              <ProductSpecAccordion product={product} />
             </div>
           </div>
         </div>

@@ -10,6 +10,8 @@ export type BaseProduct = {
   isBestSeller: boolean;
   createdAt: number;
   description?: string;
+  dimensions: string;
+  weight: number;
   customizationOptions: DBCustomization[];
 };
 
@@ -20,4 +22,3 @@ export type DBProduct = BaseProduct & {
 export type UIProduct = BaseProduct & Category & {
   price: number;
 };
-

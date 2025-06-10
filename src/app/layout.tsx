@@ -22,9 +22,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "arcie.art - Personalised Art",
+  title: "arcie.art - personalized art",
   description:
-    "Your one stop shop for personalised and custom keychains, earrings, coasters, lithophanes, desk accessories and more. Create your own unique products with your own designs.",
+    "Your one stop shop for personalized and custom keychains, earrings, coasters, lithophanes, desk accessories and more. Create your own unique products with your own designs.",
 };
 
 export default function RootLayout({
