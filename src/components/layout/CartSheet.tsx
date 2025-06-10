@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingCart, Trash2 } from "lucide-react";
-import Image from "next/image";
+import { ShoppingCart } from "lucide-react";
+import Link from "next/link";
 import CouponBanner from "@/components/banners/CouponBanner";
 import { formatPriceLocalized } from "@/utils/price";
 import CartItem from "@/components/cart/CartItem";
@@ -96,10 +96,16 @@ export default function CartSheet({ children }: CartSheetProps) {
                 Continue Shopping
               </Button>
             </SheetClose>
-            <Button className="flex-1" disabled={totalItems === 0}>
-              Checkout{" "}
-              {totalPrice > 0 ? `• ${formatPriceLocalized(totalPrice)}` : ""}
-            </Button>
+            <SheetClose asChild>
+              <Button className="flex-1" disabled={totalItems === 0} asChild>
+                <Link href="/checkout">
+                  Checkout{" "}
+                  {totalPrice > 0
+                    ? `• ${formatPriceLocalized(totalPrice)}`
+                    : ""}
+                </Link>
+              </Button>
+            </SheetClose>
           </div>
         </SheetFooter>
       </SheetContent>
