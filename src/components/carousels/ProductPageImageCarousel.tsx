@@ -11,17 +11,22 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import { Share } from "lucide-react";
+import { shareProduct } from "@/utils/share";
+import { UIProduct } from "@/types/product";
 
 interface ImageCarouselProps {
   images: string[];
   alt: string;
   className?: string;
+  product: UIProduct;
 }
 
 export function ProductPageImageCarousel({
   images,
   alt,
   className,
+  product,
 }: ImageCarouselProps) {
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
@@ -58,7 +63,7 @@ export function ProductPageImageCarousel({
 
   if (images.length === 1) {
     return (
-      <div className={cn("space-y-4", className)}>
+      <div className={cn("relative space-y-4", className)}>
         <div className="aspect-square relative bg-muted rounded-lg overflow-hidden">
           <Image
             src={images[0]}
@@ -67,6 +72,14 @@ export function ProductPageImageCarousel({
             className="object-cover"
             sizes="(max-width: 1024px) 100vw, 50vw"
           />
+        </div>
+        <div className="absolute top-2 right-2">
+          <button
+            onClick={() => shareProduct(product)}
+            className="flex items-center gap-2 bg-background/80 backdrop-blur-sm border rounded-full p-2 hover:bg-accent hover:text-accent-foreground transition-all"
+          >
+            <Share className="w-4 h-4" />
+          </button>
         </div>
       </div>
     );

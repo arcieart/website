@@ -297,12 +297,13 @@ export default function ProductPage({ params }: ProductPageProps) {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Product Images */}
           <div className="md:sticky md:top-18 md:self-start">
             <ProductPageImageCarousel
               images={product.images}
               alt={product.name}
+              product={product}
             />
           </div>
 
@@ -386,7 +387,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                   className="flex-1"
                   size="lg"
                 >
-                  <ShoppingCart className="w-5 h-5 mr-2" />
+                  <ShoppingCart className="w-5 h-5" />
                   Add to Cart
                   <DotSeparator />
                   {formatPrice(calculateTotalPrice())}
@@ -440,7 +441,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                     Dimensions:
                   </span>
                   <span className="text-muted-foreground text-sm">
-                    {product.dimensions}
+                    {product.dimensions.split("x").join("×")}
                   </span>
                 </div>
               )}
