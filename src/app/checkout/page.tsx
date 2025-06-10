@@ -91,54 +91,89 @@ export default function CheckoutPage() {
   const validateForm = (): boolean => {
     const errors: FormErrors = {};
 
-    // Name validation
-    if (!formData.name.trim()) {
-      errors.name = "Name is required";
-    } else if (formData.name.trim().length < 2) {
-      errors.name = "Name must be at least 2 characters long";
-    }
+    // Validate all required fields using the single validateField function
+    const fieldsToValidate: (keyof CheckoutFormData)[] = [
+      "name",
+      "email",
+      "phone",
+      "address",
+      "city",
+      "state",
+      "pincode",
+    ];
 
-    // Email validation
-    if (!formData.email.trim()) {
-      errors.email = "Email is required";
-    } else if (!validateEmail(formData.email)) {
-      errors.email = "Please enter a valid email address";
-    }
-
-    // Phone validation
-    if (!formData.phone.trim()) {
-      errors.phone = "Phone number is required";
-    } else if (!validatePhone(formData.phone)) {
-      errors.phone = "Please enter a valid 10-digit Indian mobile number";
-    }
-
-    // Address validation
-    if (!formData.address.trim()) {
-      errors.address = "Address is required";
-    } else if (formData.address.trim().length < 10) {
-      errors.address =
-        "Please enter a complete address (at least 10 characters)";
-    }
-
-    // City validation
-    if (!formData.city.trim()) {
-      errors.city = "City is required";
-    }
-
-    // State validation
-    if (!formData.state.trim()) {
-      errors.state = "State is required";
-    }
-
-    // Pincode validation
-    if (!formData.pincode.trim()) {
-      errors.pincode = "Pincode is required";
-    } else if (!validatePincode(formData.pincode)) {
-      errors.pincode = "Please enter a valid 6-digit pincode";
-    }
+    fieldsToValidate.forEach((field) => {
+      const error = validateField(field, formData[field] || "");
+      if (error) {
+        errors[field] = error;
+      }
+    });
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
+  };
+
+  const validateField = (
+    field: keyof CheckoutFormData,
+    value: string
+  ): string => {
+    switch (field) {
+      case "name":
+        if (!value.trim()) {
+          return "Name is required";
+        } else if (value.trim().length < 2) {
+          return "Name must be at least 2 characters long";
+        }
+        break;
+
+      case "email":
+        if (!value.trim()) {
+          return "Email is required";
+        } else if (!validateEmail(value)) {
+          return "Please enter a valid email address";
+        }
+        break;
+
+      case "phone":
+        if (!value.trim()) {
+          return "Phone number is required";
+        } else if (!validatePhone(value)) {
+          return "Please enter a valid 10-digit Indian mobile number";
+        }
+        break;
+
+      case "address":
+        if (!value.trim()) {
+          return "Address is required";
+        } else if (value.trim().length < 10) {
+          return "Please enter a complete address (at least 10 characters)";
+        }
+        break;
+
+      case "city":
+        if (!value.trim()) {
+          return "City is required";
+        }
+        break;
+
+      case "state":
+        if (!value.trim()) {
+          return "State is required";
+        }
+        break;
+
+      case "pincode":
+        if (!value.trim()) {
+          return "Pincode is required";
+        } else if (!validatePincode(value)) {
+          return "Please enter a valid 6-digit pincode";
+        }
+        break;
+
+      default:
+        break;
+    }
+    return "";
   };
 
   const handleInputChange = (field: keyof CheckoutFormData, value: string) => {
@@ -146,6 +181,17 @@ export default function CheckoutPage() {
 
     // Clear error when user starts typing
     if (formErrors[field]) {
+      setFormErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const handleInputBlur = (field: keyof CheckoutFormData) => {
+    const value = formData[field];
+    const error = validateField(field, value || "");
+
+    if (error) {
+      setFormErrors((prev) => ({ ...prev, [field]: error }));
+    } else {
       setFormErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
@@ -284,6 +330,7 @@ export default function CheckoutPage() {
                         onChange={(e) =>
                           handleInputChange("name", e.target.value)
                         }
+                        onBlur={(e) => handleInputBlur("name")}
                       />
                       {formErrors.name && (
                         <p className="text-xs sm:text-sm text-destructive">
@@ -304,6 +351,7 @@ export default function CheckoutPage() {
                           onChange={(e) =>
                             handleInputChange("email", e.target.value)
                           }
+                          onBlur={(e) => handleInputBlur("email")}
                           className={
                             formErrors.email ? "border-destructive" : ""
                           }
@@ -332,6 +380,7 @@ export default function CheckoutPage() {
                             onChange={(e) =>
                               handleInputChange("phone", e.target.value)
                             }
+                            onBlur={(e) => handleInputBlur("phone")}
                             className={
                               formErrors.phone ? "border-destructive" : ""
                             }
@@ -367,6 +416,7 @@ export default function CheckoutPage() {
                         onChange={(e) =>
                           handleInputChange("address", e.target.value)
                         }
+                        onBlur={(e) => handleInputBlur("address")}
                         className={
                           formErrors.address ? "border-destructive" : ""
                         }
@@ -391,6 +441,7 @@ export default function CheckoutPage() {
                         onChange={(e) =>
                           handleInputChange("landmark", e.target.value)
                         }
+                        onBlur={(e) => handleInputBlur("landmark")}
                       />
                     </div>
 
@@ -406,6 +457,7 @@ export default function CheckoutPage() {
                           onChange={(e) =>
                             handleInputChange("city", e.target.value)
                           }
+                          onBlur={(e) => handleInputBlur("city")}
                           className={
                             formErrors.city ? "border-destructive" : ""
                           }
@@ -428,6 +480,7 @@ export default function CheckoutPage() {
                           onChange={(e) =>
                             handleInputChange("state", e.target.value)
                           }
+                          onBlur={(e) => handleInputBlur("state")}
                           className={
                             formErrors.state ? "border-destructive" : ""
                           }
@@ -450,6 +503,7 @@ export default function CheckoutPage() {
                           onChange={(e) =>
                             handleInputChange("pincode", e.target.value)
                           }
+                          onBlur={(e) => handleInputBlur("pincode")}
                           className={
                             formErrors.pincode ? "border-destructive" : ""
                           }
