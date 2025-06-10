@@ -4,91 +4,113 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { BaseCategoriesObj } from "@/data/categories";
 import { UIProduct } from "@/types/product";
-import { Package } from "lucide-react";
+import { Package, ShoppingBag, Truck } from "lucide-react";
 
 export const ProductSpecAccordion = ({ product }: { product: UIProduct }) => {
   return (
     <div>
       <Accordion type="multiple" className="w-full space-y-2">
         {/* Category & Material */}
-        <AccordionItem value="category-material" className="px-4">
+        <AccordionItem value="category-material" className="pr-4">
           <AccordionTrigger className="text-sm font-medium">
             <span className="flex items-center">
-              <Package className="w-4 h-4 mr-2" />
-              Category & Material
+              <ShoppingBag className="w-4 h-4 mr-2" />
+              Dimensions & Material
             </span>
           </AccordionTrigger>
           <AccordionContent className="space-y-3 pb-4">
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Category</span>
               <span className="text-sm font-medium capitalize">
-                {product.categoryId.replace("-", " ")}
+                {BaseCategoriesObj[product.categoryId].name}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Material</span>
-              <span className="text-sm font-medium">Premium PLA+ Filament</span>
+              <span className="text-sm font-medium capitalize">
+                {product.material.replace(" - ", " ")}
+              </span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Finish</span>
-              <span className="text-sm font-medium">Matte / Smooth</span>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-
-        {/* Dimensions */}
-        <AccordionItem value="dimensions" className="px-4">
-          <AccordionTrigger className="text-sm font-medium">
-            Dimensions & Specifications
-          </AccordionTrigger>
-          <AccordionContent className="space-y-2 pb-4">
-            <div className="text-sm font-medium text-foreground">
-              {product.dimensions}
-            </div>
+            {product.weight && (
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Weight</span>
+                <span className="text-sm font-medium">{product.weight}g</span>
+              </div>
+            )}
+            {product.dimensions && (
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">
+                  Dimensions
+                </span>
+                <span className="text-sm font-medium">
+                  {product.dimensions.split("x").join("×")}
+                </span>
+              </div>
+            )}
             <div className="text-xs text-muted-foreground">
-              Measurements may vary ±2mm due to 3D printing process
+              Weight and dimensions may vary due to 3D printing process
             </div>
           </AccordionContent>
         </AccordionItem>
 
         {/* Shipping & Handling */}
-        <AccordionItem value="shipping" className="px-4">
+        <AccordionItem value="shipping" className="pr-4">
           <AccordionTrigger className="text-sm font-medium">
-            Shipping & Handling
+            <span className="flex items-center">
+              <Truck className="w-4 h-4 mr-2" />
+              Shipping & Handling
+            </span>
           </AccordionTrigger>
           <AccordionContent className="space-y-3 pb-4">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Processing</span>
+              <span className="text-sm text-muted-foreground">
+                Country of Origin
+              </span>
+              <span className="text-sm font-medium">India</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">
+                Order Processing
+              </span>
               <span className="text-sm font-medium">3-5 business days</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Weight</span>
-              <span className="text-sm font-medium">{product.weight}g</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Packaging</span>
-              <span className="text-sm font-medium">Eco-friendly</span>
             </div>
           </AccordionContent>
         </AccordionItem>
 
         {/* Care & Warranty */}
-        <AccordionItem value="warranty" className="px-4">
+        <AccordionItem value="warranty" className="pr-4">
           <AccordionTrigger className="text-sm font-medium">
-            Care & Warranty
+            <span className="flex items-center">
+              <Package className="w-4 h-4 mr-2" />
+              Return Policy
+            </span>
           </AccordionTrigger>
           <AccordionContent className="space-y-3 pb-4">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Warranty</span>
-              <span className="text-sm font-medium">30 days</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Returns</span>
-              <span className="text-sm font-medium">14 days</span>
+              <span className="text-sm text-muted-foreground">
+                Replacement or Return
+              </span>
+              <span className="text-sm font-medium">Within 7 days</span>
             </div>
             <div className="text-xs text-muted-foreground mt-2">
-              Clean with dry cloth. Avoid extreme temperatures.
+              <ul className="list-disc list-inside space-y-1">
+                <li>
+                  We offer a 7-day return policy for unused items in original
+                  packaging.
+                </li>
+                <li>
+                  If the product is damaged or there are printing errors,
+                  contact us through WhatsApp for return assistance.
+                </li>
+                <li>
+                  For any returns / replacement claim, we will require a video
+                  showcasing the product being unboxed and defect shown in the
+                  video. This is to prevent fraud and misuse of the return
+                  policy.
+                </li>
+              </ul>
             </div>
           </AccordionContent>
         </AccordionItem>
