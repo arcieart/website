@@ -22,6 +22,19 @@ interface ImageCarouselProps {
   product: UIProduct;
 }
 
+const ShareButton = ({ product }: { product: UIProduct }) => {
+  return (
+    <div className="absolute top-2 right-2">
+      <button
+        onClick={() => shareProduct(product)}
+        className="flex items-center gap-2 bg-background/80 backdrop-blur-sm border rounded-full p-2 hover:bg-accent hover:text-accent-foreground transition-all"
+      >
+        <Share className="w-4 h-4" />
+      </button>
+    </div>
+  );
+};
+
 export function ProductPageImageCarousel({
   images,
   alt,
@@ -66,21 +79,15 @@ export function ProductPageImageCarousel({
       <div className={cn("relative space-y-4", className)}>
         <div className="aspect-square relative bg-muted rounded-lg overflow-hidden">
           <Image
+            fill
+            priority
             src={images[0]}
             alt={alt}
-            fill
             className="object-cover"
             sizes="(max-width: 1024px) 100vw, 50vw"
           />
         </div>
-        <div className="absolute top-2 right-2">
-          <button
-            onClick={() => shareProduct(product)}
-            className="flex items-center gap-2 bg-background/80 backdrop-blur-sm border rounded-full p-2 hover:bg-accent hover:text-accent-foreground transition-all"
-          >
-            <Share className="w-4 h-4" />
-          </button>
-        </div>
+        <ShareButton product={product} />
       </div>
     );
   }
@@ -106,6 +113,7 @@ export function ProductPageImageCarousel({
             ))}
           </CarouselContent>
           <span className="hidden md:block">
+            <ShareButton product={product} />
             <CarouselPrevious className="left-4" />
             <CarouselNext className="right-4" />
           </span>
