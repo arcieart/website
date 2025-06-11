@@ -4,6 +4,11 @@ import { getDate } from "./date";
 import { getAddressString } from "./address";
 import { getWhatsappOrderConfirmationLink } from "./whatsappMessageLinks";
 
+// Utility function to generate product URL
+const getProductUrl = (categoryId: string, productId: string) => {
+  return `https://arcie.art/products/${categoryId}/${productId}`;
+};
+
 export const getDiscordOrderMessage = (order: Order) => {
     const paymentMethod = order.payment.method === "razorpay" ? order.payment.razorpay?.paymentMethod?.toUpperCase() : "Cash";
   
@@ -26,16 +31,24 @@ export const getDiscordOrderMessage = (order: Order) => {
             {
               name: "Products",
               value: order.products.map(product => {
-                let productLine = `${product.quantity}x ${product.name}`;
+                // Create the product link
+                const productLink = `[${product.name}](${getProductUrl(product.categoryId, product.productId)})`;
+                let productLine = `**${product.quantity}x** ${productLink}`;
+                
+                // Format customizations if they exist
                 if (product.customizations && Object.keys(product.customizations).length > 0) {
                   const customizationDetails = Object.entries(product.customizations)
                     .filter(([_, value]) => value && value !== "")
-                    .map(([key, value]) => `${key}: ${value}`)
-                    .join(", ");
-                  productLine += ` (${customizationDetails})`;
+                    .map(([key, value]) => `**${key}**: ${value}`)
+                    .join("\n   ");
+                  
+                  if (customizationDetails) {
+                    productLine += `\n   ${customizationDetails}`;
+                  }
                 }
+                
                 return productLine;
-              }).join("\n"),
+              }).join("\n\n"),
             },
           ],
           timestamp: new Date(getDate(order.createdAt)).toISOString(),

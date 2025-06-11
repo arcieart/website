@@ -229,6 +229,7 @@ export default function CheckoutPage() {
         customerInfo: formData,
         products: items.map((item) => ({
           id: item.id,
+          productId: item.product.id,
           name: item.product.name,
           categoryId: item.product.categoryId || "unknown",
           price: item.product.price,
@@ -259,6 +260,7 @@ export default function CheckoutPage() {
         email: order.customerInfo.email,
       });
 
+      // console.log("Creating order", order);
       const createdOrder = await createOrder(order);
 
       console.log("Created order:", createdOrder);
