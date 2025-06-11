@@ -1,4 +1,6 @@
 import { getDefaultCurrency } from '@/config/currency';
+import { BaseCustomizations, FilamentColors } from "@/data/customizations";
+import { UIProduct } from "@/types/product";
 
 export type Currency = 'INR' | 'USD' | 'EUR' | 'GBP' | 'JPY';
 
@@ -99,4 +101,52 @@ export function formatPriceLocalized(
  */
 export function getCurrencySymbol(currency: Currency = getDefaultCurrency()): string {
   return CURRENCY_SYMBOLS[currency];
+}
+
+/**
+ * Calculates the total price for a product with customizations
+ * @param basePrice - The base price of the product
+ * @param customizations - Object containing customization key-value pairs
+ * @param quantity - Quantity of the product (defaults to 1)
+ * @returns Total calculated price
+ */
+export function calculateProductPrice(
+  basePrice: number,
+  customizations: Record<string, string> = {},
+  quantity: number = 1
+): number {
+  let totalPrice = basePrice;
+  
+  Object.keys(customizations).forEach((key: string) => {
+    const customization = BaseCustomizations[key];
+    
+    if (customization?.type === "fixed-color-picker") {
+      const selectedColor = customizations[key];
+      const selectedColorObj = FilamentColors.find(
+        (c) => c.id === selectedColor
+      );
+      if (selectedColorObj) {
+        totalPrice += selectedColorObj.priceAdd;
+      }
+    }
+    
+    if (customization?.priceAdd) {
+      totalPrice += customization.priceAdd;
+    }
+  });
+  
+  return totalPrice * quantity;
+}
+
+/**
+ * Calculates the unit price for a product with customizations (without quantity multiplication)
+ * @param basePrice - The base price of the product
+ * @param customizations - Object containing customization key-value pairs
+ * @returns Unit price with customizations
+ */
+export function calculateProductUnitPrice(
+  basePrice: number,
+  customizations: Record<string, string> = {}
+): number {
+  return calculateProductPrice(basePrice, customizations, 1);
 }

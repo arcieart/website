@@ -34,14 +34,13 @@ export type RazorpayPaymentDetails = {
   razorpayOrderId: string; // Razorpay order ID
   razorpayPaymentId?: string; // Set after successful payment
   razorpaySignature?: string; // Signature for verification
-  paymentStatus: "created" | "authorized" | "captured" | "refunded" | "failed";
+  paymentStatus?: "created" | "authorized" | "captured" | "refunded" | "failed";
   paymentMethod?: "card" | "netbanking" | "wallet" | "upi" | "emi" | "paylater";
-  currency: string;
+  currency?: string;
   amountPaid?: number; // Amount actually paid (in paise for Razorpay)
   refundId?: string;
   refundAmount?: number;
-  gatewayResponse?: Record<string, any>; // Raw response from Razorpay
-  failureReason?: string;
+  failureReason?: string; // Reason for failure
 };
 
 export type PaymentInfo = {
@@ -72,14 +71,13 @@ export type Order = {
   pricing: PricingDetails;
   
   // Shipping
-  shipping: ShippingInfo;
+  // shipping: ShippingInfo;
   
   // Payment
   payment: PaymentInfo;
   
   // Status & Workflow
-  status: "draft" | "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled" | "returned";
-  fulfillmentStatus?: "unfulfilled" | "partial" | "fulfilled";
+  status: "initiated" | "payment-failed" | "confirmed" | "shipped" | "delivered" | "cancelled" | "returned";
   
   // Timestamps
   createdAt: number;

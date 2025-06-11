@@ -32,7 +32,11 @@ import {
 import { BaseCustomizations, FilamentColors } from "@/data/customizations";
 import { useCartStore } from "@/stores/cart";
 import { useFavoritesStore } from "@/stores/favorites";
-import { formatPrice, getStrikethroughPrice } from "@/utils/price";
+import {
+  formatPrice,
+  getStrikethroughPrice,
+  calculateProductPrice,
+} from "@/utils/price";
 import { toast } from "sonner";
 import { useProducts } from "@/hooks/useProducts";
 import { UIProduct } from "@/types/product";
@@ -96,14 +100,7 @@ function ProductPage({ params }: ProductPageProps) {
   };
 
   const calculateTotalPrice = () => {
-    let totalPrice = product.price;
-    Object.values(customizations).forEach((value: string) => {
-      const customization = BaseCustomizations[value];
-      if (customization && customization.priceAdd) {
-        totalPrice += customization.priceAdd;
-      }
-    });
-    return totalPrice * quantity;
+    return calculateProductPrice(product.price, customizations, quantity);
   };
 
   const handleAddToCart = () => {
@@ -195,7 +192,7 @@ function ProductPage({ params }: ProductPageProps) {
                           handleCustomizationChange(customization.id, color.id)
                         }
                         className={`relative w-10 h-10 rounded-full border-1 transition-all hover:scale-110 focus:outline-none ${
-                          customization.id === color.id
+                          selectedColor === color.id
                             ? "shadow-lg border-primary border-2"
                             : "border-border hover:shadow-md"
                         }`}

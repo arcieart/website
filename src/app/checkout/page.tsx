@@ -1,13 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useCartStore } from "@/stores/cart";
 import { formatPriceLocalized } from "@/utils/price";
-import {
-  getFreeShippingThreshold,
-  getShippingCost,
-  getTaxRate,
-} from "@/config/currency";
+import { getFreeShippingThreshold, getShippingCost } from "@/config/currency";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,6 +24,12 @@ import { useRouter } from "next/navigation";
 import OrderCardItem from "./OrderCardItem";
 import { Order } from "@/types/order";
 import { getTimestamp } from "@/utils/misc";
+import { createOrder, updateOrder } from "@/actions/order";
+import { identifyUser } from "@/lib/analytics";
+import {
+  RazorpayPaymentGateway,
+  RazorpayPaymentGatewayRef,
+} from "@/components/RzpGateway";
 
 // Form validation
 interface CheckoutFormData {
@@ -66,6 +68,9 @@ export default function CheckoutPage() {
 
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [processingOrderId, setProcessingOrderId] = useState<string>();
+
+  const rzpRef = useRef<RazorpayPaymentGatewayRef>(null);
 
   // Calculate pricing
   const subtotal = totalPrice;
@@ -219,13 +224,7 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      // Simulate order processing
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Here you would typically send the order to your backend
-
-      const order: Order = {
-        id: `order_${getTimestamp()}`,
+      const order: Omit<Order, "id"> = {
         customerInfo: formData,
         products: items.map((item) => ({
           id: item.id,
@@ -245,28 +244,30 @@ export default function CheckoutPage() {
           tax: 0,
           total: finalTotal,
         },
-        shipping: {
-          method: "standard",
-          cost: shippingCost,
-          estimatedDelivery: "5-7 business days",
-        },
         payment: {
           method: "razorpay",
           status: "pending",
         },
-        status: "draft",
+        status: "initiated",
         createdAt: getTimestamp(),
         source: "website",
       };
 
-      console.log("Order data:", order);
+      identifyUser(order.customerInfo.email, {
+        name: order.customerInfo.name,
+        email: order.customerInfo.email,
+      });
 
-      // Clear cart and show success
-      clearCart();
-      toast.success("Order placed successfully!");
+      const createdOrder = await createOrder(order);
+      setProcessingOrderId(createdOrder.id);
 
-      // Redirect to success page (you might want to create this)
-      router.push("/?orderSuccess=true");
+      console.log("Created order:", createdOrder);
+
+      if (createdOrder.payment.method === "razorpay") {
+        rzpRef.current?.handlePayment(createdOrder);
+      } else {
+        finalizeOrder(createdOrder.id);
+      }
     } catch (error) {
       console.error("Order submission error:", error);
       toast.error("Failed to place order. Please try again.");
@@ -274,6 +275,25 @@ export default function CheckoutPage() {
       setIsSubmitting(false);
     }
   };
+
+  function handlePaymentSuccess(orderId: string) {
+    finalizeOrder(orderId);
+  }
+
+  function handlePaymentCancel(orderId: string) {
+    if (!orderId) return;
+    updateOrder(orderId, { status: "cancelled" });
+  }
+
+  function handlePaymentFailed() {
+    toast.error("Payment failed. Please try again");
+  }
+
+  function finalizeOrder(orderId: string) {
+    clearCart();
+    toast.success("Order Placed successfully! 🎉");
+    router.push(`/order/${orderId}`);
+  }
 
   // Redirect to products if cart is empty
   if (items.length === 0) {
@@ -303,350 +323,359 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        {/* Header */}
-        <div className="flex flex-col gap-2 sm:gap-4 mb-6 sm:mb-8">
-          <div>
-            <Link href="/products">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs sm:text-sm gap-2"
-              >
-                <span className="flex items-center group transition-all">
-                  <ArrowLeft className="w-4 h-4 mr-1 transition-transform duration-200 group-hover:-translate-x-1" />
-                  <span className="inline">Back to Shopping</span>
-                </span>
-              </Button>
-            </Link>
-          </div>
-
-          <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground text-center md:text-left">
-              Checkout
-            </h1>
-          </div>
-        </div>
-
-        <div className="flex flex-col-reverse lg:flex-row gap-4 sm:gap-6 lg:gap-8">
-          {/* Order Form */}
-          <div className="flex-1">
-            <Card>
-              <CardHeader className="">
-                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                  <User className="h-4 w-4 sm:h-5 sm:w-5" />
-                  Shipping Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="">
-                <form
-                  onSubmit={handleSubmit}
-                  className="space-y-4 sm:space-y-6"
+    <>
+      <RazorpayPaymentGateway
+        ref={rzpRef}
+        onSuccess={handlePaymentSuccess}
+        onCancel={handlePaymentCancel}
+        onFailed={handlePaymentFailed}
+      />
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+          {/* Header */}
+          <div className="flex flex-col gap-2 sm:gap-4 mb-6 sm:mb-8">
+            <div>
+              <Link href="/products">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs sm:text-sm gap-2"
                 >
-                  {/* Personal Information */}
-                  <div className="space-y-3 sm:space-y-4">
-                    <div className="space-y-1.5 sm:space-y-2">
-                      <Label htmlFor="name" className="text-sm gap-1">
-                        Full Name
-                        <RequiredStar />
-                      </Label>
-                      <Input
-                        id="name"
-                        type="text"
-                        value={formData.name}
-                        className={formErrors.name ? "border-destructive" : ""}
-                        onChange={(e) =>
-                          handleInputChange("name", e.target.value)
-                        }
-                        onBlur={(e) => handleInputBlur("name")}
-                      />
-                      {formErrors.name && (
-                        <p className="text-xs sm:text-sm text-destructive">
-                          {formErrors.name}
-                        </p>
-                      )}
-                    </div>
+                  <span className="flex items-center group transition-all">
+                    <ArrowLeft className="w-4 h-4 mr-1 transition-transform duration-200 group-hover:-translate-x-1" />
+                    <span className="inline">Back to Shopping</span>
+                  </span>
+                </Button>
+              </Link>
+            </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+            <div>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground text-center md:text-left">
+                Checkout
+              </h1>
+            </div>
+          </div>
+
+          <div className="flex flex-col-reverse lg:flex-row gap-4 sm:gap-6 lg:gap-8">
+            {/* Order Form */}
+            <div className="flex-1">
+              <Card>
+                <CardHeader className="">
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                    Shipping Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="">
+                  <form
+                    onSubmit={handleSubmit}
+                    className="space-y-4 sm:space-y-6"
+                  >
+                    {/* Personal Information */}
+                    <div className="space-y-3 sm:space-y-4">
                       <div className="space-y-1.5 sm:space-y-2">
-                        <Label htmlFor="email" className="gap-1 text-sm">
-                          Email <RequiredStar />
+                        <Label htmlFor="name" className="text-sm gap-1">
+                          Full Name
+                          <RequiredStar />
                         </Label>
                         <Input
-                          id="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={(e) =>
-                            handleInputChange("email", e.target.value)
-                          }
-                          onBlur={(e) => handleInputBlur("email")}
+                          id="name"
+                          type="text"
+                          value={formData.name}
                           className={
-                            formErrors.email ? "border-destructive" : ""
+                            formErrors.name ? "border-destructive" : ""
                           }
+                          onChange={(e) =>
+                            handleInputChange("name", e.target.value)
+                          }
+                          onBlur={(e) => handleInputBlur("name")}
                         />
-                        {formErrors.email && (
+                        {formErrors.name && (
                           <p className="text-xs sm:text-sm text-destructive">
-                            {formErrors.email}
+                            {formErrors.name}
                           </p>
                         )}
                       </div>
 
-                      <div className="space-y-1.5 sm:space-y-2">
-                        <Label htmlFor="phone" className="gap-1 text-sm">
-                          Phone <RequiredStar />
-                        </Label>
-
-                        <span className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">
-                            +91
-                          </span>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                        <div className="space-y-1.5 sm:space-y-2">
+                          <Label htmlFor="email" className="gap-1 text-sm">
+                            Email <RequiredStar />
+                          </Label>
                           <Input
-                            id="phone"
-                            type="tel"
-                            maxLength={10}
-                            value={formData.phone}
+                            id="email"
+                            type="email"
+                            value={formData.email}
                             onChange={(e) =>
-                              handleInputChange("phone", e.target.value)
+                              handleInputChange("email", e.target.value)
                             }
-                            onBlur={(e) => handleInputBlur("phone")}
+                            onBlur={(e) => handleInputBlur("email")}
                             className={
-                              formErrors.phone ? "border-destructive" : ""
+                              formErrors.email ? "border-destructive" : ""
                             }
                           />
-                        </span>
-                        {formErrors.phone && (
+                          {formErrors.email && (
+                            <p className="text-xs sm:text-sm text-destructive">
+                              {formErrors.email}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="space-y-1.5 sm:space-y-2">
+                          <Label htmlFor="phone" className="gap-1 text-sm">
+                            Phone <RequiredStar />
+                          </Label>
+
+                          <span className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">
+                              +91
+                            </span>
+                            <Input
+                              id="phone"
+                              type="tel"
+                              maxLength={10}
+                              value={formData.phone}
+                              onChange={(e) =>
+                                handleInputChange("phone", e.target.value)
+                              }
+                              onBlur={(e) => handleInputBlur("phone")}
+                              className={
+                                formErrors.phone ? "border-destructive" : ""
+                              }
+                            />
+                          </span>
+                          {formErrors.phone && (
+                            <p className="text-xs sm:text-sm text-destructive">
+                              {formErrors.phone}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator className="my-5" />
+
+                    {/* Address Information */}
+                    <div className="space-y-3 sm:space-y-4">
+                      <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                        <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <h3 className="text-base sm:text-lg font-semibold">
+                          Address Details
+                        </h3>
+                      </div>
+
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <Label htmlFor="address" className="text-sm gap-1">
+                          Full Address <RequiredStar />
+                        </Label>
+                        <Textarea
+                          id="address"
+                          value={formData.address}
+                          onChange={(e) =>
+                            handleInputChange("address", e.target.value)
+                          }
+                          onBlur={(e) => handleInputBlur("address")}
+                          className={
+                            formErrors.address ? "border-destructive" : ""
+                          }
+                          rows={3}
+                        />
+                        {formErrors.address && (
                           <p className="text-xs sm:text-sm text-destructive">
-                            {formErrors.phone}
+                            {formErrors.address}
                           </p>
                         )}
                       </div>
+
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <Label htmlFor="landmark" className="text-sm gap-1">
+                          Landmark
+                        </Label>
+                        <Input
+                          id="landmark"
+                          type="text"
+                          className="text-xs sm:text-sm"
+                          value={formData.landmark}
+                          onChange={(e) =>
+                            handleInputChange("landmark", e.target.value)
+                          }
+                          onBlur={(e) => handleInputBlur("landmark")}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                        <div className="space-y-1.5 sm:space-y-2">
+                          <Label htmlFor="city" className="text-sm gap-1">
+                            City <RequiredStar />
+                          </Label>
+                          <Input
+                            id="city"
+                            type="text"
+                            value={formData.city}
+                            onChange={(e) =>
+                              handleInputChange("city", e.target.value)
+                            }
+                            onBlur={(e) => handleInputBlur("city")}
+                            className={
+                              formErrors.city ? "border-destructive" : ""
+                            }
+                          />
+                          {formErrors.city && (
+                            <p className="text-xs sm:text-sm text-destructive">
+                              {formErrors.city}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="space-y-1.5 sm:space-y-2">
+                          <Label htmlFor="state" className="text-sm gap-1">
+                            State <RequiredStar />
+                          </Label>
+                          <Input
+                            id="state"
+                            type="text"
+                            value={formData.state}
+                            onChange={(e) =>
+                              handleInputChange("state", e.target.value)
+                            }
+                            onBlur={(e) => handleInputBlur("state")}
+                            className={
+                              formErrors.state ? "border-destructive" : ""
+                            }
+                          />
+                          {formErrors.state && (
+                            <p className="text-xs sm:text-sm text-destructive">
+                              {formErrors.state}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="space-y-1.5 sm:space-y-2">
+                          <Label htmlFor="pincode" className="text-sm gap-1">
+                            Pincode <RequiredStar />
+                          </Label>
+                          <Input
+                            id="pincode"
+                            type="text"
+                            value={formData.pincode}
+                            onChange={(e) =>
+                              handleInputChange("pincode", e.target.value)
+                            }
+                            onBlur={(e) => handleInputBlur("pincode")}
+                            className={
+                              formErrors.pincode ? "border-destructive" : ""
+                            }
+                            maxLength={6}
+                          />
+                          {formErrors.pincode && (
+                            <p className="text-xs sm:text-sm text-destructive">
+                              {formErrors.pincode}
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     </div>
+
+                    <Button
+                      type="submit"
+                      className="w-full text-sm sm:text-base"
+                      size="lg"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="h-3 w-3 sm:h-4 sm:w-4 mr-2 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                          <span className="text-sm sm:text-base">
+                            Processing Order...
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span className="text-sm sm:text-base">
+                            Place Order • {formatPriceLocalized(finalTotal)}
+                          </span>
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Order Summary */}
+            <div className="flex-1">
+              <Card>
+                <CardHeader className="">
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="flex items-center justify-between gap-2 w-full">
+                      <span>Order Summary</span>
+                      <span className="text-xs text-muted-foreground">
+                        {totalItems} {totalItems === 1 ? "item" : "items"}
+                      </span>
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 sm:space-y-4">
+                  {/* Cart Items */}
+                  <div className="space-y-2 sm:space-y-3">
+                    {items.map((item) => (
+                      <OrderCardItem key={item.id} item={item} />
+                    ))}
                   </div>
 
                   <Separator className="my-5" />
 
-                  {/* Address Information */}
-                  <div className="space-y-3 sm:space-y-4">
-                    <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                      <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
-                      <h3 className="text-base sm:text-lg font-semibold">
-                        Address Details
-                      </h3>
+                  <form onSubmit={handleCouponApply}>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="text"
+                        placeholder="Enter coupon code"
+                        className="w-full"
+                      />
+                      <Button type="submit" variant="outline">
+                        Apply
+                      </Button>
+                    </div>
+                  </form>
+
+                  <Separator className="my-5" />
+
+                  {/* Pricing Breakdown */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm sm:text-sm">
+                      <span>Subtotal</span>
+                      <span>{formatPriceLocalized(subtotal)}</span>
                     </div>
 
-                    <div className="space-y-1.5 sm:space-y-2">
-                      <Label htmlFor="address" className="text-sm gap-1">
-                        Full Address <RequiredStar />
-                      </Label>
-                      <Textarea
-                        id="address"
-                        value={formData.address}
-                        onChange={(e) =>
-                          handleInputChange("address", e.target.value)
-                        }
-                        onBlur={(e) => handleInputBlur("address")}
-                        className={
-                          formErrors.address ? "border-destructive" : ""
-                        }
-                        rows={3}
-                      />
-                      {formErrors.address && (
-                        <p className="text-xs sm:text-sm text-destructive">
-                          {formErrors.address}
-                        </p>
+                    <div className="flex justify-between text-sm sm:text-sm items-center">
+                      <div className="flex items-center gap-1">
+                        <Truck className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span>Shipping</span>
+                      </div>
+                      {shippingCost > 0 ? (
+                        <span>{formatPriceLocalized(shippingCost)}</span>
+                      ) : (
+                        <div className="flex items-center gap-1">
+                          <span className="line-through">
+                            {formatPriceLocalized(getShippingCost())}
+                          </span>
+                          <span className="text-positive">FREE</span>
+                        </div>
                       )}
                     </div>
 
-                    <div className="space-y-1.5 sm:space-y-2">
-                      <Label htmlFor="landmark" className="text-sm gap-1">
-                        Landmark
-                      </Label>
-                      <Input
-                        id="landmark"
-                        type="text"
-                        className="text-xs sm:text-sm"
-                        value={formData.landmark}
-                        onChange={(e) =>
-                          handleInputChange("landmark", e.target.value)
-                        }
-                        onBlur={(e) => handleInputBlur("landmark")}
-                      />
-                    </div>
+                    <Separator className="my-5" />
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                      <div className="space-y-1.5 sm:space-y-2">
-                        <Label htmlFor="city" className="text-sm gap-1">
-                          City <RequiredStar />
-                        </Label>
-                        <Input
-                          id="city"
-                          type="text"
-                          value={formData.city}
-                          onChange={(e) =>
-                            handleInputChange("city", e.target.value)
-                          }
-                          onBlur={(e) => handleInputBlur("city")}
-                          className={
-                            formErrors.city ? "border-destructive" : ""
-                          }
-                        />
-                        {formErrors.city && (
-                          <p className="text-xs sm:text-sm text-destructive">
-                            {formErrors.city}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-1.5 sm:space-y-2">
-                        <Label htmlFor="state" className="text-sm gap-1">
-                          State <RequiredStar />
-                        </Label>
-                        <Input
-                          id="state"
-                          type="text"
-                          value={formData.state}
-                          onChange={(e) =>
-                            handleInputChange("state", e.target.value)
-                          }
-                          onBlur={(e) => handleInputBlur("state")}
-                          className={
-                            formErrors.state ? "border-destructive" : ""
-                          }
-                        />
-                        {formErrors.state && (
-                          <p className="text-xs sm:text-sm text-destructive">
-                            {formErrors.state}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-1.5 sm:space-y-2">
-                        <Label htmlFor="pincode" className="text-sm gap-1">
-                          Pincode <RequiredStar />
-                        </Label>
-                        <Input
-                          id="pincode"
-                          type="text"
-                          value={formData.pincode}
-                          onChange={(e) =>
-                            handleInputChange("pincode", e.target.value)
-                          }
-                          onBlur={(e) => handleInputBlur("pincode")}
-                          className={
-                            formErrors.pincode ? "border-destructive" : ""
-                          }
-                          maxLength={6}
-                        />
-                        {formErrors.pincode && (
-                          <p className="text-xs sm:text-sm text-destructive">
-                            {formErrors.pincode}
-                          </p>
-                        )}
-                      </div>
+                    <div className="flex justify-between font-semibold text-lg sm:text-lg">
+                      <span>Total</span>
+                      <span>{formatPriceLocalized(finalTotal)}</span>
                     </div>
                   </div>
 
-                  <Button
-                    type="submit"
-                    className="w-full text-sm sm:text-base"
-                    size="lg"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <div className="h-3 w-3 sm:h-4 sm:w-4 mr-2 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                        <span className="text-sm sm:text-base">
-                          Processing Order...
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <CreditCard className="h-3 w-3 sm:h-4 sm:w-4" />
-                        <span className="text-sm sm:text-base">
-                          Place Order • {formatPriceLocalized(finalTotal)}
-                        </span>
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Order Summary */}
-          <div className="flex-1">
-            <Card>
-              <CardHeader className="">
-                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                  <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span className="flex items-center justify-between gap-2 w-full">
-                    <span>Order Summary</span>
-                    <span className="text-xs text-muted-foreground">
-                      {totalItems} {totalItems === 1 ? "item" : "items"}
-                    </span>
-                  </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 sm:space-y-4">
-                {/* Cart Items */}
-                <div className="space-y-2 sm:space-y-3">
-                  {items.map((item) => (
-                    <OrderCardItem key={item.id} item={item} />
-                  ))}
-                </div>
-
-                <Separator className="my-5" />
-
-                <form onSubmit={handleCouponApply}>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="text"
-                      placeholder="Enter coupon code"
-                      className="w-full"
-                    />
-                    <Button type="submit" variant="outline">
-                      Apply
-                    </Button>
-                  </div>
-                </form>
-
-                <Separator className="my-5" />
-
-                {/* Pricing Breakdown */}
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm sm:text-sm">
-                    <span>Subtotal</span>
-                    <span>{formatPriceLocalized(subtotal)}</span>
-                  </div>
-
-                  <div className="flex justify-between text-sm sm:text-sm items-center">
-                    <div className="flex items-center gap-1">
-                      <Truck className="h-3 w-3 sm:h-4 sm:w-4" />
-                      <span>Shipping</span>
-                    </div>
-                    {shippingCost > 0 ? (
-                      <span>{formatPriceLocalized(shippingCost)}</span>
-                    ) : (
-                      <div className="flex items-center gap-1">
-                        <span className="line-through">
-                          {formatPriceLocalized(getShippingCost())}
-                        </span>
-                        <span className="text-positive">FREE</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <Separator className="my-5" />
-
-                  <div className="flex justify-between font-semibold text-lg sm:text-lg">
-                    <span>Total</span>
-                    <span>{formatPriceLocalized(finalTotal)}</span>
-                  </div>
-                </div>
-
-                {/* Shipping Info */}
-                {/* <div className="mt-4 sm:mt-6 p-2 sm:p-3 rounded-lg bg-primary/10 border border-primary/20">
+                  {/* Shipping Info */}
+                  {/* <div className="mt-4 sm:mt-6 p-2 sm:p-3 rounded-lg bg-primary/10 border border-primary/20">
                   <div className="flex items-start gap-2">
                     <Truck className="h-3 w-3 sm:h-4 sm:w-4 text-primary mt-0.5" />
                     <div className="text-sm sm:text-sm">
@@ -662,11 +691,12 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                 </div> */}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import { shared } from "use-broadcast-ts";
 import { UIProduct } from "@/types/product";
 import { BaseCustomizations } from "@/data/customizations";
+import { calculateProductUnitPrice } from "@/utils/price";
 
 // todo: optionally better handling of customizations
 const createItemId = (
@@ -61,15 +62,8 @@ export const useCartStore = create<CartStore>()(
           const itemId = createItemId(product.id, customizations);
           const existingItem = state.items.find((item) => item.id === itemId);
 
-          let customizationPrice = 0;
-          Object.values(customizations).forEach((value: string) => {
-            const customization = BaseCustomizations[value];
-            if (customization && customization.priceAdd) {
-              customizationPrice += customization.priceAdd;
-            }
-          });
-
-          const totalPrice = product.price + customizationPrice;
+          const unitPrice = calculateProductUnitPrice(product.price, customizations);
+          const totalPrice = unitPrice;
 
           if (existingItem) {
             set({
@@ -143,20 +137,7 @@ export const useCartStore = create<CartStore>()(
           const state = get();
           const updatedItems = state.items.map((item) => {
             if (item.id === itemId) {
-              const unitPrice =
-                item.product.price +
-                Object.values(item.customizations).reduce(
-                  (sum: number, value: string) => {
-                    const customization = BaseCustomizations[value];
-                    return (
-                      sum +
-                      (customization && customization.priceAdd
-                        ? customization.priceAdd
-                        : 0)
-                    );
-                  },
-                  0
-                );
+              const unitPrice = calculateProductUnitPrice(item.product.price, item.customizations);
               return {
                 ...item,
                 quantity,
