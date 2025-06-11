@@ -44,10 +44,10 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
+              <Toaster richColors position="top-right" />
               <ConditionalLayout>
                 <Protected>{children}</Protected>
               </ConditionalLayout>
-              <Toaster richColors position="top-right" />
             </ThemeProvider>
           </TanstackProvider>
         </PostHogProvider>

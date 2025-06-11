@@ -33,7 +33,6 @@ export type ShippingInfo = {
 export type RazorpayPaymentDetails = {
   razorpayOrderId: string; // Razorpay order ID
   razorpayPaymentId?: string; // Set after successful payment
-  razorpaySignature?: string; // Signature for verification
   paymentStatus?: "created" | "authorized" | "captured" | "refunded" | "failed";
   paymentMethod?: "card" | "netbanking" | "wallet" | "upi" | "emi" | "paylater";
   currency?: string;
@@ -82,9 +81,6 @@ export type Order = {
   // Timestamps
   createdAt: number;
   confirmedAt?: number;
-  shippedAt?: number;
-  deliveredAt?: number;
-  cancelledAt?: number;
   
   // Additional Information
   notes?: string; // Customer notes

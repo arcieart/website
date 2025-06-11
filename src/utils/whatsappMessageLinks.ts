@@ -3,7 +3,7 @@ import { getAddressString } from "./address";
 import { formatPrice } from "./price";
 
 export const getWhatsappOrderConfirmationLink = (order: Order) => {
-    const paymentMethod = order.payment.method === "razorpay" ? order.payment.razorpay?.paymentStatus?.toUpperCase() : "Cash";
+    const paymentMethod = order.payment.method === "razorpay" ? order.payment.razorpay?.paymentMethod?.toUpperCase() : "Cash";
   
     const message = [
       "Hey, we have received your order!",
@@ -21,7 +21,8 @@ export const getWhatsappOrderConfirmationLink = (order: Order) => {
       "",
       "You should receive your order in 7-10 days.",
       "",
-      "Thanks for shopping with arcie.art! 🎉"
+      "Thanks for shopping with arcie.art! 🎉 ",
+      "If you have any questions, please feel free to reply here."
     ].join("\n");
     const encodedMessage = encodeURIComponent(message);
     return `https://wa.me/91${order.customerInfo.phone}?text=${encodedMessage}`;

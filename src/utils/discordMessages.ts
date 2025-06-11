@@ -5,12 +5,12 @@ import { getAddressString } from "./address";
 import { getWhatsappOrderConfirmationLink } from "./whatsappMessageLinks";
 
 export const getDiscordOrderMessage = (order: Order) => {
-    const paymentMethod = order.payment.method === "razorpay" ? order.payment.razorpay?.paymentStatus?.toUpperCase() : "Cash";
+    const paymentMethod = order.payment.method === "razorpay" ? order.payment.razorpay?.paymentMethod?.toUpperCase() : "Cash";
   
     return {
       content: `🎉 We have a new order! \nSend ${
         order.customerInfo.name
-      } their order info + shipping details by clicking [here](${getWhatsappOrderConfirmationLink(order)})`,
+      } their order info by clicking [here](${getWhatsappOrderConfirmationLink(order)})`,
       embeds: [
         {
           title: "Order Details",

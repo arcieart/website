@@ -30,6 +30,7 @@ import {
   RazorpayPaymentGateway,
   RazorpayPaymentGatewayRef,
 } from "@/components/RzpGateway";
+import OrderConfirmationDialog from "@/components/OrderConfirmationDialog";
 
 // Form validation
 interface CheckoutFormData {
@@ -52,9 +53,13 @@ interface FormErrors {
 }
 
 export default function CheckoutPage() {
-  const router = useRouter();
   const { items, totalItems, totalPrice, clearCart } = useCartStore();
+  const router = useRouter();
 
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmedOrderId, setConfirmedOrderId] = useState("");
   const [formData, setFormData] = useState<CheckoutFormData>({
     name: "",
     email: "",
@@ -65,10 +70,6 @@ export default function CheckoutPage() {
     pincode: "",
     landmark: "",
   });
-
-  const [formErrors, setFormErrors] = useState<FormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [processingOrderId, setProcessingOrderId] = useState<string>();
 
   const rzpRef = useRef<RazorpayPaymentGatewayRef>(null);
 
@@ -259,7 +260,6 @@ export default function CheckoutPage() {
       });
 
       const createdOrder = await createOrder(order);
-      setProcessingOrderId(createdOrder.id);
 
       console.log("Created order:", createdOrder);
 
@@ -290,9 +290,15 @@ export default function CheckoutPage() {
   }
 
   function finalizeOrder(orderId: string) {
-    clearCart();
-    toast.success("Order Placed successfully! 🎉");
+    setConfirmedOrderId(orderId);
+    setShowConfirmation(true);
+  }
+
+  function handleCloseConfirmationDialog(orderId: string) {
+    setShowConfirmation(false);
+    setConfirmedOrderId(orderId);
     router.push(`/order/${orderId}`);
+    clearCart();
   }
 
   // Redirect to products if cart is empty
@@ -330,6 +336,15 @@ export default function CheckoutPage() {
         onCancel={handlePaymentCancel}
         onFailed={handlePaymentFailed}
       />
+
+      <OrderConfirmationDialog
+        isOpen={showConfirmation}
+        orderId={confirmedOrderId}
+        customerName={formData.name}
+        orderTotal={formatPriceLocalized(finalTotal)}
+        onClose={handleCloseConfirmationDialog}
+      />
+
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
           {/* Header */}
