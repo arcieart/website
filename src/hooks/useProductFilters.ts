@@ -101,7 +101,7 @@ export function useProductFilters({
 
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
-    let filtered = products.filter((product) => {
+    const filtered = products.filter((product) => {
       // Category filter
       if (
         enableCategoryFilter &&

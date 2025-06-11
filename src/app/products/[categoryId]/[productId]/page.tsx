@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Heart, ShoppingCart, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
@@ -57,7 +56,7 @@ interface ProductPageProps {
   params: Promise<{ productId: string }>;
 }
 
-export default function ProductPage({ params }: ProductPageProps) {
+function ProductPage({ params }: ProductPageProps) {
   const { products, isLoading } = useProducts();
 
   const [resolvedParams, setResolvedParams] = useState<{ productId: string }>();
@@ -464,5 +463,13 @@ export default function ProductPage({ params }: ProductPageProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProductPageWrapper({ params }: ProductPageProps) {
+  return (
+    <Suspense fallback={<ProductPageSkeleton />}>
+      <ProductPage params={params} />
+    </Suspense>
   );
 }

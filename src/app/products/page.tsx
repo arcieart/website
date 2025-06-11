@@ -8,8 +8,9 @@ import { ProductFilters } from "@/components/products/ProductFilters";
 import { useProducts } from "@/hooks/useProducts";
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { ProductsGridSkeleton } from "@/components/skeletons/ProductsPageSkeleton";
+import { Suspense } from "react";
 
-export default function ProductsPage() {
+function ProductsPage() {
   const { products, isLoading } = useProducts();
   const {
     sortBy,
@@ -77,5 +78,13 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProductsPageWrapper() {
+  return (
+    <Suspense fallback={<ProductsGridSkeleton />}>
+      <ProductsPage />
+    </Suspense>
   );
 }

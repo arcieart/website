@@ -7,13 +7,13 @@ import { ProductFilters } from "@/components/products/ProductFilters";
 import { useProducts } from "@/hooks/useProducts";
 
 import { useParams } from "next/navigation";
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import Link from "next/link";
 import { BaseCategoriesObj } from "@/data/categories";
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { ProductsGridSkeleton } from "@/components/skeletons/ProductsPageSkeleton";
 
-export default function CategoryProductsPage() {
+function CategoryProductsPage() {
   const params = useParams();
   const categoryId = params.categoryId as string;
 
@@ -121,7 +121,8 @@ export default function CategoryProductsPage() {
                 Category not found
               </h3>
               <p className="text-muted-foreground mb-4">
-                We couldn't find any products in the "{categoryName}" category
+                We couldn&apos;t find any products in the &quot;{categoryName}
+                &quot; category
               </p>
               <Link href="/products">
                 <Button variant="outline">Browse All Products</Button>
@@ -146,5 +147,13 @@ export default function CategoryProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CategoryProductsPageWrapper() {
+  return (
+    <Suspense fallback={<ProductsGridSkeleton />}>
+      <CategoryProductsPage />
+    </Suspense>
   );
 }

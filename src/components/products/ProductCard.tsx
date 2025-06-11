@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Heart, Pencil, ShoppingCart } from "lucide-react";
+import { ArrowRight, Heart, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,13 +12,15 @@ import { useFavoritesStore } from "@/stores/favorites";
 import { formatPrice, getStrikethroughPrice } from "@/utils/price";
 import { BaseCategoriesObj } from "@/data/categories";
 import { useCartSheet } from "@/hooks/useCartSheet";
+import { Suspense } from "react";
+import { ProductCardSkeleton } from "../skeletons/ProductsPageSkeleton";
 
 interface ProductCardProps {
   product: UIProduct;
   className?: string;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+function ProductCardContent({ product }: ProductCardProps) {
   const addToCart = useCartStore((state) => state.addItem);
   const { toggleItem, isInFavorites } = useFavoritesStore();
   const isInWishlist = isInFavorites(product.id);
@@ -147,5 +149,13 @@ export function ProductCard({ product }: ProductCardProps) {
         </Button>
       </div>
     </Card>
+  );
+}
+
+export function ProductCard({ product }: ProductCardProps) {
+  return (
+    <Suspense fallback={<ProductCardSkeleton />}>
+      <ProductCardContent product={product} />
+    </Suspense>
   );
 }

@@ -12,18 +12,19 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingCart } from "lucide-react";
+import { Loader2, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import CouponBanner from "@/components/banners/CouponBanner";
 import { formatPriceLocalized } from "@/utils/price";
 import CartItem from "@/components/cart/CartItem";
 import { useCartSheet } from "@/hooks/useCartSheet";
+import { Suspense } from "react";
 
 interface CartSheetProps {
   children: React.ReactNode;
 }
 
-export default function CartSheet({ children }: CartSheetProps) {
+function CartSheet({ children }: CartSheetProps) {
   const { items, totalItems, totalPrice, updateQuantity, removeItem } =
     useCartStore();
   const { cartOpen, setCartOpen } = useCartSheet();
@@ -110,5 +111,13 @@ export default function CartSheet({ children }: CartSheetProps) {
         </SheetFooter>
       </SheetContent>
     </Sheet>
+  );
+}
+
+export default function CartSheetWrapper({ children }: CartSheetProps) {
+  return (
+    <Suspense fallback={<Loader2 className="w-4 h-4 animate-spin" />}>
+      <CartSheet>{children}</CartSheet>
+    </Suspense>
   );
 }
