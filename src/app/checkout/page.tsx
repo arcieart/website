@@ -26,6 +26,8 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import OrderCardItem from "./OrderCardItem";
+import { Order } from "@/types/order";
+import { getTimestamp } from "@/utils/misc";
 
 // Form validation
 interface CheckoutFormData {
@@ -221,16 +223,43 @@ export default function CheckoutPage() {
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Here you would typically send the order to your backend
-      console.log("Order data:", {
+
+      const order: Order = {
+        id: `order_${getTimestamp()}`,
         customerInfo: formData,
-        items,
+        products: items.map((item) => ({
+          id: item.id,
+          name: item.product.name,
+          categoryId: item.product.categoryId || "unknown",
+          price: item.product.price,
+          quantity: item.quantity,
+          total: item.product.price * item.quantity,
+          imageUrl: item.product.images[0],
+          sku: item.id,
+          description: item.product.description,
+          customizations: item.customizations,
+        })),
         pricing: {
           subtotal,
           shipping: shippingCost,
           tax: 0,
           total: finalTotal,
         },
-      });
+        shipping: {
+          method: "standard",
+          cost: shippingCost,
+          estimatedDelivery: "5-7 business days",
+        },
+        payment: {
+          method: "razorpay",
+          status: "pending",
+        },
+        status: "draft",
+        createdAt: getTimestamp(),
+        source: "website",
+      };
+
+      console.log("Order data:", order);
 
       // Clear cart and show success
       clearCart();
@@ -567,7 +596,7 @@ export default function CheckoutPage() {
                   ))}
                 </div>
 
-                <Separator />
+                <Separator className="my-5" />
 
                 <form onSubmit={handleCouponApply}>
                   <div className="flex items-center gap-2">
@@ -582,7 +611,7 @@ export default function CheckoutPage() {
                   </div>
                 </form>
 
-                <Separator />
+                <Separator className="my-5" />
 
                 {/* Pricing Breakdown */}
                 <div className="space-y-3">
@@ -608,7 +637,7 @@ export default function CheckoutPage() {
                     )}
                   </div>
 
-                  <Separator />
+                  <Separator className="my-5" />
 
                   <div className="flex justify-between font-semibold text-lg sm:text-lg">
                     <span>Total</span>
