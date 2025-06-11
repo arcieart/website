@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/providers/theme";
 import { TanstackProvider } from "@/providers/tanstack";
 import { ConditionalLayout } from "@/components/layout/conditional-layout";
+import { Protected } from "@/components/misc/Protected";
 
 const caveat = Caveat({
   variable: "--font-caveat",
@@ -43,7 +44,9 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <ConditionalLayout>{children}</ConditionalLayout>
+              <ConditionalLayout>
+                <Protected>{children}</Protected>
+              </ConditionalLayout>
               <Toaster richColors position="top-right" />
             </ThemeProvider>
           </TanstackProvider>
