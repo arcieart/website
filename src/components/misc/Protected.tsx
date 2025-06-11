@@ -40,7 +40,7 @@ export function Protected({ children }: { children: React.ReactNode }) {
     }
   }
 
-  if (isDev || isAdmin || true) return <>{children}</>;
+  if (isDev || isAdmin) return <>{children}</>;
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">

@@ -14,18 +14,19 @@ const socialLinks = [
 ];
 
 const footerLinks = {
-  shop: [
-    { name: "All Products", href: "/products" },
-    { name: "Best Sellers", href: "/best-sellers" },
-  ],
-  support: [
+  company: [
     { name: "Contact Us", href: "/contact" },
-    { name: "Shipping & Returns", href: "/shipping" },
+    { name: "About Us", href: "/about" },
   ],
-  company: [{ name: "About Us", href: "/about" }],
   legal: [
-    { name: "Privacy Policy", href: "/privacy" },
-    { name: "Terms of Service", href: "/terms" },
+    {
+      name: "Privacy Policy",
+      href: "https://merchant.razorpay.com/policy/Qfq9VMtQnMED2a/privacy",
+    },
+    {
+      name: "Terms of Service",
+      href: "https://merchant.razorpay.com/policy/Qfq9VMtQnMED2a/terms",
+    },
   ],
 };
 
@@ -72,6 +73,14 @@ export function Footer() {
               Categories
             </h3>
             <ul className="space-y-3">
+              <li>
+                <Link
+                  href="/products"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  All Products
+                </Link>
+              </li>
               {BaseCategories.map((category) => (
                 <li key={category.id}>
                   <Link
@@ -79,42 +88,6 @@ export function Footer() {
                     className="text-sm text-muted-foreground hover:text-primary transition-colors"
                   >
                     {category.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Shop Links */}
-          <div>
-            <h3 className="text-sm font-semibold text-foreground mb-4">Shop</h3>
-            <ul className="space-y-3">
-              {footerLinks.shop.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Support Links */}
-          <div>
-            <h3 className="text-sm font-semibold text-foreground mb-4">
-              Support
-            </h3>
-            <ul className="space-y-3">
-              {footerLinks.support.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {link.name}
                   </Link>
                 </li>
               ))}
