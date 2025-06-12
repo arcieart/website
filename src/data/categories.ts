@@ -12,7 +12,7 @@ export const BaseCategories: Category[] = [
     id: "keychains",
     name: "Keychains",
     baseDescription:
-      "Keychains are a great way to show off your personality and style. They are small, portable, and can be customized to your liking.",
+      "A personalized accessory that adds character to your everyday carry. Perfect as a thoughtful gift or a unique touch to your own keys.",
     images: [],
     price: 150,
     material: "pla",
@@ -21,7 +21,7 @@ export const BaseCategories: Category[] = [
     id: "earrings",
     name: "Earrings",
     baseDescription:
-      "Earrings are a great way to show off your personality and style. They are small, portable, and can be customized to your liking.",
+      "A lightweight and comfortable statement piece that brings personality to any outfit. Each design is carefully crafted to catch the eye.",
     images: [],
     price: 150,
     material: "pla",
@@ -30,7 +30,7 @@ export const BaseCategories: Category[] = [
     id: "lithophanes",
     name: "Lithophanes",
     baseDescription:
-      "Lithophanes are a great way to show off your personality and style. They are small, portable, and can be customized to your liking.",
+      "Transform your cherished photo into an enchanting light art piece. When backlit, this unique creation reveals its hidden image in stunning detail.",
     images: [],
     price: 150,
     material: "pla",
@@ -39,7 +39,7 @@ export const BaseCategories: Category[] = [
     id: "coasters",
     name: "Coasters",
     baseDescription:
-      "Coasters are a great way to show off your personality and style. They are small, portable, and can be customized to your liking.",
+      "A stylish way to protect your surfaces while adding character to your space. Combines practical functionality with artistic flair.",
     images: [],
     price: 150,
     material: "pla",

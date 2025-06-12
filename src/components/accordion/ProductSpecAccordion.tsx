@@ -102,6 +102,11 @@ export const ProductSpecAccordion = ({ product }: { product: UIProduct }) => {
                   packaging.
                 </li>
                 <li>
+                  Buyers are responsible for return postage costs. If the item
+                  is not returned in its original condition, the buyer is
+                  responsible for any loss in value.
+                </li>
+                <li>
                   If the product is damaged or there are printing errors,
                   contact us through WhatsApp for return assistance.
                 </li>

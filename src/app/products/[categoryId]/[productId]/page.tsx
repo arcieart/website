@@ -348,16 +348,16 @@ function ProductPage({ params }: ProductPageProps) {
             </div>
 
             {/* Description */}
-            {product.description && (
-              <div className="space-y-2">
+            <div className="space-y-2">
+              {product.description && (
                 <p className="text-sm text-muted-foreground">
                   {product.description}
                 </p>
-                <p className="text-sm text-muted-foreground">
-                  {product.baseDescription}
-                </p>
-              </div>
-            )}
+              )}
+              <p className="text-sm text-muted-foreground">
+                {product.baseDescription}
+              </p>
+            </div>
 
             {/* Customization Options */}
             {product.customizationOptions.length > 0 && (
