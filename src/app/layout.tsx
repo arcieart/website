@@ -26,6 +26,57 @@ export const metadata: Metadata = {
   title: "Arcie Art - Personalized Art",
   description:
     "Your one stop shop for personalized and custom keychains, earrings, coasters, lithophanes, desk accessories and more. Create your own unique products with your own designs.",
+  keywords: [
+    "arcie.art",
+    "personalized",
+    "personalized art",
+    "personalized gifts",
+    "personalized art gifts",
+    "personalized art gifts for her",
+    "personalized art gifts for him",
+    "personalized art gifts for kids",
+    "personalized art gifts for family",
+    "personalized art gifts for friends",
+    "personalized art gifts for couples",
+    "custom keychains",
+    "earrings",
+    "coasters",
+    "lithophanes",
+    "desk accessories",
+    "custom designs",
+    "3d printing",
+    "3d printing services",
+  ],
+
+  authors: [
+    { name: "Shamoil Arsiwala", url: "https://shamoil.com" },
+    { name: "arcie.art", url: "https://arcie.art" },
+  ],
+
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://arcie.art",
+    siteName: "Arcie Art",
+    title: "Arcie Art - Personalized Art",
+    description:
+      "Your one stop shop for personalized and custom keychains, earrings, coasters, lithophanes, desk accessories and more. Create your own unique products with your own designs.",
+    images: [
+      {
+        url: "https://www.arcie.art/icon.jpg",
+        width: 1024,
+        height: 1024,
+        alt: "Arcie Art - Personalized Art Logo",
+        type: "image/jpeg",
+      },
+    ],
+  },
+
+  // Icons configuration
+  icons: {
+    icon: [{ url: "https://www.arcie.art/icon.jpg", type: "image/jpeg" }],
+    apple: [{ url: "https://www.arcie.art/icon.jpg", type: "image/jpeg" }],
+  },
 };
 
 export default function RootLayout({
@@ -45,9 +96,7 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <Toaster richColors position="top-right" />
-              <ConditionalLayout>
-                <Protected>{children}</Protected>
-              </ConditionalLayout>
+              <ConditionalLayout>{children}</ConditionalLayout>
             </ThemeProvider>
           </TanstackProvider>
         </PostHogProvider>
