@@ -10,4 +10,5 @@ enum DevCollections {
   Orders = "dev_orders",
 }
 
-export const Collections = isProduction ? ProdCollections : DevCollections;
+export const Collections = DevCollections;
+// export const Collections = isProduction ? ProdCollections : DevCollections;
