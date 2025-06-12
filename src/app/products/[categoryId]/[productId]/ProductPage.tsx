@@ -53,6 +53,7 @@ import { DotSeparator } from "@/components/misc/DotSeparator";
 import { ProductPageSkeleton } from "@/components/skeletons/ProductPageSkeleton";
 import { Materials } from "@/data/materials";
 import { getWhatsappCustomizationHelpLink } from "@/utils/whatsappMessageLinks";
+import { RecommendedProducts } from "@/components/products/RecommendedProducts";
 
 interface ProductPageProps {
   params: Promise<{ productId: string }>;
@@ -485,6 +486,9 @@ export function ProductPage({ params }: ProductPageProps) {
             </div>
           </div>
         </div>
+
+        {/* Related Products */}
+        <RecommendedProducts currentProduct={product} />
       </div>
     </div>
   );
