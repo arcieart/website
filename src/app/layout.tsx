@@ -51,28 +51,6 @@ export const metadata: Metadata = {
     { name: "Shamoil Arsiwala", url: "https://shamoil.com" },
     { name: "arcie.art", url: "https://arcie.art" },
   ],
-
-  // Open Graph metadata for social media sharing (WhatsApp, Facebook, etc.)
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "https://arcie.art",
-    siteName: "arcie.art",
-    title: "Arcie Art - Personalized Art",
-    description:
-      "Your one stop shop for personalized and custom keychains, earrings, coasters, lithophanes, desk accessories and more. Create your own unique products with your own designs.",
-    images: [
-      {
-        url: "https://www.arcie.art/icon.jpg",
-        alt: "arcie.art logo",
-      },
-    ],
-  },
-  // Icons configuration
-  icons: {
-    icon: [{ url: "https://www.arcie.art/icon.jpg", type: "image/jpg" }],
-    apple: [{ url: "https://www.arcie.art/icon.jpg", type: "image/jpg" }],
-  },
 };
 
 export default function RootLayout({
