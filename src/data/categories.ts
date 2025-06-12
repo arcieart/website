@@ -4,7 +4,7 @@ export type Category = {
   baseDescription: string;
   images: string[];
   price: number;
-  material: "Plastic - PLA";
+  material: "pla" | "petg";
 };
 
 export const BaseCategories: Category[] = [
@@ -15,7 +15,7 @@ export const BaseCategories: Category[] = [
       "Keychains are a great way to show off your personality and style. They are small, portable, and can be customized to your liking.",
     images: [],
     price: 150,
-    material: "Plastic - PLA",
+    material: "pla",
   },
   {
     id: "earrings",
@@ -24,7 +24,7 @@ export const BaseCategories: Category[] = [
       "Earrings are a great way to show off your personality and style. They are small, portable, and can be customized to your liking.",
     images: [],
     price: 150,
-    material: "Plastic - PLA",
+    material: "pla",
   },
   {
     id: "lithophanes",
@@ -33,7 +33,7 @@ export const BaseCategories: Category[] = [
       "Lithophanes are a great way to show off your personality and style. They are small, portable, and can be customized to your liking.",
     images: [],
     price: 150,
-    material: "Plastic - PLA",
+    material: "pla",
   },
   {
     id: "coasters",
@@ -42,7 +42,7 @@ export const BaseCategories: Category[] = [
       "Coasters are a great way to show off your personality and style. They are small, portable, and can be customized to your liking.",
     images: [],
     price: 150,
-    material: "Plastic - PLA",
+    material: "pla",
   },
 ];
 

@@ -5,6 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { BaseCategoriesObj } from "@/data/categories";
+import { Materials } from "@/data/materials";
 import { UIProduct } from "@/types/product";
 import { Package, ShoppingBag, Truck } from "lucide-react";
 
@@ -30,7 +31,7 @@ export const ProductSpecAccordion = ({ product }: { product: UIProduct }) => {
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Material</span>
               <span className="text-sm font-medium capitalize">
-                {product.material.replace(" - ", " ")}
+                {Materials[product.material].name}
               </span>
             </div>
             {product.weight && (

@@ -1,6 +1,5 @@
 import { getDefaultCurrency } from '@/config/currency';
-import { BaseCustomizations, FilamentColors } from "@/data/customizations";
-import { UIProduct } from "@/types/product";
+import { BaseCustomizations, PLAFilamentColors } from "@/data/customizations";
 
 export type Currency = 'INR' | 'USD' | 'EUR' | 'GBP' | 'JPY';
 
@@ -122,7 +121,7 @@ export function calculateProductPrice(
     
     if (customization?.type === "fixed-color-picker") {
       const selectedColor = customizations[key];
-      const selectedColorObj = FilamentColors.find(
+      const selectedColorObj = PLAFilamentColors.find(
         (c) => c.id === selectedColor
       );
       if (selectedColorObj) {

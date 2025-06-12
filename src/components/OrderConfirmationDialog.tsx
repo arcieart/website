@@ -152,7 +152,7 @@ export default function OrderConfirmationDialog({
             <div className="text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border/30">
                 <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs md:text-sm text-muted-foreground">
                   Redirecting in{" "}
                   <span className="font-mono font-semibold text-foreground">
                     {countdown}

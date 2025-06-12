@@ -29,7 +29,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { BaseCustomizations, FilamentColors } from "@/data/customizations";
+import { BaseCustomizations, PLAFilamentColors } from "@/data/customizations";
 import { useCartStore } from "@/stores/cart";
 import { useFavoritesStore } from "@/stores/favorites";
 import {
@@ -48,6 +48,7 @@ import { useCartSheet } from "@/hooks/useCartSheet";
 import { ProductSpecAccordion } from "@/components/accordion/ProductSpecAccordion";
 import { DotSeparator } from "@/components/misc/DotSeparator";
 import { ProductPageSkeleton } from "@/components/skeletons/ProductPageSkeleton";
+import { Materials } from "@/data/materials";
 
 const CustomizationLabel = ({ label, required }: Partial<Customization>) => (
   <Label className="gap-1">
@@ -173,7 +174,7 @@ function ProductPage({ params }: ProductPageProps) {
 
       case "fixed-color-picker":
         const selectedColor = customizations[customization.id];
-        const selectedColorObj = FilamentColors.find(
+        const selectedColorObj = PLAFilamentColors.find(
           (c) => c.id === selectedColor
         );
         return (
@@ -184,7 +185,7 @@ function ProductPage({ params }: ProductPageProps) {
             />
             <TooltipProvider>
               <div className="flex flex-wrap gap-3">
-                {FilamentColors.map((color) => (
+                {PLAFilamentColors.map((color) => (
                   <Tooltip key={color.id}>
                     <TooltipTrigger asChild>
                       <button
@@ -431,7 +432,7 @@ function ProductPage({ params }: ProductPageProps) {
                   Material:
                 </span>
                 <span className="text-muted-foreground text-sm">
-                  {product.material}
+                  {Materials[product.material].name}
                 </span>
               </div>
 

@@ -49,7 +49,7 @@ export const BaseCustomizations: Record<string, Customization> = {
   },
 };
 
-export const FilamentColors: FilamentColor[] = [
+export const PLAFilamentColors: FilamentColor[] = [
   {
     id: "pla-candy-red",
     label: "Candy Red",
