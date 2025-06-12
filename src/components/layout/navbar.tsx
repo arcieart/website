@@ -18,12 +18,9 @@ import { FullLogo } from "../logos/FullLogo";
 import CartSheet from "./CartSheet";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { isProduction } from "@/utils/misc";
-import { NavBarBanner, TopLayoutBanner } from "../banners/TopLayoutBanner";
+import { NavBarBanner } from "../banners/TopLayoutBanner";
 
-const navigation = [
-  { name: "All Products", href: "/products" },
-  { name: "Best Sellers", href: "/products?bestSellers=true" },
-];
+const navigation = [{ name: "All Products", href: "/products" }];
 
 export function Navbar() {
   const totalItems = useCartStore((state) => state.totalItems);

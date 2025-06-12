@@ -1,6 +1,6 @@
 import { Customization, FilamentColor } from "@/types/customization";
 
-export const BaseCustomizations: Record<string, Customization> = {
+export const BaseCustomizationsObj: Record<string, Customization> = {
   "keychain-primary-color": {
     id: "keychain-primary-color",
     categoryId: "keychains",

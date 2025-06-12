@@ -1,5 +1,8 @@
 import { Badge } from "../ui/badge";
-import { BaseCustomizations, PLAFilamentColors } from "@/data/customizations";
+import {
+  BaseCustomizationsObj,
+  PLAFilamentColors,
+} from "@/data/customizations";
 
 export const CustomizationBadge = ({
   customizationId,
@@ -8,7 +11,7 @@ export const CustomizationBadge = ({
   customizationId: string;
   value: string;
 }) => {
-  const customization = BaseCustomizations[customizationId];
+  const customization = BaseCustomizationsObj[customizationId];
   if (!customization) return null;
 
   let displayValue = "";

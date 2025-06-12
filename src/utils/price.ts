@@ -1,5 +1,5 @@
 import { getDefaultCurrency } from '@/config/currency';
-import { BaseCustomizations, PLAFilamentColors } from "@/data/customizations";
+import { BaseCustomizationsObj, PLAFilamentColors } from "@/data/customizations";
 
 export type Currency = 'INR' | 'USD' | 'EUR' | 'GBP' | 'JPY';
 
@@ -117,7 +117,7 @@ export function calculateProductPrice(
   let totalPrice = basePrice;
   
   Object.keys(customizations).forEach((key: string) => {
-    const customization = BaseCustomizations[key];
+    const customization = BaseCustomizationsObj[key];
     
     if (customization?.type === "fixed-color-picker") {
       const selectedColor = customizations[key];

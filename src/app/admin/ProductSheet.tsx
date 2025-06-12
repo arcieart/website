@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/sheet";
 
 import { BaseCategories, BaseCategoriesIds } from "@/data/categories";
-import { BaseCustomizations } from "@/data/customizations";
+import { BaseCustomizationsObj } from "@/data/customizations";
 import { DBProduct } from "@/types/product";
 import { uploadImageToS3, generateImageKey } from "@/lib/aws-s3";
 import Image from "next/image";
@@ -223,7 +223,7 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
   };
 
   const loadBaseCustomization = (customizationRefId: string, index: number) => {
-    if (customizationRefId && BaseCustomizations[customizationRefId]) {
+    if (customizationRefId && BaseCustomizationsObj[customizationRefId]) {
       setProductData((prev) => ({
         ...prev,
         customizationOptions: prev.customizationOptions.map((option, i) =>
@@ -517,11 +517,11 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
                     <h4 className="font-medium text-lg">
                       Customization Option {index + 1}
                       {option.customizationRefId &&
-                        BaseCustomizations[option.customizationRefId] && (
+                        BaseCustomizationsObj[option.customizationRefId] && (
                           <span className="text-sm font-normal text-muted-foreground ml-2">
                             (Based on:{" "}
                             {
-                              BaseCustomizations[option.customizationRefId]
+                              BaseCustomizationsObj[option.customizationRefId]
                                 .label
                             }
                             )
@@ -555,7 +555,7 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
                         <SelectValue placeholder="Select a base customization to load" />
                       </SelectTrigger>
                       <SelectContent>
-                        {Object.entries(BaseCustomizations)
+                        {Object.entries(BaseCustomizationsObj)
                           .filter(
                             ([, customization]) =>
                               customization.categoryId ===
@@ -569,18 +569,25 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
                       </SelectContent>
                     </Select>
                     {option.customizationRefId &&
-                      BaseCustomizations[option.customizationRefId] && (
+                      BaseCustomizationsObj[option.customizationRefId] && (
                         <div className="mt-2 text-xs text-muted-foreground">
                           Base values:{" "}
-                          {BaseCustomizations[option.customizationRefId].label}{" "}
-                          •{BaseCustomizations[option.customizationRefId].type}{" "}
+                          {
+                            BaseCustomizationsObj[option.customizationRefId]
+                              .label
+                          }{" "}
+                          •
+                          {
+                            BaseCustomizationsObj[option.customizationRefId]
+                              .type
+                          }{" "}
                           • {getCurrencySymbol()}
                           {
-                            BaseCustomizations[option.customizationRefId]
+                            BaseCustomizationsObj[option.customizationRefId]
                               .priceAdd
                           }{" "}
                           •
-                          {BaseCustomizations[option.customizationRefId]
+                          {BaseCustomizationsObj[option.customizationRefId]
                             .required
                             ? "Required"
                             : "Optional"}

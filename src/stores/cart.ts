@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { shared } from "use-broadcast-ts";
 import { UIProduct } from "@/types/product";
-import { BaseCustomizations } from "@/data/customizations";
+import { BaseCustomizationsObj } from "@/data/customizations";
 import { calculateProductUnitPrice } from "@/utils/price";
 
 // todo: optionally better handling of customizations

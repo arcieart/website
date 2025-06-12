@@ -29,7 +29,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { BaseCustomizations, PLAFilamentColors } from "@/data/customizations";
+import {
+  BaseCustomizationsObj,
+  PLAFilamentColors,
+} from "@/data/customizations";
 import { useCartStore } from "@/stores/cart";
 import { useFavoritesStore } from "@/stores/favorites";
 import {
@@ -110,12 +113,12 @@ export function ProductPage({ params }: ProductPageProps) {
     const missingCustomizations = product.customizationOptions
       .filter(
         (option) =>
-          BaseCustomizations[option.customizationRefId].required &&
+          BaseCustomizationsObj[option.customizationRefId].required &&
           !customizations[option.customizationRefId]
       )
       .map(
         (option) =>
-          BaseCustomizations[option.customizationRefId].afterSelectionLabel
+          BaseCustomizationsObj[option.customizationRefId].afterSelectionLabel
       );
 
     if (missingCustomizations.length > 0) {
@@ -137,7 +140,7 @@ export function ProductPage({ params }: ProductPageProps) {
 
   const renderCustomizationInput = (customizationParam: DBCustomization) => {
     const baseCustomization =
-      BaseCustomizations[customizationParam.customizationRefId];
+      BaseCustomizationsObj[customizationParam.customizationRefId];
     if (!baseCustomization) return null;
 
     const customization: Customization = {
@@ -328,7 +331,7 @@ export function ProductPage({ params }: ProductPageProps) {
               {/* Badges */}
               <div className="flex items-center gap-2 mb-4">
                 {product.isBestSeller && (
-                  <Badge variant="destructive">Best Seller</Badge>
+                  <Badge variant="default">Best Seller</Badge>
                 )}
               </div>
 

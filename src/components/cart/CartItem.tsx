@@ -6,7 +6,7 @@ import { ShoppingCart, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { formatPriceLocalized } from "@/utils/price";
 import { QuantityStepper } from "../misc/QuantityStepper";
-import { BaseCustomizations } from "@/data/customizations";
+import { BaseCustomizationsObj } from "@/data/customizations";
 import Link from "next/link";
 import { type CartItem } from "@/stores/cart";
 import { CustomizationBadge } from "../products/CustomizationBadge";
