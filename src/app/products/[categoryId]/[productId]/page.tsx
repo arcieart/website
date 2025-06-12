@@ -49,6 +49,10 @@ import { ProductSpecAccordion } from "@/components/accordion/ProductSpecAccordio
 import { DotSeparator } from "@/components/misc/DotSeparator";
 import { ProductPageSkeleton } from "@/components/skeletons/ProductPageSkeleton";
 import { Materials } from "@/data/materials";
+import {
+  getWhatsappCustomizationHelpLink,
+  getWhatsappHelpLink,
+} from "@/utils/whatsappMessageLinks";
 
 const CustomizationLabel = ({ label, required }: Partial<Customization>) => (
   <Label className="gap-1">
@@ -356,6 +360,22 @@ function ProductPage({ params }: ProductPageProps) {
               )}
               <p className="text-sm text-muted-foreground">
                 {product.baseDescription}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Looking to customize further? Reach out to us on{" "}
+                <Link
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={getWhatsappCustomizationHelpLink(product)}
+                >
+                  <Button variant="link" className="p-0">
+                    WhatsApp
+                  </Button>
+                </Link>
+                .
+              </p>
+              <p className="text-sm text-muted-foreground">
+                All products are proudly made in India. 🇮🇳
               </p>
             </div>
 
