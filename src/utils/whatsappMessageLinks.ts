@@ -2,6 +2,9 @@ import { Order } from "@/types/order";
 import { getAddressString } from "./address";
 import { formatPrice } from "./price";
 
+// Support phone number for WhatsApp
+export const SUPPORT_PHONE_NUMBER = "919769910657";
+
 export const getWhatsappOrderConfirmationLink = (order: Order) => {
     const paymentMethod = order.payment.method === "razorpay" ? order.payment.razorpay?.paymentMethod?.toUpperCase() : "Cash";
   
@@ -26,4 +29,16 @@ export const getWhatsappOrderConfirmationLink = (order: Order) => {
     ].join("\n");
     const encodedMessage = encodeURIComponent(message);
     return `https://wa.me/91${order.customerInfo.phone}?text=${encodedMessage}`;
-  };
+};
+
+export const getWhatsappHelpLink = (order: Order) => {
+    const message = [
+      "Hi, I need help with my order.",
+      "",
+      `*Order ID:* ${order.id}`,
+      `*Order Status:* ${order.status}`,
+      `*Order Total:* ${formatPrice(order.pricing.total)}`,
+    ].join("\n");
+    const encodedMessage = encodeURIComponent(message);
+    return `https://wa.me/${SUPPORT_PHONE_NUMBER}?text=${encodedMessage}`;
+};
