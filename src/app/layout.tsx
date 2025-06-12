@@ -26,6 +26,61 @@ export const metadata: Metadata = {
   title: "arcie.art - personalized art",
   description:
     "Your one stop shop for personalized and custom keychains, earrings, coasters, lithophanes, desk accessories and more. Create your own unique products with your own designs.",
+  keywords: [
+    "arcie.art",
+    "personalized",
+    "personalized art",
+    "personalized gifts",
+    "personalized art gifts",
+    "personalized art gifts for her",
+    "personalized art gifts for him",
+    "personalized art gifts for kids",
+    "personalized art gifts for family",
+    "personalized art gifts for friends",
+    "personalized art gifts for couples",
+    "custom keychains",
+    "earrings",
+    "coasters",
+    "lithophanes",
+    "desk accessories",
+    "custom designs",
+    "3d printing",
+    "3d printing services",
+  ],
+  authors: [
+    { name: "Shamoil Arsiwala", url: "https://shamoil.com" },
+    { name: "arcie.art", url: "https://arcie.art" },
+  ],
+
+  // Open Graph metadata for social media sharing (WhatsApp, Facebook, etc.)
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://arcie.art",
+    siteName: "arcie.art",
+    title: "arcie.art - personalized art",
+    description:
+      "Your one stop shop for personalized and custom keychains, earrings, coasters, lithophanes, desk accessories and more. Create your own unique products with your own designs.",
+    images: [
+      {
+        url: "/icon.png",
+        width: 106,
+        height: 134,
+        alt: "arcie.art logo",
+      },
+    ],
+  },
+  // Icons configuration
+  icons: {
+    icon: [{ url: "/icon.png", type: "image/png" }],
+    apple: [{ url: "/icon.png", type: "image/png" }],
+  },
+
+  // Additional metadata
+  metadataBase: new URL("https://arcie.art"),
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({
