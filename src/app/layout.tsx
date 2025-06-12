@@ -23,7 +23,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "arcie.art - personalized art",
+  title: "Arcie Art - Personalized Art",
   description:
     "Your one stop shop for personalized and custom keychains, earrings, coasters, lithophanes, desk accessories and more. Create your own unique products with your own designs.",
   keywords: [
@@ -58,26 +58,20 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://arcie.art",
     siteName: "arcie.art",
-    title: "arcie.art - personalized art",
+    title: "Arcie Art - Personalized Art",
     description:
       "Your one stop shop for personalized and custom keychains, earrings, coasters, lithophanes, desk accessories and more. Create your own unique products with your own designs.",
     images: [
       {
-        url: "/icon.jpg",
+        url: "https://www.arcie.art/icon.jpg",
         alt: "arcie.art logo",
       },
     ],
   },
   // Icons configuration
   icons: {
-    icon: [{ url: "/icon.jpg", type: "image/jpg" }],
-    apple: [{ url: "/icon.jpg", type: "image/jpg" }],
-  },
-
-  // Additional metadata
-  metadataBase: new URL("https://arcie.art"),
-  alternates: {
-    canonical: "/",
+    icon: [{ url: "https://www.arcie.art/icon.jpg", type: "image/jpg" }],
+    apple: [{ url: "https://www.arcie.art/icon.jpg", type: "image/jpg" }],
   },
 };
 
