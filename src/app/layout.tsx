@@ -63,9 +63,9 @@ export const metadata: Metadata = {
       "Your one stop shop for personalized and custom keychains, earrings, coasters, lithophanes, desk accessories and more. Create your own unique products with your own designs.",
     images: [
       {
-        url: "https://www.arcie.art/icon.jpg",
-        width: 1024,
-        height: 1024,
+        url: "https://www.arcie.art/og-image.jpg",
+        width: 1200,
+        height: 623,
         alt: "Arcie Art - Personalized Art Logo",
         type: "image/jpeg",
       },
