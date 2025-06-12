@@ -25,19 +25,23 @@ export const useProducts = () => {
   const { data: productCount } = useQuery({
     queryKey: ["products-count"],
     queryFn: async () => {
+      console.log("fetching products COUNT");
+
       const availableProductsQuery = getProductsRef();
       const snapshot = await getCountFromServer(availableProductsQuery);
-      return snapshot.data().count;
+      const count = snapshot.data().count;
+      console.log("products COUNT", count);
+      return count;
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes - count changes less frequently
     refetchInterval: 1000 * 60 * 5, // Check count every 5 minutes
+    placeholderData: (previousData) => previousData,
   });
 
   // Then fetch the actual products, but only when count changes
   const { data, isLoading, error } = useQuery({
     queryKey: ["products", productCount],
     queryFn: async () => {
-      console.log("fetching products");
+      console.log("fetching PRODUCTS");
       const availableProductsQuery = getProductsRef();
       const snapshot = await getDocs(availableProductsQuery);
 
@@ -49,10 +53,12 @@ export const useProducts = () => {
         products.push(product);
       });
 
+      console.log("products", products);
       return products;
     },
-    enabled: typeof productCount === "number", // Only run when we have a count
+    enabled: productCount !== undefined && productCount > 0, // Only run when we have a count
     staleTime: 1000 * 60 * 30, // 30 minutes - products themselves don't change often
+    placeholderData: (previousData) => previousData,
   });
 
   return {

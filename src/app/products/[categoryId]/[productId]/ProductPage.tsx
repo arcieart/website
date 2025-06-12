@@ -281,18 +281,24 @@ export function ProductPage({ params }: ProductPageProps) {
         <Breadcrumb className="mb-8">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+              <BreadcrumbLink asChild>
+                <Link href="/">Home</Link>
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/products">Products</BreadcrumbLink>
+              <BreadcrumbLink asChild>
+                <Link href="/products">Products</Link>
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href={`/products/${product.categoryId}`}>
-                <span className="capitalize">
-                  {product.categoryId.replace("-", " ")}
-                </span>
+              <BreadcrumbLink asChild>
+                <Link href={`/products/${product.categoryId}`}>
+                  <span className="capitalize">
+                    {product.categoryId.replace("-", " ")}
+                  </span>
+                </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
