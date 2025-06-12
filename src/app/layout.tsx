@@ -63,17 +63,15 @@ export const metadata: Metadata = {
       "Your one stop shop for personalized and custom keychains, earrings, coasters, lithophanes, desk accessories and more. Create your own unique products with your own designs.",
     images: [
       {
-        url: "/icon.png",
-        width: 106,
-        height: 134,
+        url: "/icon.jpg",
         alt: "arcie.art logo",
       },
     ],
   },
   // Icons configuration
   icons: {
-    icon: [{ url: "/icon.png", type: "image/png" }],
-    apple: [{ url: "/icon.png", type: "image/png" }],
+    icon: [{ url: "/icon.jpg", type: "image/jpg" }],
+    apple: [{ url: "/icon.jpg", type: "image/jpg" }],
   },
 
   // Additional metadata
