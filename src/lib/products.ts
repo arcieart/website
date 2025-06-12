@@ -1,8 +1,15 @@
 import { Collections } from "@/constants/Collections";
 import { DBProduct } from "@/types/product";
 import { db } from "./firebase";
-import { setDoc, deleteDoc, updateDoc } from "firebase/firestore";
+import { setDoc, deleteDoc, updateDoc, getDoc } from "firebase/firestore";
 import { doc } from "firebase/firestore";
+
+export const getProduct = async (id: string) => {
+  const productRef = doc(db, Collections.Products, id);
+  const product = await getDoc(productRef);
+  return product.data() as DBProduct;
+};
+
 
 export const addProduct = async (id: string, product: Omit<DBProduct, "id">) => {
   try {

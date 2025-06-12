@@ -18,6 +18,12 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MessageCircleIcon } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Arcie Art | Order Details",
+  description: "View your order details and track your order status",
+};
 
 async function getOrder(orderId: string): Promise<Order | null> {
   const order = await getOrderAction(orderId);
@@ -105,18 +111,23 @@ export default async function OrderPage({
                 key={product.id}
                 className="flex flex-col md:flex-row gap-4 py-4"
               >
-                <div className="w-full md:w-24 h-24 relative">
-                  {product.imageUrl ? (
-                    <Image
-                      src={product.imageUrl}
-                      alt={product.name}
-                      fill
-                      className="object-cover rounded-md"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-100 rounded-md" />
-                  )}
-                </div>
+                <Link
+                  target="_blank"
+                  href={`/products/${product.categoryId}/${product.productId}`}
+                >
+                  <div className="w-full md:w-24 h-24 relative">
+                    {product.imageUrl ? (
+                      <Image
+                        src={product.imageUrl}
+                        alt={product.name}
+                        fill
+                        className="object-cover rounded-md"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 rounded-md" />
+                    )}
+                  </div>
+                </Link>
                 <div className="flex-1">
                   <h3 className="font-medium">{product.name}</h3>
                   {product.description && (

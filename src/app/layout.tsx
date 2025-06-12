@@ -74,8 +74,8 @@ export const metadata: Metadata = {
 
   // Icons configuration
   icons: {
-    icon: [{ url: "https://www.arcie.art/icon.jpg", type: "image/jpeg" }],
-    apple: [{ url: "https://www.arcie.art/icon.jpg", type: "image/jpeg" }],
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
   },
 };
 
