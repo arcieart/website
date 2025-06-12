@@ -23,7 +23,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Arcie Art - Personalized Art",
+  title: "Arcie Art - Personalized Products | 3D Printing Services",
   description:
     "Your one stop shop for personalized and custom keychains, earrings, coasters, lithophanes, desk accessories and more. Create your own unique products with your own designs.",
   keywords: [
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://arcie.art",
     siteName: "Arcie Art",
-    title: "Arcie Art - Personalized Art",
+    title: "Arcie Art - Personalized Products | 3D Printing Services",
     description:
       "Your one stop shop for personalized and custom keychains, earrings, coasters, lithophanes, desk accessories and more. Create your own unique products with your own designs.",
     images: [
