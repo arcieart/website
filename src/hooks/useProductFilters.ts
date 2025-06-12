@@ -26,6 +26,9 @@ interface UseProductFiltersProps {
   baseUrl?: string;
 }
 
+const defaultSortBy = "name-a-z";
+
+
 export function useProductFilters({ 
   products, 
   enableCategoryFilter = true,
@@ -42,7 +45,7 @@ export function useProductFilters({
   // Initialize state from URL parameters
   const [sortBy, setSortBy] = useState<SortOption>(() => {
     const urlSort = searchParams.get('sort') as SortOption;
-    return sortOptions.find(option => option.value === urlSort) ? urlSort : "name-a-z";
+    return sortOptions.find(option => option.value === urlSort) ? urlSort : defaultSortBy;
   });
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
@@ -70,7 +73,7 @@ export function useProductFilters({
     const params = new URLSearchParams();
 
     // Add sort parameter
-    if (sortBy !== "newest") {
+    if (sortBy !== defaultSortBy) {
       params.set('sort', sortBy);
     }
 
@@ -168,7 +171,7 @@ export function useProductFilters({
     if (enablePriceFilter) {
       setPriceRange({ min: 0, max: 1000 });
     }
-    setSortBy("newest");
+    setSortBy(defaultSortBy);
   };
 
   const activeFiltersCount =

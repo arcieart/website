@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     siteName: "Arcie Art",
     title: "Arcie Art - Personalized Products | 3D Printing Services",
     description:
-      "Your one stop shop for personalized and custom keychains, earrings, coasters, lithophanes, desk accessories and more. Create your own unique products with your own designs.",
+      "Your one stop shop for personalized products and custom keychains, earrings, coasters, lithophanes, desk accessories and more. Create your own unique products.",
     images: [
       {
         url: "https://www.arcie.art/og-image.jpg",
