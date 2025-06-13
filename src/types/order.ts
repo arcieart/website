@@ -79,7 +79,7 @@ export type Order = {
   payment: PaymentInfo;
   
   // Status & Workflow
-  status: "initiated" | "payment-failed" | "confirmed" | "shipped" | "delivered" | "cancelled" | "returned";
+  status: "initiated" | "payment-failed" | "payment-fraud" | "confirmed" | "shipped" | "delivered" | "cancelled" | "returned";
   
   // Timestamps
   createdAt: number;

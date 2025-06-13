@@ -7,9 +7,8 @@ import { doc } from "firebase/firestore";
 export const getProduct = async (id: string) => {
   const productRef = doc(db, Collections.Products, id);
   const product = await getDoc(productRef);
-  return product.data() as DBProduct;
+  return { id: product.id, ...product.data() } as DBProduct;
 };
-
 
 export const addProduct = async (id: string, product: Omit<DBProduct, "id">) => {
   try {

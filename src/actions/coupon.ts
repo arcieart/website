@@ -1,31 +1,49 @@
 "use server";
 
-
 import { getTimestamp } from "@/utils/date";
 import { Collections } from "@/constants/Collections";
 import { Coupon } from "@/types/coupon";
 import { db } from "@/lib/firebase-admin";
+import { calculateDiscountAmount } from "@/utils/coupon";
 
-export const validateCoupon = async (couponCode: string) => {
-  // Convert to uppercase for case-insensitive validation
+export const validateCouponAndGetSavings = async (
+  couponCode: string,
+  subtotal: number
+) => {
   const normalizedCode = couponCode.toUpperCase();
   const coupon = await getCouponAdmin(normalizedCode);
+
   if (!coupon) {
-    return { isValid: false, error: "Coupon not found" };
+    return { isValid: false, error: "Invalid coupon code" };
+  }
+
+  if (!coupon.active) {
+    return { isValid: false, error: "Invalid coupon code" };
   }
 
   if (coupon.validUntil && coupon.validUntil < getTimestamp()) {
     return { isValid: false, error: "Coupon has expired" };
   }
 
-  return coupon;
+  if (coupon.minOrderAmount && subtotal < coupon.minOrderAmount) {
+    return {
+      isValid: false,
+      error: "Order amount is less than the minimum order amount",
+    };
+  }
+
+  const discountAmount = calculateDiscountAmount(coupon, subtotal);
+  return { isValid: true, error: null, discountAmount, coupon };
 };
 
-
-
-export const getCouponAdmin = async (id: string) => {
-  const coupon = await db.collection(Collections.Coupons).doc(id).get();
-  return coupon.data();
+export const getCouponAdmin = async (couponCode: string) => {
+  const coupon = await db
+    .collection(Collections.Coupons)
+    .where("code", "==", couponCode)
+    .limit(1)
+    .get();
+  if (coupon.empty) return null;
+  return { id: coupon.docs[0].id, ...coupon.docs[0].data() } as Coupon;
 };
 
 export const createCouponAdmin = async (coupon: Omit<Coupon, "id">) => {

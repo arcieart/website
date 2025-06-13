@@ -130,7 +130,7 @@ export function ProductPage({ params }: ProductPageProps) {
       );
 
     if (missingCustomizations.length > 0) {
-      toast.error(`Please select: ${missingCustomizations.join(", ")}`);
+      toast.error(`Please select ${missingCustomizations.join(", ")}`);
       return;
     }
 

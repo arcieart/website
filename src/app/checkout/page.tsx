@@ -17,6 +17,8 @@ import {
   CreditCard,
   MapPin,
   User,
+  Tag,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -31,6 +33,9 @@ import {
   RazorpayPaymentGatewayRef,
 } from "@/components/RzpGateway";
 import OrderConfirmationDialog from "@/components/OrderConfirmationDialog";
+import { useDiscountCoupon } from "@/hooks/useDiscountCoupon";
+import { calculateDiscountAmount } from "@/utils/coupon";
+import { CouponForm } from "./CouponForm";
 
 // Form validation
 interface CheckoutFormData {
@@ -54,13 +59,19 @@ interface FormErrors {
 
 export default function CheckoutPage() {
   const { items, totalItems, totalPrice, clearCart } = useCartStore();
+  const {
+    coupon,
+    isLoading: couponIsLoading,
+    handleCouponApply,
+    handleCouponRemove,
+  } = useDiscountCoupon();
+
   const router = useRouter();
 
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmedOrderId, setConfirmedOrderId] = useState("");
-  const [couponCode, setCouponCode] = useState("");
+
   const [formData, setFormData] = useState<CheckoutFormData>({
     name: "",
     email: "",
@@ -74,12 +85,17 @@ export default function CheckoutPage() {
 
   const rzpRef = useRef<RazorpayPaymentGatewayRef>(null);
 
-  // Calculate pricing
   const subtotal = totalPrice;
-  const shippingCost =
+  const discountAmount = coupon ? calculateDiscountAmount(coupon, subtotal) : 0;
+
+  let shippingCost =
     subtotal > getFreeShippingThreshold() ? 0 : getShippingCost(); // Free shipping over ₹999
 
-  const finalTotal = subtotal + shippingCost;
+  if (coupon && coupon.discountType === "free_shipping") {
+    shippingCost = 0;
+  }
+
+  const finalTotal = subtotal + shippingCost - discountAmount;
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -205,9 +221,20 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleCouponApply = async (e: React.FormEvent) => {
+  const handleCouponApplyForm = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Coupon applied");
+
+    const couponCode = (e.target as HTMLFormElement).couponCode.value;
+    const normalCouponCode = couponCode.trim().toUpperCase();
+
+    const { success, error } = await handleCouponApply(
+      normalCouponCode,
+      subtotal
+    );
+
+    if (success) {
+      toast.success("Coupon applied successfully 🎊");
+    } else toast.error(error);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -246,7 +273,7 @@ export default function CheckoutPage() {
           shipping: shippingCost,
           tax: 0,
           total: finalTotal,
-          couponCode: couponCode || undefined,
+          couponCode: coupon?.code || undefined,
         },
         payment: {
           method: "razorpay",
@@ -295,11 +322,9 @@ export default function CheckoutPage() {
 
   function finalizeOrder(orderId: string) {
     setConfirmedOrderId(orderId);
-    setShowConfirmation(true);
   }
 
   function handleCloseConfirmationDialog(orderId: string) {
-    setShowConfirmation(false);
     setConfirmedOrderId(orderId);
     router.push(`/order/${orderId}`);
     clearCart();
@@ -342,7 +367,7 @@ export default function CheckoutPage() {
       />
 
       <OrderConfirmationDialog
-        isOpen={showConfirmation}
+        isOpen={!!confirmedOrderId}
         orderId={confirmedOrderId}
         customerName={formData.name}
         orderTotal={formatPriceLocalized(finalTotal)}
@@ -646,27 +671,49 @@ export default function CheckoutPage() {
 
                   <Separator className="my-5" />
 
-                  <form onSubmit={handleCouponApply}>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="text"
-                        placeholder="Enter coupon code"
-                        className="w-full"
-                      />
-                      <Button type="submit" variant="outline">
-                        Apply
-                      </Button>
-                    </div>
-                  </form>
+                  <CouponForm
+                    coupon={coupon}
+                    handleCouponRemove={handleCouponRemove}
+                    handleCouponApplyForm={handleCouponApplyForm}
+                    couponIsLoading={couponIsLoading}
+                    discountAmount={discountAmount}
+                  />
 
                   <Separator className="my-5" />
 
                   {/* Pricing Breakdown */}
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm sm:text-sm">
-                      <span>Subtotal</span>
+                      <span className="flex flex-col items-start gap-1">
+                        <span className="flex items-center gap-1">
+                          <ShoppingCart className="h-3 w-3" />
+                          Subtotal
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {totalItems} {totalItems === 1 ? "item" : "items"}
+                        </span>
+                      </span>
                       <span>{formatPriceLocalized(subtotal)}</span>
                     </div>
+
+                    {coupon && discountAmount > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="flex flex-col items-start gap-1">
+                          <span className="flex items-center gap-1">
+                            <Tag className="h-3 w-3" />
+                            Discount
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            Applied{" "}
+                            <span className="font-semibold text-primary">
+                              {coupon.code}
+                            </span>
+                          </span>
+                        </span>
+
+                        <span>{formatPriceLocalized(discountAmount)}</span>
+                      </div>
+                    )}
 
                     <div className="flex justify-between text-sm sm:text-sm items-center">
                       <div className="flex items-center gap-1">
