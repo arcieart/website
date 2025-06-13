@@ -19,6 +19,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MessageCircleIcon } from "lucide-react";
 import { Metadata } from "next";
+import { BaseCustomizationsObj } from "@/data/customizations";
+import { CustomizationBadge } from "@/components/products/CustomizationBadge";
 
 export const metadata: Metadata = {
   title: "Arcie Art | Order Details",
@@ -139,13 +141,11 @@ export default async function OrderPage({
                     {product.customizations &&
                       Object.entries(product.customizations).map(
                         ([key, value]) => (
-                          <Badge
+                          <CustomizationBadge
                             key={key}
-                            variant="secondary"
-                            className="text-xs"
-                          >
-                            {key}: {value}
-                          </Badge>
+                            customizationId={key}
+                            value={value}
+                          />
                         )
                       )}
                   </div>

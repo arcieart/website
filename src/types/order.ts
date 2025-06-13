@@ -1,3 +1,5 @@
+import { BaseCustomizationsObj } from "@/data/customizations";
+
 export type CustomerInfo = {
   name: string;
   email: string;
@@ -20,7 +22,7 @@ export type OrderProduct = {
   quantity: number;
   total: number; // price * quantity
   imageUrl?: string;
-  customizations?: Record<string, string>;
+  customizations?: Record<keyof typeof BaseCustomizationsObj, string>;
 };
 
 export type ShippingInfo = {

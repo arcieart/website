@@ -55,7 +55,7 @@ function ProductCardContent({ product }: ProductCardProps) {
         <Link href={`/products/${product.categoryId}/${product.id}`}>
           <div className="relative overflow-hidden rounded-t-lg">
             {/* Product Image */}
-            <div className="aspect-square relative bg-amber-200">
+            <div className="aspect-square relative bg-transparent">
               <Image
                 src={product.images[0] || "/placeholder-product.jpg"}
                 alt={product.name}
