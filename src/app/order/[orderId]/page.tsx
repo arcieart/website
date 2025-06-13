@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { getBadgeColor, formatOrderStatus } from "@/utils/format";
+import { getBadgeColor } from "@/utils/format";
 import { Order } from "@/types/order";
 import { formatDate } from "@/utils/date";
 import { formatPrice } from "@/utils/price";
@@ -21,6 +21,7 @@ import { MessageCircleIcon } from "lucide-react";
 import { Metadata } from "next";
 import { BaseCustomizationsObj } from "@/data/customizations";
 import { CustomizationBadge } from "@/components/products/CustomizationBadge";
+import { formatOrderStatus } from "@/data/orderStatuses";
 
 export const metadata: Metadata = {
   title: "Arcie Art | Order Details",
@@ -162,34 +163,40 @@ export default async function OrderPage({
             ))}
           </div>
 
-          <Separator className="my-6" />
+          <Separator />
 
           {/* Order Summary */}
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span>Subtotal</span>
+              <span className="text-muted-foreground">Subtotal</span>
               <span>{formatPrice(order.pricing.subtotal)}</span>
             </div>
-            <div className="flex justify-between">
-              <span>Tax</span>
-              <span>{formatPrice(order.pricing.tax)}</span>
-            </div>
+            {order.pricing.tax > 0 && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Tax</span>
+                <span>{formatPrice(order.pricing.tax)}</span>
+              </div>
+            )}
             {order.pricing.shipping > 0 && (
               <div className="flex justify-between">
-                <span>Shipping</span>
+                <span className="text-muted-foreground">Shipping</span>
                 <span>{formatPrice(order.pricing.shipping)}</span>
               </div>
             )}
-            {order.pricing.discount && order.pricing.discount > 0 && (
-              <div className="flex justify-between text-green-600">
-                <span>
+            {!!order.pricing.discount && order.pricing.discount > 0 && (
+              <div className="flex justify-between items-center">
+                <span className="flex items-center gap-2 text-muted-foreground">
                   Discount
-                  {order.pricing.couponCode && ` (${order.pricing.couponCode})`}
+                  <span className="text-xs bg-muted text-green-600 px-2 py-0.5 rounded-full">
+                    {order.pricing.couponCode}
+                  </span>
                 </span>
-                <span>-{formatPrice(order.pricing.discount)}</span>
+                <span>- {formatPrice(order.pricing.discount)}</span>
               </div>
             )}
-            <Separator className="my-2" />
+
+            <Separator className="my-5" />
+
             <div className="flex justify-between font-semibold text-lg">
               <span>Total</span>
               <span>{formatPrice(order.pricing.total)}</span>

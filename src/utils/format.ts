@@ -1,5 +1,6 @@
 
 
+
 export const getBadgeColor = (status: string): { color: string; bgColor: string } => {
   const statusColors: Record<string, { color: string; bgColor: string }> = {
     'initiated': { color: 'text-blue-700', bgColor: 'bg-blue-100' },
@@ -15,6 +16,3 @@ export const getBadgeColor = (status: string): { color: string; bgColor: string 
   return statusColors[status] || { color: 'text-gray-700', bgColor: 'bg-gray-100' };
 };
 
-export const formatOrderStatus = (status: string) => {
-  return status.charAt(0).toUpperCase() + status.slice(1).replace(/-/g, ' ');
-}; 

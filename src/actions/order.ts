@@ -26,7 +26,8 @@ const recalculateOrderPricing = async (order: Omit<Order, "id">) => {
   let subtotal = 0;
 
   for (const product of order.products) {
-    const productData = await getProduct(product.id);
+    const productData = await getProduct(product.productId);
+
     const { id, ...restBaseCategory } =
       BaseCategoriesObj[productData.categoryId];
 
@@ -69,7 +70,7 @@ export const createOrder = async (order: Omit<Order, "id">) => {
 
     const pricing = await recalculateOrderPricing(order);
 
-    const newOrder: Omit<Order, "id"> = { ...order, pricing };
+    const newOrder: Omit<Order, "id"> = { ...order, pricing: { ...order.pricing, ...pricing } };
 
     if (order.payment.method === "razorpay") {
       const razorpayOrder = await createRazorpayOrder(
@@ -100,3 +101,4 @@ export const updateOrder = async (orderId: string, order: object) => {
   await db.collection(Collections.Orders).doc(orderId).update(order);
   return true;
 };
+

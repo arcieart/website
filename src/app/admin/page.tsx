@@ -9,6 +9,7 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import { signInWithEmailAndPasswordAuth } from "@/lib/auth";
 import { CouponManagement } from "./(coupons)/CouponManagement";
 import { ProductsManagement } from "./(products)/ProductsManagement";
+import { OrdersManagement } from "./(orders)/OrdersManagement";
 
 export default function ProtectedAdminPage() {
   const isMobile = useIsMobile();
@@ -82,14 +83,7 @@ export default function ProtectedAdminPage() {
 
         <TabsContent value="orders" className="space-y-4">
           <div className="flex flex-col gap-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Orders</h2>
-              <Button variant="outline">Export</Button>
-            </div>
-            <div className="border rounded-lg p-6 text-center text-muted-foreground">
-              <p>Order management will be displayed here</p>
-              <p className="text-sm mt-2">View and manage customer orders</p>
-            </div>
+            <OrdersManagement />
           </div>
         </TabsContent>
       </Tabs>

@@ -26,6 +26,14 @@ service cloud.firestore {
     match /dev_coupons/{couponId} {
       allow read, write, update, delete: if isAdmin();
     }
+
+    match /orders/{orderId} {
+      allow read, write, update, delete: if isAdmin();
+    }
+
+    match /dev_orders/{orderId} {
+      allow read, write, update, delete: if isAdmin();
+    }
     
     // Default rule for all other documents - no access
     match /{document=**} {
