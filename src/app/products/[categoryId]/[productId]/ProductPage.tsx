@@ -54,6 +54,7 @@ import { ProductPageSkeleton } from "@/components/skeletons/ProductPageSkeleton"
 import { Materials } from "@/data/materials";
 import { getWhatsappCustomizationHelpLink } from "@/utils/whatsappMessageLinks";
 import { RecommendedProducts } from "@/components/products/RecommendedProducts";
+import { redirect, useRouter } from "next/navigation";
 
 interface ProductPageProps {
   params: Promise<{ productId: string }>;
@@ -68,6 +69,10 @@ const CustomizationLabel = ({ label, required }: Partial<Customization>) => (
 
 export function ProductPage({ params }: ProductPageProps) {
   const { products, isLoading } = useProducts();
+  const { toggleItem, isInFavorites } = useFavoritesStore();
+  const addToCart = useCartStore((state) => state.addItem);
+  const { setCartOpen } = useCartSheet();
+  const router = useRouter();
 
   const [resolvedParams, setResolvedParams] = useState<{ productId: string }>();
   const [product, setProduct] = useState<UIProduct>();
@@ -76,11 +81,6 @@ export function ProductPage({ params }: ProductPageProps) {
     {}
   );
 
-  const addToCart = useCartStore((state) => state.addItem);
-  const { setCartOpen } = useCartSheet();
-
-  const { toggleItem, isInFavorites } = useFavoritesStore();
-
   // Resolve params in useEffect
   useEffect(() => {
     params.then((params) => setResolvedParams({ productId: params.productId }));
@@ -88,7 +88,14 @@ export function ProductPage({ params }: ProductPageProps) {
 
   useEffect(() => {
     if (products && resolvedParams && !isLoading) {
-      setProduct(products.find((p) => p.id === resolvedParams?.productId));
+      const product = products.find((p) => p.id === resolvedParams?.productId);
+      if (product) setProduct(product);
+      else {
+        toast.error("Product not found, redirecting to products page...");
+        setTimeout(() => {
+          router.replace("/products");
+        }, 2000);
+      }
     }
   }, [products, resolvedParams, isLoading]);
 
@@ -486,6 +493,8 @@ export function ProductPage({ params }: ProductPageProps) {
             </div>
           </div>
         </div>
+
+        <Separator className="my-8" />
 
         {/* Related Products */}
         <RecommendedProducts currentProduct={product} />

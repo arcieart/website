@@ -38,7 +38,7 @@ export function RecommendedProducts({
   if (recommended.length === 0) return null;
 
   return (
-    <div className="mt-16">
+    <div className="">
       <h2 className="text-lg font-semibold text-foreground mb-6">
         You may also like
       </h2>

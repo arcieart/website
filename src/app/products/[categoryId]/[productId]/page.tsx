@@ -15,9 +15,8 @@ export async function generateMetadata({
   const productId = (await params).productId;
   const product = await getProduct(productId);
 
-  const category = BaseCategoriesObj[product.categoryId];
-
   if (product) {
+    const category = BaseCategoriesObj[product.categoryId];
     const newMetadata: Metadata = {
       title: product.name + " | " + "by Arcie Art",
       description: product.description ?? category.baseDescription,

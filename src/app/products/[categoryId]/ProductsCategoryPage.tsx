@@ -6,18 +6,34 @@ import { ProductCard } from "@/components/products/ProductCard";
 import { ProductFilters } from "@/components/products/ProductFilters";
 import { useProducts } from "@/hooks/useProducts";
 
-import { useParams } from "next/navigation";
-import { useMemo } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { BaseCategoriesObj } from "@/data/categories";
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { ProductsGridSkeleton } from "@/components/skeletons/ProductsPageSkeleton";
+import { toast } from "sonner";
 
 export function CategoryProductsPage() {
   const params = useParams();
   const categoryId = params.categoryId as string;
 
   const { products, isLoading } = useProducts();
+  const router = useRouter();
+
+  const [isCategoryLoading, setIsCategoryLoading] = useState(true);
+
+  useEffect(() => {
+    if (categoryId) {
+      const categoryFromId = BaseCategoriesObj[categoryId];
+      if (!categoryFromId) {
+        toast.error("Category not found, redirecting to products page...");
+        setTimeout(() => {
+          router.replace("/products");
+        }, 2000);
+      } else setIsCategoryLoading(false);
+    }
+  }, [categoryId]);
 
   // Filter products by category
   const categoryProducts = useMemo(() => {
@@ -25,30 +41,13 @@ export function CategoryProductsPage() {
     return products.filter((product) => product.categoryId === categoryId);
   }, [products, categoryId]);
 
-  // Get category name for display
   const categoryName = useMemo(() => {
-    // First try to get category name from BaseCategoriesObj using categoryId
-    const categoryFromId = BaseCategoriesObj[categoryId];
-    if (categoryFromId) {
-      return categoryFromId.name;
+    if (!isCategoryLoading) {
+      const categoryFromId = BaseCategoriesObj[categoryId];
+      if (categoryFromId) return categoryFromId.name;
     }
+  }, [categoryId, isCategoryLoading]);
 
-    // If categoryId doesn't match, try to find from products
-    if (categoryProducts.length > 0) {
-      const productCategoryId = categoryProducts[0].categoryId;
-      const category = BaseCategoriesObj[productCategoryId];
-      if (category) {
-        return category.name;
-      }
-    }
-
-    // Fallback to formatted categoryId
-    return categoryId
-      .replace(/-/g, " ")
-      .replace(/\b\w/g, (l) => l.toUpperCase());
-  }, [categoryProducts, categoryId]);
-
-  // Use the category-specific hook that handles URL params without redirects
   const {
     sortBy,
     setSortBy,
@@ -63,6 +62,13 @@ export function CategoryProductsPage() {
     products: categoryProducts,
     baseUrl: `/products/${categoryId}`,
   });
+
+  if (isCategoryLoading)
+    return (
+      <div className="mt-20">
+        <ProductsGridSkeleton showFilters />;
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-background">
