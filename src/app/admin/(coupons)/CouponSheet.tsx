@@ -24,6 +24,8 @@ import {
 
 import { Coupon } from "@/types/coupon";
 import { getTimestamp } from "@/utils/misc";
+import { createCouponAdmin, updateCouponAdmin } from "@/actions/coupon";
+import { getDate } from "@/utils/date";
 
 const defaultCouponData: Omit<Coupon, "id"> = {
   code: "",
@@ -103,14 +105,16 @@ export function CouponSheet({
     setIsSaving(true);
 
     try {
-      // Here you would implement the actual save logic
-      // For now, just simulate the API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      console.log(
-        isEditMode ? "Updating coupon:" : "Creating coupon:",
-        couponData
-      );
+      if (isEditMode && coupon?.id) {
+        // Update existing coupon
+        await updateCouponAdmin(coupon.id, { ...couponData, id: coupon.id });
+        console.log("Updated coupon:", couponData);
+      } else {
+        // Create new coupon
+        const newCoupon: Omit<Coupon, "id"> = { ...couponData };
+        const couponId = await createCouponAdmin(newCoupon);
+        console.log("Created coupon with ID:", couponId);
+      }
 
       // Trigger callback
       onCouponSaved?.();
@@ -128,7 +132,7 @@ export function CouponSheet({
 
   const formatDateForInput = (timestamp: number | null) => {
     if (!timestamp) return "";
-    return new Date(timestamp).toISOString().split("T")[0];
+    return getDate(timestamp).toISOString().split("T")[0];
   };
 
   const handleDateChange = (dateString: string) => {
@@ -140,7 +144,10 @@ export function CouponSheet({
     const date = new Date(dateString);
     // Set to end of day
     date.setHours(23, 59, 59, 999);
-    setCouponData((prev) => ({ ...prev, validUntil: date.getTime() }));
+    setCouponData((prev) => ({
+      ...prev,
+      validUntil: Math.floor(date.getTime() / 1000),
+    }));
   };
 
   const sheetContent = (

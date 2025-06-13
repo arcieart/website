@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AddCouponSheet, CouponSheet } from "./CouponSheet";
 import {
   Table,
@@ -37,54 +37,8 @@ import {
   Calendar,
 } from "lucide-react";
 import { Coupon } from "@/types/coupon";
-
-// Mock data for demonstration - replace with actual API calls
-const generateMockCoupons = (): Coupon[] => {
-  return [
-    {
-      id: "1",
-      code: "SAVE10",
-      name: "Save 10%",
-      description: "Get 10% off on all orders",
-      validUntil: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days from now
-      active: true,
-      createdAt: Date.now() - 7 * 24 * 60 * 60 * 1000, // 7 days ago
-      minOrderAmount: 500,
-      discountType: "percentage",
-      discountValue: 10,
-      maxDiscountAmount: 100,
-      currency: "INR",
-    },
-    {
-      id: "2",
-      code: "FLAT50",
-      name: "Flat ₹50 Off",
-      description: "Get flat ₹50 off on orders above ₹200",
-      validUntil: null,
-      active: true,
-      createdAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
-      minOrderAmount: 200,
-      discountType: "fixed",
-      discountValue: 50,
-      maxDiscountAmount: null,
-      currency: "INR",
-    },
-    {
-      id: "3",
-      code: "FREESHIP",
-      name: "Free Shipping",
-      description: "Free shipping on all orders",
-      validUntil: Date.now() + 15 * 24 * 60 * 60 * 1000,
-      active: false,
-      createdAt: Date.now() - 10 * 24 * 60 * 60 * 1000,
-      minOrderAmount: null,
-      discountType: "free_shipping",
-      discountValue: 0,
-      maxDiscountAmount: null,
-      currency: "INR",
-    },
-  ];
-};
+import { deleteCouponAdmin, getCouponsAdmin } from "@/actions/coupon";
+import { getTimestamp } from "@/utils/misc";
 
 type CouponFilter = "all" | "active" | "inactive" | "expired";
 
@@ -95,14 +49,37 @@ export const CouponManagement = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Mock state - replace with actual data fetching
-  const [coupons, setCoupons] = useState<Coupon[]>(generateMockCoupons());
+  // Real state for coupons from API
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
+  // Fetch coupons from Firebase
+  const fetchCoupons = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const data = await getCouponsAdmin();
+      setCoupons(data as Coupon[]);
+    } catch (error) {
+      console.error("Error fetching coupons:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to fetch coupons"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load coupons on component mount
+  useEffect(() => {
+    fetchCoupons();
+  }, []);
+
   // Filter coupons based on status
   const filteredCoupons = coupons.filter((coupon) => {
-    const now = Date.now();
+    const now = getTimestamp();
     const isExpired = coupon.validUntil && coupon.validUntil < now;
 
     switch (statusFilter) {
@@ -125,12 +102,7 @@ export const CouponManagement = () => {
   );
 
   const refetch = () => {
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setCoupons(generateMockCoupons());
-      setLoading(false);
-    }, 500);
+    fetchCoupons();
   };
 
   const formatDate = (timestamp: number | null) => {
@@ -152,7 +124,7 @@ export const CouponManagement = () => {
   };
 
   const getCouponStatus = (coupon: Coupon) => {
-    const now = Date.now();
+    const now = getTimestamp();
     const isExpired = coupon.validUntil && coupon.validUntil < now;
 
     if (isExpired) return "expired";
@@ -192,8 +164,7 @@ export const CouponManagement = () => {
     try {
       setDeletingIds((prev) => new Set(prev).add(couponId));
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await deleteCouponAdmin(couponId);
 
       setCoupons((prev) => prev.filter((c) => c.id !== couponId));
     } catch (error) {
