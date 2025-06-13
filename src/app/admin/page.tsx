@@ -6,8 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useIsMobile from "@/hooks/useIsMobile";
 import { hash } from "@/utils/misc";
 import { useEffect, useLayoutEffect, useState } from "react";
-import { signInWithEmailAndPasswordAuth } from "@/lib/firebase-auth";
-import { ProductsManagement } from "./ProductsManagement";
+import { signInWithEmailAndPasswordAuth } from "@/lib/auth";
+import { CouponManagement } from "./(coupons)/CouponManagement";
+import { ProductsManagement } from "./(products)/ProductsManagement";
 
 export default function ProtectedAdminPage() {
   const isMobile = useIsMobile();
@@ -63,12 +64,19 @@ export default function ProtectedAdminPage() {
       <Tabs defaultValue="products">
         <TabsList className="flex flex-row gap-2">
           <TabsTrigger value="products">Products</TabsTrigger>
+          <TabsTrigger value="coupons">Coupons</TabsTrigger>
           <TabsTrigger value="orders">Orders</TabsTrigger>
         </TabsList>
 
         <TabsContent value="products" className="space-y-4">
           <div className="flex flex-col gap-4">
             <ProductsManagement />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="coupons" className="space-y-4">
+          <div className="flex flex-col gap-4">
+            <CouponManagement />
           </div>
         </TabsContent>
 

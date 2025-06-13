@@ -18,6 +18,14 @@ service cloud.firestore {
       allow read: if true; // Anyone can read products
       allow write, update, delete: if isAdmin();
     }
+
+    match /coupons/{couponId} {
+      allow read, write, update, delete: if isAdmin();
+    }
+
+    match /dev_coupons/{couponId} {
+      allow read, write, update, delete: if isAdmin();
+    }
     
     // Default rule for all other documents - no access
     match /{document=**} {

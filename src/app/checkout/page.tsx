@@ -60,6 +60,7 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmedOrderId, setConfirmedOrderId] = useState("");
+  const [couponCode, setCouponCode] = useState("");
   const [formData, setFormData] = useState<CheckoutFormData>({
     name: "",
     email: "",
@@ -245,6 +246,7 @@ export default function CheckoutPage() {
           shipping: shippingCost,
           tax: 0,
           total: finalTotal,
+          couponCode: couponCode || undefined,
         },
         payment: {
           method: "razorpay",

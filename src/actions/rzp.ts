@@ -14,5 +14,6 @@ export const createRazorpayOrder = async (amount: number, dbId: string) => {
     amount: amount * 100,
     currency: "INR",
   });
+
   return order;
 };

@@ -4,6 +4,8 @@ import { getDiscordOrderMessage } from "@/utils/discordMessages";
 import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils";
 import { getTimestamp } from "@/utils/date";
 
+
+// TODO: validate amount that is paid with the order amount
 export async function POST(request: Request) {
   try {
     const signature = request.headers.get("X-Razorpay-Signature")!;
