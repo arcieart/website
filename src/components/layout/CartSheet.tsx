@@ -37,7 +37,7 @@ function CartSheet({ children }: CartSheetProps) {
           <div className="flex items-center justify-center">
             <SheetTitle className="text-foreground">Shopping Cart</SheetTitle>
           </div>
-          <CouponBanner />
+          {/* <CouponBanner /> */}
         </SheetHeader>
 
         <div className="flex flex-1 flex-col gap-6 overflow-y-scroll">
