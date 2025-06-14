@@ -26,24 +26,6 @@ export const BaseCategories: Category[] = [
     price: 150,
     material: "pla",
   },
-  {
-    id: "lithophanes",
-    name: "Lithophanes",
-    baseDescription:
-      "Transform your cherished photo into an enchanting light art piece. When backlit, this unique creation reveals its hidden image in stunning detail.",
-    images: [],
-    price: 150,
-    material: "pla",
-  },
-  {
-    id: "coasters",
-    name: "Coasters",
-    baseDescription:
-      "A stylish way to protect your surfaces while adding character to your space. Combines practical functionality with artistic flair.",
-    images: [],
-    price: 150,
-    material: "pla",
-  },
 ];
 
 export const BaseCategoriesObj = BaseCategories.reduce(
@@ -54,4 +36,4 @@ export const BaseCategoriesObj = BaseCategories.reduce(
   {}
 );
 
-export type BaseCategoriesIds = "keychains" | "earrings" | "lithophanes" | "coasters";
+export type BaseCategoriesIds = "keychains" | "earrings";

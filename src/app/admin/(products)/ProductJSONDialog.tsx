@@ -42,12 +42,7 @@ const validateDBProductSchema = (
   }
 
   // Check categoryId
-  const validCategories: BaseCategoriesIds[] = [
-    "keychains",
-    "earrings",
-    "lithophanes",
-    "coasters",
-  ];
+  const validCategories: BaseCategoriesIds[] = ["keychains", "earrings"];
   if (!validCategories.includes(data.categoryId)) {
     errors.push(`categoryId must be one of: ${validCategories.join(", ")}`);
   }

@@ -184,14 +184,18 @@ export default async function OrderPage({
               </div>
             )}
             {!!order.pricing.discount && order.pricing.discount > 0 && (
-              <div className="flex justify-between items-center">
-                <span className="flex items-center gap-2 text-muted-foreground">
+              <div className="flex justify-between items-center text-green-600 dark:text-green-400">
+                <span className="flex items-center gap-2">
                   Discount
-                  <span className="text-xs bg-muted text-green-600 px-2 py-0.5 rounded-full">
-                    {order.pricing.couponCode}
-                  </span>
+                  {order.pricing.couponCode && (
+                    <Badge variant="outline" className="text-xs">
+                      {order.pricing.couponCode}
+                    </Badge>
+                  )}
                 </span>
-                <span>- {formatPrice(order.pricing.discount)}</span>
+                <span className="font-medium">
+                  -{formatPrice(order.pricing.discount)}
+                </span>
               </div>
             )}
 
