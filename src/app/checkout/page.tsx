@@ -292,7 +292,7 @@ export default function CheckoutPage() {
       // console.log("Creating order", order);
       const createdOrder = await createOrder(order);
 
-      console.log("Created order:", createdOrder);
+      // console.log("Created order:", createdOrder);
 
       if (createdOrder.payment.method === "razorpay") {
         rzpRef.current?.handlePayment(createdOrder);
