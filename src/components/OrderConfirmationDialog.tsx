@@ -23,38 +23,17 @@ interface OrderConfirmationDialogProps {
 export default function OrderConfirmationDialog({
   isOpen,
   orderId,
-  customerName,
   orderTotal,
   onClose,
 }: OrderConfirmationDialogProps) {
   const router = useRouter();
-  const [countdown, setCountdown] = useState(6);
-  const [showContent, setShowContent] = useState(false);
+  const [showContent, setShowContent] = useState(true);
 
   useEffect(() => {
     if (!isOpen) {
       setShowContent(false);
       return;
     }
-
-    // Slight delay to trigger entrance animation
-    const showTimer = setTimeout(() => setShowContent(true), 100);
-
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          onClose(orderId);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => {
-      clearInterval(timer);
-      clearTimeout(showTimer);
-    };
   }, [isOpen, orderId, router]);
 
   return (
@@ -148,24 +127,11 @@ export default function OrderConfirmationDialog({
                 : "translate-y-4 opacity-0"
             }`}
           >
-            {/* Countdown Display */}
-            <div className="text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border/30">
-                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                <p className="text-xs md:text-sm text-muted-foreground">
-                  Redirecting in{" "}
-                  <span className="font-mono font-semibold text-foreground">
-                    {countdown}
-                  </span>
-                  s
-                </p>
-              </div>
-            </div>
-
             {/* Action Button */}
             <Button
               onClick={() => onClose(orderId)}
-              className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] border-0 h-12 rounded-xl font-medium"
+              variant="secondary"
+              className="w-full"
               size="lg"
             >
               <span className="flex items-center gap-2">

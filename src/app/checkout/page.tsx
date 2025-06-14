@@ -19,6 +19,7 @@ import {
   User,
   Tag,
   X,
+  ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -71,6 +72,7 @@ export default function CheckoutPage() {
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedOrderId, setConfirmedOrderId] = useState("");
+  const [isNavigatingToOrder, setIsNavigatingToOrder] = useState(false);
 
   const [formData, setFormData] = useState<CheckoutFormData>({
     name: "",
@@ -325,36 +327,10 @@ export default function CheckoutPage() {
   }
 
   function handleCloseConfirmationDialog(orderId: string) {
-    setConfirmedOrderId(orderId);
+    setConfirmedOrderId("");
+    setIsNavigatingToOrder(true);
+    clearCart(); // Clear immediately to ensure it happens
     router.push(`/order/${orderId}`);
-    clearCart();
-  }
-
-  // Redirect to products if cart is empty
-  if (items.length === 0) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="mb-4 sm:mb-6">
-              <ShoppingCart className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-3 sm:mb-4" />
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-2">
-                Your cart is empty
-              </h1>
-              <p className="text-sm sm:text-base text-muted-foreground px-4">
-                Add some items to your cart before proceeding to checkout
-              </p>
-            </div>
-            <Link href="/products">
-              <Button className="text-xs sm:text-sm">
-                <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                Continue Shopping
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -369,10 +345,21 @@ export default function CheckoutPage() {
       <OrderConfirmationDialog
         isOpen={!!confirmedOrderId}
         orderId={confirmedOrderId}
-        customerName={formData.name}
         orderTotal={formatPriceLocalized(finalTotal)}
         onClose={handleCloseConfirmationDialog}
       />
+
+      {/* Navigation Loading Overlay */}
+      {isNavigatingToOrder && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-xs z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <p className="text-sm text-muted-foreground">
+              Redirecting to your order...
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
@@ -662,101 +649,104 @@ export default function CheckoutPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 sm:space-y-4">
-                  {/* Cart Items */}
-                  <div className="space-y-2 sm:space-y-3">
-                    {items.map((item) => (
-                      <OrderCardItem key={item.id} item={item} />
-                    ))}
-                  </div>
-
-                  <Separator className="my-5" />
-
-                  <CouponForm
-                    coupon={coupon}
-                    handleCouponRemove={handleCouponRemove}
-                    handleCouponApplyForm={handleCouponApplyForm}
-                    couponIsLoading={couponIsLoading}
-                    discountAmount={discountAmount}
-                  />
-
-                  <Separator className="my-5" />
-
-                  {/* Pricing Breakdown */}
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-sm sm:text-sm">
-                      <span className="flex flex-col items-start gap-1">
-                        <span className="flex items-center gap-1">
-                          <ShoppingCart className="h-3 w-3" />
-                          Subtotal
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {totalItems} {totalItems === 1 ? "item" : "items"}
-                        </span>
-                      </span>
-                      <span>{formatPriceLocalized(subtotal)}</span>
+                  {items.length === 0 ? (
+                    /* Empty Cart State */
+                    <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
+                      <ShoppingCart className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mb-4" />
+                      <h3 className="text-lg sm:text-xl font-semibold text-muted-foreground mb-2">
+                        Your cart is empty
+                      </h3>
+                      <p className="text-sm sm:text-base text-muted-foreground mb-4">
+                        Add some items to your cart to proceed with checkout
+                      </p>
+                      <Link href="/products">
+                        <Button variant="outline" size="sm" className="group">
+                          Continue Shopping
+                          <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
+                        </Button>
+                      </Link>
                     </div>
+                  ) : (
+                    <>
+                      {/* Cart Items */}
+                      <div className="space-y-2 sm:space-y-3">
+                        {items.map((item) => (
+                          <OrderCardItem key={item.id} item={item} />
+                        ))}
+                      </div>
 
-                    {coupon && discountAmount > 0 && (
-                      <div className="flex justify-between text-sm">
-                        <span className="flex flex-col items-start gap-1">
-                          <span className="flex items-center gap-1">
-                            <Tag className="h-3 w-3" />
-                            Discount
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            Applied{" "}
-                            <span className="font-semibold text-primary">
-                              {coupon.code}
+                      <Separator className="my-5" />
+
+                      <CouponForm
+                        coupon={coupon}
+                        handleCouponRemove={handleCouponRemove}
+                        handleCouponApplyForm={handleCouponApplyForm}
+                        couponIsLoading={couponIsLoading}
+                        discountAmount={discountAmount}
+                      />
+
+                      <Separator className="my-5" />
+
+                      {/* Pricing Breakdown */}
+                      <div className="space-y-3">
+                        <div className="flex justify-between text-sm sm:text-sm">
+                          <span className="flex flex-col items-start gap-1">
+                            <span className="flex items-center gap-1">
+                              <ShoppingCart className="h-3 w-3" />
+                              Subtotal
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {totalItems} {totalItems === 1 ? "item" : "items"}
                             </span>
                           </span>
-                        </span>
-
-                        <span>{formatPriceLocalized(discountAmount)}</span>
-                      </div>
-                    )}
-
-                    <div className="flex justify-between text-sm sm:text-sm items-center">
-                      <div className="flex items-center gap-1">
-                        <Truck className="h-3 w-3 sm:h-4 sm:w-4" />
-                        <span>Shipping</span>
-                      </div>
-                      {shippingCost > 0 ? (
-                        <span>{formatPriceLocalized(shippingCost)}</span>
-                      ) : (
-                        <div className="flex items-center gap-1">
-                          <span className="line-through">
-                            {formatPriceLocalized(getShippingCost())}
-                          </span>
-                          <span className="text-positive">FREE</span>
+                          <span>{formatPriceLocalized(subtotal)}</span>
                         </div>
-                      )}
-                    </div>
 
-                    <Separator className="my-5" />
+                        {coupon && discountAmount > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span className="flex flex-col items-start gap-1">
+                              <span className="flex items-center gap-1">
+                                <Tag className="h-3 w-3" />
+                                Discount
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                Applied{" "}
+                                <span className="font-semibold text-primary">
+                                  {coupon.code}
+                                </span>
+                              </span>
+                            </span>
 
-                    <div className="flex justify-between font-semibold text-lg sm:text-lg">
-                      <span>Total</span>
-                      <span>{formatPriceLocalized(finalTotal)}</span>
-                    </div>
-                  </div>
+                            <span>{formatPriceLocalized(discountAmount)}</span>
+                          </div>
+                        )}
 
-                  {/* Shipping Info */}
-                  {/* <div className="mt-4 sm:mt-6 p-2 sm:p-3 rounded-lg bg-primary/10 border border-primary/20">
-                  <div className="flex items-start gap-2">
-                    <Truck className="h-3 w-3 sm:h-4 sm:w-4 text-primary mt-0.5" />
-                    <div className="text-sm sm:text-sm">
-                      <p className="font-medium text-primary text-sm sm:text-sm">
-                        Delivery Information
-                      </p>
-                      <p className="text-muted-foreground text-xs sm:text-xs mt-1">
-                        Expected delivery: 5-7 business days
-                      </p>
-                      <p className="text-muted-foreground text-xs sm:text-xs">
-                        Free shipping on orders over ₹999
-                      </p>
-                    </div>
-                  </div>
-                </div> */}
+                        <div className="flex justify-between text-sm sm:text-sm items-center">
+                          <div className="flex items-center gap-1">
+                            <Truck className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span>Shipping</span>
+                          </div>
+                          {shippingCost > 0 ? (
+                            <span>{formatPriceLocalized(shippingCost)}</span>
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              <span className="line-through">
+                                {formatPriceLocalized(getShippingCost())}
+                              </span>
+                              <span className="text-positive">FREE</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <Separator className="my-5" />
+
+                        <div className="flex justify-between font-semibold text-lg sm:text-lg">
+                          <span>Total</span>
+                          <span>{formatPriceLocalized(finalTotal)}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </div>
