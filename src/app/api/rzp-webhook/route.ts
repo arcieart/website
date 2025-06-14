@@ -57,9 +57,17 @@ export async function POST(request: Request) {
 
         const paymentId = data.payload.payment.entity.id;
         const paymentStatus = data.payload.payment.entity.status;
+        const paymentMethod = data.payload.payment.entity.method;
+        const amountPaid = data.payload.payment.entity.amount;
+        const currency = data.payload.payment.entity.currency;
+
         await updateOrder(dbId, {
-          "rzp.paymentId": paymentId,
-          "rzp.paymentStatus": paymentStatus,
+          "payment.razorpay.razorpayPaymentId": paymentId,
+          "payment.razorpay.paymentStatus": paymentStatus,
+          "payment.razorpay.paymentMethod": paymentMethod,
+          "payment.razorpay.currency": currency,
+          "payment.razorpay.amountPaid": amountPaid,
+          "payment.status": "failed",
           status: "payment-failed",
         });
         break;
