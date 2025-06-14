@@ -24,7 +24,7 @@ export async function POST(request: Request) {
         const paymentId = data.payload.payment.entity.id;
         const paymentStatus = data.payload.payment.entity.status;
         const paymentMethod = data.payload.payment.entity.method;
-        const amountPaid = data.payload.payment.entity.amount;
+        const amount = data.payload.payment.entity.amount;
         const currency = data.payload.payment.entity.currency;
 
         const updateOrderPromise = updateOrder(dbId, {
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
           "payment.razorpay.paymentStatus": paymentStatus,
           "payment.razorpay.paymentMethod": paymentMethod,
           "payment.razorpay.currency": currency,
-          "payment.razorpay.amountPaid": amountPaid,
+          "payment.razorpay.amount": amount,
           "payment.status": "completed",
           "status": "confirmed",
           "payment.paidAt": getTimestamp(),
@@ -58,16 +58,18 @@ export async function POST(request: Request) {
         const paymentId = data.payload.payment.entity.id;
         const paymentStatus = data.payload.payment.entity.status;
         const paymentMethod = data.payload.payment.entity.method;
-        const amountPaid = data.payload.payment.entity.amount;
+        const amount = data.payload.payment.entity.amount;
         const currency = data.payload.payment.entity.currency;
+        const failureReason = data.payload.payment.entity.failure_reason;
 
         await updateOrder(dbId, {
           "payment.razorpay.razorpayPaymentId": paymentId,
           "payment.razorpay.paymentStatus": paymentStatus,
           "payment.razorpay.paymentMethod": paymentMethod,
           "payment.razorpay.currency": currency,
-          "payment.razorpay.amountPaid": amountPaid,
+          "payment.razorpay.amount": amount,
           "payment.status": "failed",
+          "payment.razorpay.failureReason": failureReason,
           status: "payment-failed",
         });
         break;

@@ -39,7 +39,7 @@ export type RazorpayPaymentDetails = {
   paymentStatus?: "created" | "authorized" | "captured" | "refunded" | "failed";
   paymentMethod?: "card" | "netbanking" | "wallet" | "upi" | "emi" | "paylater";
   currency?: string;
-  amountPaid?: number; // Amount actually paid (in paise for Razorpay)
+  amount?: number; // Amount actually paid (in paise for Razorpay)
   refundId?: string;
   refundAmount?: number;
   failureReason?: string; // Reason for failure
