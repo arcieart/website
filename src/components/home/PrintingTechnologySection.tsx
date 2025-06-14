@@ -88,8 +88,8 @@ export default function PrintingTechnologySection() {
                 </div>
                 <h4 className="font-semibold mb-2">Premium PLA Material</h4>
                 <p className="text-sm text-muted-foreground">
-                  Eco-friendly, biodegradable plastic that's safe for everyday
-                  use and produces excellent detail and surface finish
+                  Eco-friendly, biodegradable plastic that&apos;s safe for
+                  everyday use and produces excellent detail and surface finish
                 </p>
               </CardContent>
             </Card>

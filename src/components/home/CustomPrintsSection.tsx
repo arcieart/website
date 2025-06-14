@@ -28,8 +28,8 @@ export default function CustomPrintsSection() {
         </h2>
 
         <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Looking for a unique 3D print that's not in our catalog? We do custom
-          3D printing solutions for your specific needs.
+          Looking for a unique 3D print that&apos;s not in our catalog? We do
+          custom 3D printing solutions for your specific needs.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -71,7 +71,7 @@ export default function CustomPrintsSection() {
               Reach Out To Create Something Unique Together
             </span>
             <span className="block md:hidden">
-              Let's Create Something Unique
+              Let&apos;s Create Something Unique
             </span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-all duration-300" />
           </Button>
