@@ -611,7 +611,7 @@ export default function CheckoutPage() {
                       type="submit"
                       className="w-full text-sm sm:text-base"
                       size="lg"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || totalItems === 0}
                     >
                       {isSubmitting ? (
                         <>
@@ -624,7 +624,9 @@ export default function CheckoutPage() {
                         <>
                           <CreditCard className="h-3 w-3 sm:h-4 sm:w-4" />
                           <span className="text-sm sm:text-base">
-                            Place Order • {formatPriceLocalized(finalTotal)}
+                            Place Order
+                            {totalItems > 0 &&
+                              ` • ${formatPriceLocalized(finalTotal)}`}
                           </span>
                         </>
                       )}
