@@ -21,6 +21,10 @@ export async function uploadImageToS3(file: File, key: string): Promise<string> 
       Key: key,
       Body: file,
       ContentType: file.type,
+      CacheControl: 'public, max-age=31536000, immutable', // 1 year cache
+      Metadata: {
+        'uploaded-at': new Date().toISOString(),
+      },
     });
 
     await s3Client.send(command);
