@@ -9,7 +9,7 @@ import { DBProduct } from '@/types/product'
 export const revalidate = 604800
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://arcie.art'
+  const baseUrl = 'https://arcie.art'
 
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
