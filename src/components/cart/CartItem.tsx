@@ -46,7 +46,7 @@ export default function CartItem({
           <Link
             href={`/products/${item.product.categoryId}/${item.product.id}`}
           >
-            <h4 className="text-sm md:text-base font-medium text-foreground leading-none hover:underline">
+            <h4 className="text-sm pr-1 font-medium text-foreground leading-none hover:underline">
               {item.product.name}
             </h4>
           </Link>

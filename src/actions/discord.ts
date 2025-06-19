@@ -13,10 +13,10 @@ const sendDiscordMessage = async (
   channelId: string,
   data: MessageCreateOptions
 ) => {
-  if (!isProduction) {
-    console.info("Skipping Discord message in non-production environment");
-    return;
-  }
+  // if (!isProduction) {
+  //   console.info("Skipping Discord message in non-production environment");
+  //   return;
+  // }
 
   try {
     const response = await fetch(

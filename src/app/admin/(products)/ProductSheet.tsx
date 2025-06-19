@@ -327,7 +327,7 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
             </label>
             <Input
               placeholder="e.g., 5"
-              value={productData.weight.toString()}
+              value={productData.weight?.toString() || ""}
               onChange={(e) =>
                 setProductData((prev) => ({
                   ...prev,

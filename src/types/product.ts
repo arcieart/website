@@ -10,8 +10,8 @@ export type BaseProduct = {
   isBestSeller: boolean;
   createdAt: number;
   description?: string;
-  dimensions: string;
-  weight: number;
+  dimensions?: string;
+  weight?: number;
   customizationOptions: DBCustomization[];
 };
 

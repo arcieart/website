@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Coupon } from "@/types/coupon";
-import { formatPrice, formatPriceLocalized } from "@/utils/price";
+import { formatPrice } from "@/utils/price";
 import { CheckCircle2, Loader2, X } from "lucide-react";
 
 export const CouponForm = ({

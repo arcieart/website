@@ -5,7 +5,8 @@ export const calculateDiscountAmount = (coupon: Coupon, subtotal: number) => {
 
   switch (coupon.discountType) {
     case "fixed":
-      discountAmount = Math.max(subtotal - coupon.discountValue, 0);
+      
+      discountAmount = Math.max(coupon.discountValue, 0);
       break;
 
     case "percentage":
