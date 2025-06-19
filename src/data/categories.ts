@@ -8,13 +8,21 @@ export type Category = {
 };
 
 export const BaseCategories: Category[] = [
+  // {
+  //   id: "keychains",
+  //   name: "Keychains",
+  //   baseDescription:
+  //     "A personalized accessory that adds character to your everyday carry. Perfect as a thoughtful gift or a unique touch to your own keys.",
+  //   images: [],
+  //   price: 150,
+  //   material: "pla",
+  // },
   {
-    id: "keychains",
-    name: "Keychains",
-    baseDescription:
-      "A personalized accessory that adds character to your everyday carry. Perfect as a thoughtful gift or a unique touch to your own keys.",
+    id: "showpieces",
+    name: "Display Showpieces",
+    baseDescription: "A collection of beautiful and unique display pieces for your home or office.",
     images: [],
-    price: 150,
+    price: 300,
     material: "pla",
   },
   {
