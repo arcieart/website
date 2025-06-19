@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /order/
+
+# Allow access to all other paths
+Allow: /
+
+# Sitemap location
+Sitemap: https://arcie.art/sitemap.xml 
