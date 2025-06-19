@@ -55,7 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     productPages = snapshot.docs.map((doc) => {
       const product = { id: doc.id, ...doc.data() } as DBProduct
       return {
-        url: `${baseUrl}/products/${product.categoryId}/${product.id}`,
+        url: `${baseUrl}/products/${product.categoryId}/${product.slug}`,
         lastModified: new Date(product.createdAt),
         changeFrequency: 'weekly' as const,
         priority: product.isBestSeller ? 0.9 : 0.7,

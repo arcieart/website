@@ -14,6 +14,7 @@ export type CustomerInfo = {
 export type OrderProduct = {
   id: string;
   productId: string;
+  productSlug: string;
   name: string;
   description?: string;
   sku?: string;

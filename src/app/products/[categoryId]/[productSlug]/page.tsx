@@ -2,18 +2,18 @@ import { Suspense } from "react";
 import { ProductPageSkeleton } from "@/components/skeletons/ProductPageSkeleton";
 import { ProductPage } from "./ProductPage";
 import { Metadata } from "next";
-import { getProduct } from "@/lib/products";
+import { getProductBySlug } from "@/lib/products";
 import { BaseCategoriesObj } from "@/data/categories";
 
 interface ProductPageProps {
-  params: Promise<{ productId: string }>;
+  params: Promise<{ productSlug: string }>;
 }
 
 export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
-  const productId = (await params).productId;
-  const product = await getProduct(productId);
+  const productSlug = (await params).productSlug;
+  const product = await getProductBySlug(productSlug);
 
   if (product) {
     const category = BaseCategoriesObj[product.categoryId];

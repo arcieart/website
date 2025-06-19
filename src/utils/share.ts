@@ -8,7 +8,7 @@ const shareMessage = (product: UIProduct, url: string) => {
     if(!product) throw new Error("Product is required to share");
 
     const baseUrl = window.location.origin;
-    const url = `${baseUrl}/products/${product.categoryId}/${product.id}`;
+    const url = `${baseUrl}/products/${product.categoryId}/${product.slug}`;
   
     try {
       await navigator.share({ title: `Share ${product.name}`, text: shareMessage(product, url) });

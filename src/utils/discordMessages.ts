@@ -5,8 +5,8 @@ import { getAddressString } from "./address";
 import { getWhatsappOrderConfirmationLink } from "./whatsappMessageLinks";
 
 // Utility function to generate product URL
-const getProductUrl = (categoryId: string, productId: string) => {
-  return `https://arcie.art/products/${categoryId}/${productId}`;
+const getProductUrl = (categoryId: string, productSlug: string) => {
+  return `https://arcie.art/products/${categoryId}/${productSlug}`;
 };
 
 export const getDiscordOrderMessage = (order: Order) => {
@@ -32,7 +32,7 @@ export const getDiscordOrderMessage = (order: Order) => {
               name: "Products",
               value: order.products.map(product => {
                 // Create the product link
-                const productLink = `[${product.name}](${getProductUrl(product.categoryId, product.productId)})`;
+                const productLink = `[${product.name}](${getProductUrl(product.categoryId, product.productSlug)})`;
                 let productLine = `**${product.quantity}x** ${productLink}`;
                 
                 // Format customizations if they exist

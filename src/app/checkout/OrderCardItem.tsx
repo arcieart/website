@@ -9,7 +9,9 @@ export default function OrderCardItem({ item }: { item: CartItem }) {
   return (
     <div className="flex gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border bg-muted/30">
       <div className="relative h-12 w-12 sm:h-16 sm:w-16 overflow-hidden rounded-md bg-muted">
-        <Link href={`/products/${item.product.categoryId}/${item.product.id}`}>
+        <Link
+          href={`/products/${item.product.categoryId}/${item.product.slug}`}
+        >
           {item.product.images && item.product.images[0] ? (
             <Image
               width={64}
@@ -29,7 +31,7 @@ export default function OrderCardItem({ item }: { item: CartItem }) {
       <div className="flex-1 space-y-1">
         <h4 className="font-medium text-sm sm:text-sm leading-tight">
           <Link
-            href={`/products/${item.product.categoryId}/${item.product.id}`}
+            href={`/products/${item.product.categoryId}/${item.product.slug}`}
             className="hover:underline"
           >
             {item.product.name}

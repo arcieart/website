@@ -26,21 +26,6 @@ function ProductCardContent({ product }: ProductCardProps) {
   const isInWishlist = isInFavorites(product.id);
   const { setCartOpen } = useCartSheet();
 
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    // For products with customizations, redirect to product page
-    if (product.customizationOptions.length > 0) {
-      window.location.href = `/products/${product.categoryId}/${product.id}`;
-      return;
-    }
-
-    // Add to cart with empty customizations for simple products
-    addToCart(product, {});
-    setCartOpen(true);
-  };
-
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -52,7 +37,7 @@ function ProductCardContent({ product }: ProductCardProps) {
       className={`group hover:shadow-lg transition-all duration-500 py-0 animate-in slide-in-from-bottom-4 fade-in gap-4 flex justify-between`}
     >
       <div>
-        <Link href={`/products/${product.categoryId}/${product.id}`}>
+        <Link href={`/products/${product.categoryId}/${product.slug}`}>
           <div className="relative overflow-hidden rounded-t-lg">
             {/* Product Image */}
             <div className="aspect-square relative bg-transparent">
@@ -106,7 +91,7 @@ function ProductCardContent({ product }: ProductCardProps) {
             </div>
           </Link>
 
-          <Link href={`/products/${product.categoryId}/${product.id}`}>
+          <Link href={`/products/${product.categoryId}/${product.slug}`}>
             {/* Product Name */}
             <h3 className="font-semibold text-foreground text-xs md:text-sm mb-1.5 line-clamp-2 leading-tight">
               {product.name}
@@ -129,24 +114,14 @@ function ProductCardContent({ product }: ProductCardProps) {
 
       {/* Add to Cart Button */}
       <div className="px-2 pb-2">
-        <Button
-          onClick={handleAddToCart}
-          disabled={!product.available}
-          className="w-full text-xs h-8"
-          size="sm"
-        >
-          {product.customizationOptions.length > 0 ? (
+        <Link href={`/products/${product.categoryId}/${product.slug}`}>
+          <Button className="w-full text-xs h-8" size="sm">
             <span className="flex items-center justify-between gap-1">
-              Customize
+              View Options
               <ArrowRight className="w-3 h-3 transition-transform duration-200 group-hover:translate-x-1" />
             </span>
-          ) : (
-            <span className="flex items-center justify-between gap-1">
-              <ShoppingCart className="w-3 h-3" />
-              Add to Cart
-            </span>
-          )}
-        </Button>
+          </Button>
+        </Link>
       </div>
     </Card>
   );

@@ -25,7 +25,9 @@ export default function CartItem({
   return (
     <div className="flex gap-4 rounded-lg border bg-card p-2">
       <div className="relative h-16 w-16 overflow-hidden rounded-md bg-muted">
-        <Link href={`/products/${item.product.categoryId}/${item.product.id}`}>
+        <Link
+          href={`/products/${item.product.categoryId}/${item.product.slug}`}
+        >
           {item.product.images && item.product.images[0] ? (
             <Image
               width={64}
@@ -44,7 +46,7 @@ export default function CartItem({
       <div className="flex-1 space-y-2">
         <div>
           <Link
-            href={`/products/${item.product.categoryId}/${item.product.id}`}
+            href={`/products/${item.product.categoryId}/${item.product.slug}`}
           >
             <h4 className="text-sm pr-1 font-medium text-foreground leading-none hover:underline">
               {item.product.name}

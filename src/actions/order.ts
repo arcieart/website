@@ -7,7 +7,7 @@ import { createRazorpayOrder } from "./rzp";
 import { sendOrderMessage } from "./discord";
 import { getDiscordOrderMessage } from "@/utils/discordMessages";
 import { getTimestamp } from "@/utils/date";
-import { getProduct } from "@/lib/products";
+import { getProductById } from "@/lib/products";
 import { BaseCategoriesObj } from "@/data/categories";
 import { calculateProductPrice } from "@/utils/price";
 import { getFreeShippingThreshold, getShippingCost } from "@/config/currency";
@@ -26,7 +26,7 @@ const recalculateOrderPricing = async (order: Omit<Order, "id">) => {
   let subtotal = 0;
 
   for (const product of order.products) {
-    const productData = await getProduct(product.productId);
+    const productData = await getProductById(product.productId);
 
     const { id, ...restBaseCategory } =
       BaseCategoriesObj[productData.categoryId];

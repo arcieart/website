@@ -83,6 +83,7 @@ const defaultProductData: DBProduct = {
   dimensions: "",
   weight: 0,
   images: [],
+  slug: "",
   price: 0,
   categoryId: "keychains" as BaseCategoriesIds,
   customizationOptions: [] as DBCustomization[],
@@ -135,9 +136,61 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
         }
       }
 
+      // Create SEO-friendly slug by removing filler words
+      const stopWords = [
+        "and",
+        "for",
+        "the",
+        "a",
+        "an",
+        "or",
+        "but",
+        "in",
+        "on",
+        "at",
+        "to",
+        "with",
+        "by",
+        "of",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "could",
+        "should",
+        "may",
+        "might",
+        "can",
+        "this",
+        "that",
+        "these",
+        "those",
+      ];
+
+      const slug =
+        productData.name
+          .toLowerCase()
+          .trim()
+          .split(/\s+/) // Split by one or more whitespace characters
+          .filter((word) => word.length > 0 && !stopWords.includes(word)) // Remove empty strings and stop words
+          .join("-") +
+        "-" +
+        productId;
+
       // Update product data with final image URLs
       const finalProductData: DBProduct = {
         ...productData,
+        slug,
         images: finalImageUrls,
         createdAt: getTimestamp(),
       };

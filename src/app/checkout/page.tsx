@@ -260,6 +260,7 @@ export default function CheckoutPage() {
         products: items.map((item) => ({
           id: item.id,
           productId: item.product.id,
+          productSlug: item.product.slug,
           name: item.product.name,
           categoryId: item.product.categoryId || "unknown",
           price: item.product.price,

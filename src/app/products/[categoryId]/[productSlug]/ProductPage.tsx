@@ -57,7 +57,7 @@ import { RecommendedProducts } from "@/components/products/RecommendedProducts";
 import { redirect, useRouter } from "next/navigation";
 
 interface ProductPageProps {
-  params: Promise<{ productId: string }>;
+  params: Promise<{ productSlug: string }>;
 }
 
 const CustomizationLabel = ({ label, required }: Partial<Customization>) => (
@@ -74,7 +74,9 @@ export function ProductPage({ params }: ProductPageProps) {
   const { setCartOpen } = useCartSheet();
   const router = useRouter();
 
-  const [resolvedParams, setResolvedParams] = useState<{ productId: string }>();
+  const [resolvedParams, setResolvedParams] = useState<{
+    productSlug: string;
+  }>();
   const [product, setProduct] = useState<UIProduct>();
   const [quantity, setQuantity] = useState(1);
   const [customizations, setCustomizations] = useState<Record<string, string>>(
@@ -83,12 +85,16 @@ export function ProductPage({ params }: ProductPageProps) {
 
   // Resolve params in useEffect
   useEffect(() => {
-    params.then((params) => setResolvedParams({ productId: params.productId }));
+    params.then((params) =>
+      setResolvedParams({ productSlug: params.productSlug })
+    );
   }, [params]);
 
   useEffect(() => {
     if (products && resolvedParams && !isLoading) {
-      const product = products.find((p) => p.id === resolvedParams?.productId);
+      const product = products.find(
+        (p) => p.slug === resolvedParams.productSlug
+      );
       if (product) setProduct(product);
       else {
         toast.error("Product not found, redirecting to products page...");

@@ -115,7 +115,7 @@ export default async function OrderPage({
               >
                 <Link
                   target="_blank"
-                  href={`/products/${product.categoryId}/${product.productId}`}
+                  href={`/products/${product.categoryId}/${product.productSlug}`}
                 >
                   <div className="w-full aspect-square md:w-24 relative">
                     {product.imageUrl ? (

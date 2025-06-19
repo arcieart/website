@@ -6,6 +6,7 @@ export type BaseProduct = {
   name: string;
   images: string[];
   categoryId: BaseCategoriesIds;
+  slug: string;
   available: boolean;
   isBestSeller: boolean;
   createdAt: number;

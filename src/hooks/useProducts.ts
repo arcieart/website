@@ -42,19 +42,27 @@ export const useProducts = () => {
     queryKey: ["products", productCount],
     queryFn: async () => {
       // console.log("fetching PRODUCTS");
-      const availableProductsQuery = getProductsRef();
-      const snapshot = await getDocs(availableProductsQuery);
+      try {
 
-      const products: UIProduct[] = [];
-      snapshot.forEach((doc) => {
-        const dbProduct = { id: doc.id, ...doc.data() } as DBProduct;
-        const { id, ...restBaseCategory } = BaseCategoriesObj[dbProduct.categoryId];
-        const product: UIProduct = { ...restBaseCategory, ...dbProduct };
-        products.push(product);
-      });
-
-      // console.log("products", products);
-      return products;
+        const availableProductsQuery = getProductsRef();
+        const snapshot = await getDocs(availableProductsQuery);
+        
+        const products: UIProduct[] = [];
+        snapshot.forEach((doc) => {
+          const dbProduct = { id: doc.id, ...doc.data() } as DBProduct;
+          if(BaseCategoriesObj[dbProduct.categoryId]) {
+            const { id, ...restBaseCategory } = BaseCategoriesObj[dbProduct.categoryId];
+            const product: UIProduct = { ...restBaseCategory, ...dbProduct };
+            products.push(product);
+          }
+        });
+        
+        // console.log("products", products);
+        return products;
+      } catch (error) {
+        console.error("Error fetching products", error);
+        return [];
+      }
     },
     enabled: productCount !== undefined && productCount > 0, // Only run when we have a count
     staleTime: 1000 * 60 * 30, // 30 minutes - products themselves don't change often
