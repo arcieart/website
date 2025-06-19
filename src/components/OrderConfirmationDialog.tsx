@@ -25,16 +25,6 @@ export default function OrderConfirmationDialog({
   orderTotal,
   onClose,
 }: OrderConfirmationDialogProps) {
-  const router = useRouter();
-  const [showContent, setShowContent] = useState(true);
-
-  useEffect(() => {
-    if (!isOpen) {
-      setShowContent(false);
-      return;
-    }
-  }, [isOpen, orderId, router]);
-
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-lg mx-auto border-0 backdrop-blur-xl shadow-2xl overflow-hidden">
@@ -47,11 +37,7 @@ export default function OrderConfirmationDialog({
           <DialogHeader className="text-center space-y-6 pb-2">
             {/* Success Icon with Animation */}
             <div
-              className={`mx-auto transition-all duration-700 ease-out transform ${
-                showContent
-                  ? "scale-100 opacity-100 rotate-0"
-                  : "scale-0 opacity-0 rotate-180"
-              }`}
+              className={`mx-auto transition-all duration-700 ease-out transform ${"scale-100 opacity-100 rotate-0"}`}
             >
               <div className="relative">
                 <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500/20 to-emerald-600/30 border border-emerald-500/30 shadow-lg backdrop-blur-sm">
@@ -64,11 +50,7 @@ export default function OrderConfirmationDialog({
 
             {/* Title with Slide Animation */}
             <div
-              className={`transition-all duration-500 delay-200 ease-out transform ${
-                showContent
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-4 opacity-0"
-              }`}
+              className={`transition-all duration-500 delay-200 ease-out transform ${"translate-y-0 opacity-100"}`}
             >
               <DialogTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent leading-tight">
                 <div className="flex items-center justify-center gap-2">
@@ -87,11 +69,7 @@ export default function OrderConfirmationDialog({
 
           {/* Order Details Card */}
           <div
-            className={`transition-all duration-500 delay-300 ease-out transform ${
-              showContent
-                ? "translate-y-0 opacity-100"
-                : "translate-y-4 opacity-0"
-            }`}
+            className={`transition-all duration-500 delay-300 ease-out transform ${"translate-y-0 opacity-100"}`}
           >
             <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-xl p-6 space-y-4 shadow-lg">
               <div className="flex items-center justify-center gap-2 text-foreground/90">
@@ -120,11 +98,7 @@ export default function OrderConfirmationDialog({
 
           {/* Countdown and Action */}
           <div
-            className={`space-y-4 pt-6 transition-all duration-500 delay-500 ease-out transform ${
-              showContent
-                ? "translate-y-0 opacity-100"
-                : "translate-y-4 opacity-0"
-            }`}
+            className={`space-y-4 pt-6 transition-all duration-500 delay-500 ease-out transform ${"translate-y-0 opacity-100"}`}
           >
             {/* Action Button */}
             <Button
