@@ -51,7 +51,8 @@ export const ProductSpecAccordion = ({ product }: { product: UIProduct }) => {
               </div>
             )}
             <div className="text-xs text-muted-foreground">
-              Weight and dimensions may vary due to 3D printing process
+              Weight and dimensions may vary due to 3D printing process and
+              customization.
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -97,6 +98,10 @@ export const ProductSpecAccordion = ({ product }: { product: UIProduct }) => {
             </div>
             <div className="text-xs text-muted-foreground mt-2">
               <ul className="list-disc list-inside space-y-1">
+                <li>
+                  We do not offer refunds for personalized or customized
+                  products.
+                </li>
                 <li>
                   We offer a 7-day return policy for unused items in original
                   packaging.
