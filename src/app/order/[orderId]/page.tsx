@@ -19,7 +19,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MessageCircleIcon } from "lucide-react";
 import { Metadata } from "next";
-import { BaseCustomizationsObj } from "@/data/customizations";
 import { CustomizationBadge } from "@/components/products/CustomizationBadge";
 import { formatOrderStatus } from "@/data/orderStatuses";
 
@@ -118,12 +117,12 @@ export default async function OrderPage({
                   target="_blank"
                   href={`/products/${product.categoryId}/${product.productId}`}
                 >
-                  <div className="w-full md:w-24 h-24 relative">
+                  <div className="w-full aspect-square md:w-24 relative">
                     {product.imageUrl ? (
                       <Image
+                        fill
                         src={product.imageUrl}
                         alt={product.name}
-                        fill
                         className="object-cover rounded-md"
                       />
                     ) : (
@@ -134,7 +133,7 @@ export default async function OrderPage({
                 <div className="flex-1">
                   <h3 className="font-medium">{product.name}</h3>
                   {product.description && (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground line-clamp-2 max-w-[75%]">
                       {product.description}
                     </p>
                   )}
