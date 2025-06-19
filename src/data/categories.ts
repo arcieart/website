@@ -44,4 +44,4 @@ export const BaseCategoriesObj = BaseCategories.reduce(
   {}
 );
 
-export type BaseCategoriesIds = "keychains" | "earrings";
+export type BaseCategoriesIds = "keychains" | "earrings" | "showpieces";

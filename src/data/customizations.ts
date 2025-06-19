@@ -47,6 +47,15 @@ export const BaseCustomizationsObj: Record<string, Customization> = {
     priceAdd: 0,
     afterSelectionLabel: "Background Color",
   },
+  "showpiece-primary-color": {
+    id: "showpiece-primary-color",
+    categoryId: "showpieces",
+    label: "Select Showpiece Color",
+    type: "fixed-color-picker",
+    required: true,
+    priceAdd: 0,
+    afterSelectionLabel: "Showpiece Color",
+  },
 };
 
 export const PLAFilamentColors: FilamentColor[] = [
@@ -55,7 +64,7 @@ export const PLAFilamentColors: FilamentColor[] = [
     label: "Candy Red",
     value: "#FF0000",
     available: true,
-    priceAdd: 50,
+    priceAdd: 0,
   },
   {
     id: "pla-midnight-black",
