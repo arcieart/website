@@ -16,7 +16,7 @@ const socialLinks = [
 const footerLinks = {
   company: [
     { name: "Contact Us", href: "/contact" },
-    { name: "About Us", href: "/about" },
+    // { name: "About Us", href: "/about" },
   ],
   legal: [
     {
