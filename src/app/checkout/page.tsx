@@ -323,7 +323,6 @@ export default function CheckoutPage() {
   }
 
   function finalizeOrder(orderId: string) {
-    console.log("finalizing order", orderId);
     setConfirmedOrderId(orderId);
   }
 
