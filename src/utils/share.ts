@@ -1,7 +1,7 @@
 import { UIProduct } from "@/types/product";
 
 const shareMessage = (product: UIProduct, url: string) => {
-    return `Hey! Check out this ${product.name} at arcie.art \n${url}`;
+    return `Hey! Check out this ${product.name} at \n${url}`;
   };
   
   export const shareProduct = async (product: UIProduct) => {
