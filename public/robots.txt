@@ -1,5 +1,7 @@
 User-agent: *
 Disallow: /order/
+Disallow: /api/
+Disallow: /_next/
 
 # Allow access to all other paths
 Allow: /
