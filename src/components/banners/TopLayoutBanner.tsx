@@ -100,7 +100,7 @@ export const NavBarBanner = () => {
   return (
     <TopLayoutBanner type="warning" dismissible={false}>
       <p>
-        Our shop will be closed from 24th June to 7th July 2025 on occasion of
+        Our store will be closed from 24th June to 7th July 2025 on occasion of
         Muharram. Orders placed during this time will be processed on 8th July
         2025
       </p>
