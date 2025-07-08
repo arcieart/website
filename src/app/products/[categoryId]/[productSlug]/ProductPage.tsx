@@ -54,7 +54,8 @@ import { ProductPageSkeleton } from "@/components/skeletons/ProductPageSkeleton"
 import { Materials } from "@/data/materials";
 import { getWhatsappCustomizationHelpLink } from "@/utils/whatsappMessageLinks";
 import { RecommendedProducts } from "@/components/products/RecommendedProducts";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface ProductPageProps {
   params: Promise<{ productSlug: string }>;
@@ -217,7 +218,17 @@ export function ProductPage({ params }: ProductPageProps) {
                         }`}
                         style={{ backgroundColor: color.value }}
                         aria-label={`Select ${color.label} color`}
-                      ></button>
+                      >
+                        {color.assetType === "image" && (
+                          <Image
+                            src={color.value}
+                            alt={color.label}
+                            className="object-cover w-full h-full rounded-full"
+                            width={40}
+                            height={40}
+                          />
+                        )}
+                      </button>
                     </TooltipTrigger>
                     <TooltipContent side="top" className="max-w-xs">
                       <div className="flex items-center gap-2">
@@ -240,7 +251,17 @@ export function ProductPage({ params }: ProductPageProps) {
                     <div
                       className="w-4 h-4 rounded-full border border-border"
                       style={{ backgroundColor: selectedColorObj.value }}
-                    />
+                    >
+                      {selectedColorObj.assetType === "image" && (
+                        <Image
+                          src={selectedColorObj.value}
+                          alt={selectedColorObj.label}
+                          width={40}
+                          height={40}
+                          className="object-cover w-full h-full rounded-full"
+                        />
+                      )}
+                    </div>
                     <span className="text-sm font-medium">
                       {selectedColorObj.label}
                     </span>

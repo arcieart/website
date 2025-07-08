@@ -49,4 +49,5 @@ export type FilamentColor = {
   value: string;
   available: boolean;
   priceAdd: number;
+  assetType: "image" | "hex-code";
 };

@@ -8,7 +8,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/providers/theme";
 import { TanstackProvider } from "@/providers/tanstack";
 import { ConditionalLayout } from "@/components/layout/conditional-layout";
-import { Protected } from "@/components/misc/Protected";
 
 const caveat = Caveat({
   variable: "--font-caveat",
