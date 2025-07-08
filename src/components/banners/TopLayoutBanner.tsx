@@ -95,7 +95,7 @@ export const TopLayoutBanner: React.FC<TopLayoutBannerProps> = ({
 };
 
 export const NavBarBanner = () => {
-  // return null;
+  return null;
 
   return (
     <TopLayoutBanner type="warning" dismissible={false}>
