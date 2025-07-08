@@ -56,6 +56,7 @@ import { getWhatsappCustomizationHelpLink } from "@/utils/whatsappMessageLinks";
 import { RecommendedProducts } from "@/components/products/RecommendedProducts";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Markdown from "react-markdown";
 
 interface ProductPageProps {
   params: Promise<{ productSlug: string }>;
@@ -395,9 +396,9 @@ export function ProductPage({ params }: ProductPageProps) {
             {/* Description */}
             <div className="space-y-2">
               {product.description && (
-                <p className="text-sm text-muted-foreground">
-                  {product.description}
-                </p>
+                <div className="text-sm text-muted-foreground space-y-2">
+                  <Markdown>{product.description}</Markdown>
+                </div>
               )}
               <p className="text-sm text-muted-foreground">
                 {product.baseDescription}
