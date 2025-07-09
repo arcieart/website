@@ -27,7 +27,6 @@ export default function ContactPage() {
         <div className="grid md:grid-cols-2 gap-12 mb-16">
           {/* Contact Details */}
           <div className="space-y-8">
-            <h2 className="text-2xl font-semibold mb-6">Get in Touch</h2>
 
             {/* Phone */}
             <div className="flex items-start space-x-4">
