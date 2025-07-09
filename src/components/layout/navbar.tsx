@@ -121,14 +121,6 @@ export function Navbar() {
                         All Products
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href={`/products?bestSellers=true`}
-                        className="text-xs"
-                      >
-                        Best Sellers
-                      </Link>
-                    </DropdownMenuItem>
 
                     <DropdownMenuLabel>Categories</DropdownMenuLabel>
                     {BaseCategories.map((category) => (
