@@ -86,7 +86,7 @@ export const PLAFilamentColors: FilamentColor[] = [
   {
     id: "pla-white-marble",
     label: "White Marble",
-    available: true,
+    available: false,
     priceAdd: 50,
     assetType: "image",
     value: "https://arcieart-main.s3.ap-south-1.amazonaws.com/filament-materials/pla-white-marble.jpg"
