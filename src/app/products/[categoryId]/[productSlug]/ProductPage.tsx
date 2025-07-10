@@ -205,44 +205,49 @@ export function ProductPage({ params }: ProductPageProps) {
             />
             <TooltipProvider>
               <div className="flex flex-wrap gap-3">
-                {PLAFilamentColors.map((color) => (
-                  <Tooltip key={color.id}>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() =>
-                          handleCustomizationChange(customization.id, color.id)
-                        }
-                        className={`relative w-10 h-10 rounded-full border-1 transition-all hover:scale-110 focus:outline-none ${
-                          selectedColor === color.id
-                            ? "shadow-lg border-primary border-2"
-                            : "border-border hover:shadow-md"
-                        }`}
-                        style={{ backgroundColor: color.value }}
-                        aria-label={`Select ${color.label} color`}
-                      >
-                        {color.assetType === "image" && (
-                          <Image
-                            src={color.value}
-                            alt={color.label}
-                            className="object-cover w-full h-full rounded-full"
-                            width={40}
-                            height={40}
-                          />
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="max-w-xs">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium">{color.label}</p>
-                        {color.priceAdd > 0 && (
-                          <p className="text-xs">
-                            +{formatPrice(color.priceAdd)}
-                          </p>
-                        )}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
+                {PLAFilamentColors.filter((color) => color.available).map(
+                  (color) => (
+                    <Tooltip key={color.id}>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() =>
+                            handleCustomizationChange(
+                              customization.id,
+                              color.id
+                            )
+                          }
+                          className={`relative w-10 h-10 rounded-full border-1 transition-all hover:scale-110 focus:outline-none ${
+                            selectedColor === color.id
+                              ? "shadow-lg border-primary border-2"
+                              : "border-border hover:shadow-md"
+                          }`}
+                          style={{ backgroundColor: color.value }}
+                          aria-label={`Select ${color.label} color`}
+                        >
+                          {color.assetType === "image" && (
+                            <Image
+                              src={color.value}
+                              alt={color.label}
+                              className="object-cover w-full h-full rounded-full"
+                              width={40}
+                              height={40}
+                            />
+                          )}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{color.label}</p>
+                          {color.priceAdd > 0 && (
+                            <p className="text-xs">
+                              +{formatPrice(color.priceAdd)}
+                            </p>
+                          )}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  )
+                )}
               </div>
             </TooltipProvider>
             {selectedColorObj && (
