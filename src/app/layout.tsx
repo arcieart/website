@@ -21,10 +21,13 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
+const title = "Arcie Art - Personalized Products | 3D Printing Services";
+const description =
+  "Your one stop shop for desk decor, personalized items, and more. Create your own unique products with your own designs.";
+
 export const metadata: Metadata = {
-  title: "Arcie Art - Personalized Products | 3D Printing Services",
-  description:
-    "Your one stop shop for personalized and custom keychains, earrings, desk accessories and more. Create your own unique products with your own designs.",
+  title: title,
+  description: description,
   keywords: [
     "arcie.art",
     "personalized",
@@ -40,6 +43,13 @@ export const metadata: Metadata = {
     "custom keychains",
     "earrings",
     "desk accessories",
+    "desk decor",
+    "desk decor gifts",
+    "desk decor gifts for her",
+    "desk decor gifts for him",
+    "desk decor gifts for kids",
+    "desk decor gifts for family",
+    "desk decor gifts for friends",
     "custom designs",
     "3d printing",
     "3d printing services",
@@ -55,9 +65,8 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://arcie.art",
     siteName: "Arcie Art",
-    title: "Arcie Art - Personalized Products | 3D Printing Services",
-    description:
-      "Your one stop shop for personalized products and custom keychains, earrings, desk accessories and more. Create your own unique products.",
+    title: title,
+    description: description,
     images: [
       {
         url: "https://www.arcie.art/og-image.jpg",
