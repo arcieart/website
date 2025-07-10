@@ -56,6 +56,7 @@ import { getWhatsappCustomizationHelpLink } from "@/utils/whatsappMessageLinks";
 import { RecommendedProducts } from "@/components/products/RecommendedProducts";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { trackProductViewed, trackAddToCart } from "@/lib/analytics";
 import Markdown from "react-markdown";
 
 interface ProductPageProps {
@@ -97,8 +98,20 @@ export function ProductPage({ params }: ProductPageProps) {
       const product = products.find(
         (p) => p.slug === resolvedParams.productSlug
       );
-      if (product) setProduct(product);
-      else {
+      if (product) {
+        setProduct(product);
+
+        // Track product viewed
+        trackProductViewed({
+          productId: product.id,
+          productName: product.name,
+          categoryId: product.categoryId,
+          price: product.price,
+          slug: product.slug,
+          available: product.available,
+          isBestSeller: product.isBestSeller,
+        });
+      } else {
         toast.error("Product not found, redirecting to products page...");
         setTimeout(() => {
           router.replace("/products");
@@ -146,6 +159,18 @@ export function ProductPage({ params }: ProductPageProps) {
     for (let i = 0; i < quantity; i++) {
       addToCart(product, customizations);
     }
+
+    // Track add to cart event
+    trackAddToCart({
+      productId: product.id,
+      productName: product.name,
+      categoryId: product.categoryId,
+      categoryName: product.baseDescription || product.categoryId,
+      price: product.price,
+      quantity: quantity,
+      customizations: customizations,
+      totalPrice: calculateTotalPrice(),
+    });
 
     setCartOpen(true);
   };
