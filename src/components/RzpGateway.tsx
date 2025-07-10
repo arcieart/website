@@ -4,6 +4,11 @@ import { useImperativeHandle } from "react";
 import { Order } from "@/types/order";
 import Script from "next/script";
 import { toast } from "sonner";
+import {
+  trackPaymentFailed,
+  trackPaymentCancelled,
+  trackOrderCompleted,
+} from "@/lib/analytics";
 
 declare global {
   interface Window {
@@ -62,15 +67,25 @@ export const RazorpayPaymentGateway = ({
       notes: { dbId: order.id },
       modal: {
         confirm_close: true,
-        ondismiss: () => onCancel(order.id),
+        ondismiss: () => {
+          trackPaymentCancelled(order.id);
+          onCancel(order.id);
+        },
       },
       handler: (response: RazorpaySuccessResponse) => {
+        trackOrderCompleted(order, response.razorpay_payment_id);
         onSuccess(order.id);
       },
     };
 
     const rzp = new window.Razorpay(options);
-    rzp.on("payment.failed", onFailed);
+    rzp.on("payment.failed", (response: any) => {
+      trackPaymentFailed(
+        order.id,
+        response.error?.description || "Payment failed"
+      );
+      onFailed();
+    });
     rzp.open(options);
   };
 

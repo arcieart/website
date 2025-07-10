@@ -1,5 +1,6 @@
 import { Phone, Mail, MapPin } from "lucide-react";
 import { Metadata } from "next";
+import { trackContactAttempt } from "@/lib/analytics";
 
 export const metadata: Metadata = {
   title: "Arcie Art | Contact Us",
@@ -10,6 +11,14 @@ export const metadata: Metadata = {
 };
 
 export default function ContactPage() {
+  const handlePhoneClick = () => {
+    trackContactAttempt("phone", "contact_page");
+  };
+
+  const handleEmailClick = () => {
+    trackContactAttempt("email", "contact_page");
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-16 max-w-4xl">
@@ -41,6 +50,7 @@ export default function ContactPage() {
                 <a
                   href="tel:+919769910657"
                   className="hover:underline font-medium"
+                  onClick={handlePhoneClick}
                 >
                   +91 97699 10657
                 </a>
@@ -59,6 +69,7 @@ export default function ContactPage() {
                 <a
                   href="mailto:myarcieart@gmail.com"
                   className="hover:underline font-medium"
+                  onClick={handleEmailClick}
                 >
                   myarcieart@gmail.com
                 </a>

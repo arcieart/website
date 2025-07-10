@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useCartStore } from "@/stores/cart";
 import { formatPriceLocalized } from "@/utils/price";
 import { getFreeShippingThreshold, getShippingCost } from "@/config/currency";
@@ -28,7 +28,15 @@ import OrderCardItem from "./OrderCardItem";
 import { Order } from "@/types/order";
 import { getTimestamp } from "@/utils/misc";
 import { createOrder, updateOrder } from "@/actions/order";
-import { identifyUser } from "@/lib/analytics";
+import {
+  identifyUser,
+  trackCheckoutStarted,
+  trackCouponApplied,
+  trackCouponRemoved,
+  trackCouponFailed,
+  trackOrderPlaced,
+  trackError,
+} from "@/lib/analytics";
 import {
   RazorpayPaymentGateway,
   RazorpayPaymentGatewayRef,
@@ -234,15 +242,32 @@ export default function CheckoutPage() {
       subtotal
     );
 
-    if (success) {
+    if (success && coupon) {
+      // Track successful coupon application
+      trackCouponApplied(coupon, subtotal, discountAmount);
       toast.success("Coupon applied successfully 🎊");
-    } else toast.error(error);
+    } else {
+      // Track failed coupon application
+      trackCouponFailed(normalCouponCode, error || "Unknown error", subtotal);
+      toast.error(error);
+    }
+  };
+
+  const handleCouponRemoveWrapper = () => {
+    if (coupon) {
+      trackCouponRemoved(coupon.code, "manual");
+    }
+    handleCouponRemove();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
+      trackError("form_validation", "Checkout form validation failed", {
+        errors: formErrors,
+        fields_with_errors: Object.keys(formErrors),
+      });
       toast.error("Please fix the errors in the form");
       return;
     }
@@ -295,6 +320,9 @@ export default function CheckoutPage() {
       // console.log("Creating order", order);
       const createdOrder = await createOrder(order);
 
+      // Track order placed
+      trackOrderPlaced(createdOrder);
+
       // console.log("Created order:", createdOrder);
 
       if (createdOrder.payment.method === "razorpay") {
@@ -304,6 +332,7 @@ export default function CheckoutPage() {
       }
     } catch (error) {
       console.error("Order submission error:", error);
+      trackError("order_creation", "Failed to create order", { error: error });
       toast.error("Failed to place order. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -333,6 +362,13 @@ export default function CheckoutPage() {
     clearCart(); // Clear immediately to ensure it happens
     router.push(`/order/${orderId}`);
   }
+
+  // Track checkout started when component mounts with items
+  useEffect(() => {
+    if (items.length > 0 && totalPrice > 0) {
+      trackCheckoutStarted(items, totalPrice, totalItems);
+    }
+  }, []); // Only run once on mount
 
   return (
     <>
@@ -682,7 +718,7 @@ export default function CheckoutPage() {
 
                       <CouponForm
                         coupon={coupon}
-                        handleCouponRemove={handleCouponRemove}
+                        handleCouponRemove={handleCouponRemoveWrapper}
                         handleCouponApplyForm={handleCouponApplyForm}
                         couponIsLoading={couponIsLoading}
                         discountAmount={discountAmount}

@@ -2,8 +2,17 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ShoppingCart, Package, Phone } from "lucide-react";
 import Link from "next/link";
+import { trackCTAClicked } from "@/lib/analytics";
 
 export default function CTASection() {
+  const handleShopNowClick = () => {
+    trackCTAClicked("Shop Now", "cta_section", "/products");
+  };
+
+  const handleContactUsClick = () => {
+    trackCTAClicked("Contact Us", "cta_section", "/contact");
+  };
+
   return (
     <section className="px-4 py-16 md:py-20 bg-gradient-to-r from-primary/10 via-background to-secondary/10">
       <div className="max-w-4xl mx-auto text-center">
@@ -24,13 +33,18 @@ export default function CTASection() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/products">
-            <Button size="lg" className="px-8">
+            <Button size="lg" className="px-8" onClick={handleShopNowClick}>
               <ShoppingCart className="w-4 h-4" />
               Shop Now
             </Button>
           </Link>
           <Link href="/contact">
-            <Button variant="outline" size="lg" className="px-8">
+            <Button
+              variant="outline"
+              size="lg"
+              className="px-8"
+              onClick={handleContactUsClick}
+            >
               <Phone className="w-4 h-4" />
               Contact Us
             </Button>

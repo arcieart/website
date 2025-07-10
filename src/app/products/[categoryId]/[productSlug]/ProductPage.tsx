@@ -57,6 +57,12 @@ import { RecommendedProducts } from "@/components/products/RecommendedProducts";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Markdown from "react-markdown";
+import {
+  trackProductViewed,
+  trackFavoriteAdded,
+  trackFavoriteRemoved,
+  trackCustomizationChanged,
+} from "@/lib/analytics";
 
 interface ProductPageProps {
   params: Promise<{ productSlug: string }>;
@@ -97,8 +103,11 @@ export function ProductPage({ params }: ProductPageProps) {
       const product = products.find(
         (p) => p.slug === resolvedParams.productSlug
       );
-      if (product) setProduct(product);
-      else {
+      if (product) {
+        setProduct(product);
+        // Track product view
+        trackProductViewed(product, "direct_link");
+      } else {
         toast.error("Product not found, redirecting to products page...");
         setTimeout(() => {
           router.replace("/products");
@@ -118,6 +127,11 @@ export function ProductPage({ params }: ProductPageProps) {
     value: string
   ) => {
     setCustomizations((prev) => ({ ...prev, [customizationId]: value }));
+
+    // Track customization change
+    const customization = BaseCustomizationsObj[customizationId];
+    const priceImpact = customization?.priceAdd || 0;
+    trackCustomizationChanged(product.id, customizationId, value, priceImpact);
   };
 
   const calculateTotalPrice = () => {
@@ -151,7 +165,15 @@ export function ProductPage({ params }: ProductPageProps) {
   };
 
   const handleToggleFavorite = () => {
+    const wasInWishlist = isInWishlist;
     toggleItem(product.id);
+
+    // Track favorite action
+    if (wasInWishlist) {
+      trackFavoriteRemoved(product.id, "product_page");
+    } else {
+      trackFavoriteAdded(product, "product_page");
+    }
   };
 
   const renderCustomizationInput = (customizationParam: DBCustomization) => {

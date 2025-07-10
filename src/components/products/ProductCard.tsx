@@ -14,6 +14,11 @@ import { BaseCategoriesObj } from "@/data/categories";
 import { useCartSheet } from "@/hooks/useCartSheet";
 import { Suspense } from "react";
 import { ProductCardSkeleton } from "../skeletons/ProductsPageSkeleton";
+import {
+  trackFavoriteAdded,
+  trackFavoriteRemoved,
+  trackProductViewed,
+} from "@/lib/analytics";
 
 interface ProductCardProps {
   product: UIProduct;
@@ -29,7 +34,21 @@ function ProductCardContent({ product }: ProductCardProps) {
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    const wasInWishlist = isInWishlist;
     toggleItem(product.id);
+
+    // Track favorite action
+    if (wasInWishlist) {
+      trackFavoriteRemoved(product.id, "product_card");
+    } else {
+      trackFavoriteAdded(product, "product_card");
+    }
+  };
+
+  const handleProductClick = () => {
+    // Track product view from card
+    trackProductViewed(product, "product_card");
   };
 
   return (
@@ -37,7 +56,10 @@ function ProductCardContent({ product }: ProductCardProps) {
       className={`group hover:shadow-lg transition-all duration-500 py-0 animate-in slide-in-from-bottom-4 fade-in gap-4 flex justify-between`}
     >
       <div>
-        <Link href={`/products/${product.categoryId}/${product.slug}`}>
+        <Link
+          href={`/products/${product.categoryId}/${product.slug}`}
+          onClick={handleProductClick}
+        >
           <div className="relative overflow-hidden rounded-t-lg">
             {/* Product Image */}
             <div className="aspect-square relative bg-transparent">

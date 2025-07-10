@@ -14,11 +14,11 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, ShoppingCart } from "lucide-react";
 import Link from "next/link";
-import CouponBanner from "@/components/banners/CouponBanner";
 import { formatPriceLocalized } from "@/utils/price";
 import CartItem from "@/components/cart/CartItem";
 import { useCartSheet } from "@/hooks/useCartSheet";
 import { Suspense } from "react";
+import { trackCartSheetOpened, trackCartSheetClosed } from "@/lib/analytics";
 
 interface CartSheetProps {
   children: React.ReactNode;
@@ -29,8 +29,15 @@ function CartSheet({ children }: CartSheetProps) {
     useCartStore();
   const { cartOpen, setCartOpen } = useCartSheet();
 
+  const handleOpenChange = (open: boolean) => {
+    if (open) trackCartSheetOpened("navbar");
+    else trackCartSheetClosed("navbar");
+
+    setCartOpen(open);
+  };
+
   return (
-    <Sheet open={cartOpen} onOpenChange={setCartOpen}>
+    <Sheet open={cartOpen} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="w-[90%] sm:max-w-sm">
         <SheetHeader className="space-y-6 px-2 pb-0 pt-3">

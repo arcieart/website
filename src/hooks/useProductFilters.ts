@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { UIProduct } from "@/types/product";
+import { trackProductsFiltered, trackProductsSorted } from "@/lib/analytics";
 
 export type SortOption =
   | "newest"
@@ -70,37 +71,42 @@ export function useProductFilters({
 
   // Update URL when filters change
   useEffect(() => {
-    const params = new URLSearchParams();
-
-    // Add sort parameter
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    
+    // Update URL parameters
     if (sortBy !== defaultSortBy) {
-      params.set('sort', sortBy);
+      current.set('sort', sortBy);
+    } else {
+      current.delete('sort');
     }
-
-    // Add categories parameter
+    
     if (enableCategoryFilter && selectedCategories.length > 0) {
-      params.set('categories', selectedCategories.join(','));
+      current.set('categories', selectedCategories.join(','));
+    } else {
+      current.delete('categories');
     }
-
-    // Add best sellers parameter
+    
     if (showBestSellers) {
-      params.set('bestSellers', 'true');
+      current.set('bestSellers', 'true');
+    } else {
+      current.delete('bestSellers');
+    }
+    
+    if (enablePriceFilter && (priceRange.min !== 0 || priceRange.max !== 1000)) {
+      current.set('minPrice', priceRange.min.toString());
+      current.set('maxPrice', priceRange.max.toString());
+    } else {
+      current.delete('minPrice');
+      current.delete('maxPrice');
     }
 
-    // Add price range parameters
-    if (enablePriceFilter) {
-      if (priceRange.min !== 0) {
-        params.set('minPrice', priceRange.min.toString());
-      }
-      if (priceRange.max !== 1000) {
-        params.set('maxPrice', priceRange.max.toString());
-      }
+    const search = current.toString();
+    const query = search ? `?${search}` : "";
+    
+    if (search !== searchParams.toString()) {
+      router.replace(`${urlBase}${query}`, { scroll: false });
     }
-
-    // Update URL without causing a page reload
-    const newUrl = params.toString() ? `${urlBase}?${params.toString()}` : urlBase;
-    router.replace(newUrl, { scroll: false });
-  }, [sortBy, selectedCategories, showBestSellers, priceRange, router, urlBase, enableCategoryFilter, enablePriceFilter]);
+  }, [sortBy, selectedCategories, showBestSellers, priceRange, enableCategoryFilter, enablePriceFilter]);
 
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
@@ -154,13 +160,17 @@ export function useProductFilters({
   const handleCategoryChange = (categoryId: string, checked: boolean) => {
     if (!enableCategoryFilter) return;
     
+    let newCategories;
     if (checked) {
-      setSelectedCategories([...selectedCategories, categoryId]);
+      newCategories = [...selectedCategories, categoryId];
     } else {
-      setSelectedCategories(
-        selectedCategories.filter((id) => id !== categoryId)
-      );
+      newCategories = selectedCategories.filter((id) => id !== categoryId);
     }
+    
+    setSelectedCategories(newCategories);
+    
+    // Track filtering event
+    trackProductsFiltered("category", categoryId, filteredAndSortedProducts.length);
   };
 
   const clearFilters = () => {
@@ -174,25 +184,39 @@ export function useProductFilters({
     setSortBy(defaultSortBy);
   };
 
-  const activeFiltersCount =
-    (enableCategoryFilter ? selectedCategories.length : 0) + 
-    (showBestSellers ? 1 : 0) +
-    (enablePriceFilter && (priceRange.min !== 0 || priceRange.max !== 1000) ? 1 : 0);
+  // Track sort changes
+  const handleSortChange = (newSortBy: SortOption) => {
+    setSortBy(newSortBy);
+    trackProductsSorted(newSortBy, filteredAndSortedProducts.length);
+  };
+
+  // Track best sellers filter
+  const handleBestSellersChange = (checked: boolean) => {
+    setShowBestSellers(checked);
+    trackProductsFiltered("best_sellers", checked, filteredAndSortedProducts.length);
+  };
+
+  // Count active filters
+  let activeFiltersCount = 0;
+  if (enableCategoryFilter && selectedCategories.length > 0) activeFiltersCount += selectedCategories.length;
+  if (showBestSellers) activeFiltersCount += 1;
+  if (enablePriceFilter && (priceRange.min !== 0 || priceRange.max !== 1000)) activeFiltersCount += 1;
 
   return {
     // State
     sortBy,
+    setSortBy: handleSortChange,
     selectedCategories,
     showBestSellers,
+    setShowBestSellers: handleBestSellersChange,
     priceRange,
+    setPriceRange,
+    
+    // Results
     filteredAndSortedProducts,
     activeFiltersCount,
     
     // Actions
-    setSortBy,
-    setSelectedCategories,
-    setShowBestSellers,
-    setPriceRange,
     handleCategoryChange,
     clearFilters,
   };

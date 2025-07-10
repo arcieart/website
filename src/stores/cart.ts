@@ -4,6 +4,7 @@ import { shared } from "use-broadcast-ts";
 import { UIProduct } from "@/types/product";
 import { BaseCustomizationsObj } from "@/data/customizations";
 import { calculateProductUnitPrice } from "@/utils/price";
+import { trackAddToCart, trackRemoveFromCart, trackCartUpdated } from "@/lib/analytics";
 
 // todo: optionally better handling of customizations
 const createItemId = (
@@ -92,6 +93,9 @@ export const useCartStore = create<CartStore>()(
             });
           }
 
+          // Track the add to cart event
+          trackAddToCart(product, customizations, 1);
+
           // Update totals
           const newState = get();
           const newTotalItems = newState.items.reduce(
@@ -111,6 +115,13 @@ export const useCartStore = create<CartStore>()(
 
         removeItem: (itemId: string) => {
           const state = get();
+          const itemToRemove = state.items.find(item => item.id === itemId);
+          
+          if (itemToRemove) {
+            // Track the remove from cart event
+            trackRemoveFromCart(itemToRemove);
+          }
+
           const newItems = state.items.filter((item) => item.id !== itemId);
           const newTotalItems = newItems.reduce(
             (sum, item) => sum + item.quantity,
@@ -135,14 +146,22 @@ export const useCartStore = create<CartStore>()(
           }
 
           const state = get();
+          const existingItem = state.items.find(item => item.id === itemId);
+          const oldQuantity = existingItem?.quantity || 0;
+
           const updatedItems = state.items.map((item) => {
             if (item.id === itemId) {
               const unitPrice = calculateProductUnitPrice(item.product.price, item.customizations);
-              return {
+              const updatedItem = {
                 ...item,
                 quantity,
                 totalPrice: unitPrice * quantity,
               };
+
+              // Track the cart update event
+              trackCartUpdated(updatedItem, oldQuantity, quantity);
+
+              return updatedItem;
             }
             return item;
           });

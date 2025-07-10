@@ -2,8 +2,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Package, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { trackCTAClicked } from "@/lib/analytics";
 
 export default function HeroSection() {
+  const handleBrowseProductsClick = () => {
+    trackCTAClicked("Browse Products", "hero_section", "/products");
+  };
+
   return (
     <section className="px-4 py-16 md:py-24 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
       <div className="max-w-6xl mx-auto text-center">
@@ -27,7 +32,11 @@ export default function HeroSection() {
 
         <div className="flex justify-center">
           <Link href="/products">
-            <Button size="lg" className="w-full sm:w-auto group">
+            <Button
+              size="lg"
+              className="w-full sm:w-auto group"
+              onClick={handleBrowseProductsClick}
+            >
               Browse Products
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-all duration-300" />
             </Button>

@@ -13,6 +13,7 @@ import { BaseCategoriesObj } from "@/data/categories";
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { ProductsGridSkeleton } from "@/components/skeletons/ProductsPageSkeleton";
 import { toast } from "sonner";
+import { trackCategoryViewed } from "@/lib/analytics";
 
 export function CategoryProductsPage() {
   const params = useParams();
@@ -31,15 +32,31 @@ export function CategoryProductsPage() {
         setTimeout(() => {
           router.replace("/products");
         }, 2000);
-      } else setIsCategoryLoading(false);
+      } else {
+        setIsCategoryLoading(false);
+        // Track category view
+        trackCategoryViewed(categoryId, categoryFromId.name);
+      }
     }
   }, [categoryId]);
 
   // Filter products by category
   const categoryProducts = useMemo(() => {
     if (!products || !categoryId) return [];
-    return products.filter((product) => product.categoryId === categoryId);
-  }, [products, categoryId]);
+    const filtered = products.filter(
+      (product) => product.categoryId === categoryId
+    );
+
+    // Track category view with product count when products are loaded
+    if (filtered.length > 0 && !isCategoryLoading) {
+      const categoryFromId = BaseCategoriesObj[categoryId];
+      if (categoryFromId) {
+        trackCategoryViewed(categoryId, categoryFromId.name, filtered.length);
+      }
+    }
+
+    return filtered;
+  }, [products, categoryId, isCategoryLoading]);
 
   const categoryName = useMemo(() => {
     if (!isCategoryLoading) {
