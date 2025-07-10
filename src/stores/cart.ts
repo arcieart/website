@@ -4,6 +4,7 @@ import { shared } from "use-broadcast-ts";
 import { UIProduct } from "@/types/product";
 import { BaseCustomizationsObj } from "@/data/customizations";
 import { calculateProductUnitPrice } from "@/utils/price";
+import { trackAddToCart } from "@/lib/analytics";
 
 // todo: optionally better handling of customizations
 const createItemId = (
@@ -106,6 +107,18 @@ export const useCartStore = create<CartStore>()(
           set({
             totalItems: newTotalItems,
             totalPrice: newTotalPrice,
+          });
+
+          // Track add to cart event (for items added from cart store)
+          trackAddToCart({
+            productId: product.id,
+            productName: product.name,
+            categoryId: product.categoryId,
+            categoryName: product.baseDescription || product.categoryId,
+            price: product.price,
+            quantity: 1, // This function always adds 1 item at a time
+            customizations: customizations,
+            totalPrice: unitPrice,
           });
         },
 

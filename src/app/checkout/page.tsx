@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useCartStore } from "@/stores/cart";
 import { formatPriceLocalized } from "@/utils/price";
 import { getFreeShippingThreshold, getShippingCost } from "@/config/currency";
@@ -28,7 +28,11 @@ import OrderCardItem from "./OrderCardItem";
 import { Order } from "@/types/order";
 import { getTimestamp } from "@/utils/misc";
 import { createOrder, updateOrder } from "@/actions/order";
-import { identifyUser } from "@/lib/analytics";
+import {
+  identifyUser,
+  trackCheckoutStarted,
+  trackPurchaseCompleted,
+} from "@/lib/analytics";
 import {
   RazorpayPaymentGateway,
   RazorpayPaymentGatewayRef,
@@ -98,6 +102,29 @@ export default function CheckoutPage() {
   }
 
   const finalTotal = subtotal + shippingCost - discountAmount;
+
+  // Track checkout started event when component mounts
+  useEffect(() => {
+    if (items.length > 0) {
+      trackCheckoutStarted({
+        cartItems: items.map((item) => ({
+          productId: item.product.id,
+          productName: item.product.name,
+          categoryId: item.product.categoryId,
+          price: item.product.price,
+          quantity: item.quantity,
+          totalPrice: item.totalPrice,
+          customizations: item.customizations,
+        })),
+        totalItems: totalItems,
+        subtotal: subtotal,
+        shippingCost: shippingCost,
+        totalAmount: finalTotal,
+        couponCode: coupon?.code,
+        discountAmount: discountAmount,
+      });
+    }
+  }, []); // Empty dependency array to run only once when component mounts
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -325,6 +352,25 @@ export default function CheckoutPage() {
 
   function finalizeOrder(orderId: string) {
     setConfirmedOrderId(orderId);
+
+    // Track purchase completed event
+    trackPurchaseCompleted({
+      orderId: orderId,
+      totalAmount: finalTotal,
+      subtotal: subtotal,
+      shippingCost: shippingCost,
+      discountAmount: discountAmount,
+      couponCode: coupon?.code,
+      paymentMethod: "razorpay",
+      items: items.map((item) => ({
+        productId: item.product.id,
+        productName: item.product.name,
+        categoryId: item.product.categoryId,
+        price: item.product.price,
+        quantity: item.quantity,
+        totalPrice: item.totalPrice,
+      })),
+    });
   }
 
   function handleCloseConfirmationDialog(orderId: string) {
