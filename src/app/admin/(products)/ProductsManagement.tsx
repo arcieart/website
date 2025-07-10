@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AddProductSheet } from "./ProductSheet";
-import { ProductJSONDialog } from "./ProductJSONDialog";
+import { AddProductSheet, ProductSheet } from "./ProductSheet";
 import { useProductsAdmin } from "@/hooks/useProductsAdmin";
 import {
   BaseCategoriesIds,
@@ -321,9 +320,9 @@ export const ProductsManagement = () => {
 
       {/* Edit Product Sheet - Rendered once */}
       {editingProduct && (
-        <ProductJSONDialog
+        <ProductSheet
           product={editingProduct}
-          onProductUpdated={handleProductUpdated}
+          onProductSaved={handleProductUpdated}
           isOpen={!!editingProduct}
           onOpenChange={(open) => {
             if (!open) setEditingProduct(null);

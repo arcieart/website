@@ -13,5 +13,5 @@ enum DevCollections {
 }
 
 
-export const Collections = isProduction ? ProdCollections : DevCollections;
-// export const Collections = DevCollections;
+// export const Collections = isProduction ? ProdCollections : DevCollections;
+export const Collections = DevCollections;
