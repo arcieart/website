@@ -47,14 +47,14 @@ export const BaseCustomizationsObj: Record<string, Customization> = {
     priceAdd: 0,
     afterSelectionLabel: "Background Color",
   },
-  "showpiece-primary-color": {
-    id: "showpiece-primary-color",
-    categoryId: "showpieces",
-    label: "Select Showpiece Color",
+  "decor-primary-color": {
+    id: "decor-primary-color",
+    categoryId: "decor",
+    label: "Select Decor Color",
     type: "fixed-color-picker",
     required: true,
     priceAdd: 0,
-    afterSelectionLabel: "Showpiece Color",
+    afterSelectionLabel: "Decor Color",
   },
 };
 
