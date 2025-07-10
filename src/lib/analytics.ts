@@ -54,34 +54,6 @@ export const trackAddToCart = (productData: {
   });
 };
 
-export const trackCheckoutStarted = (checkoutData: {
-  cartItems: Array<{
-    productId: string;
-    productName: string;
-    categoryId: string;
-    price: number;
-    quantity: number;
-    totalPrice: number;
-    customizations: Record<string, string>;
-  }>;
-  totalItems: number;
-  subtotal: number;
-  shippingCost: number;
-  totalAmount: number;
-  couponCode?: string;
-  discountAmount?: number;
-}) => {
-  posthog.capture("Checkout Started", {
-    cart_items: checkoutData.cartItems,
-    total_items: checkoutData.totalItems,
-    subtotal: checkoutData.subtotal,
-    shipping_cost: checkoutData.shippingCost,
-    total_amount: checkoutData.totalAmount,
-    coupon_code: checkoutData.couponCode,
-    discount_amount: checkoutData.discountAmount,
-  });
-};
-
 export const trackPurchaseCompleted = (orderData: {
   orderId: string;
   totalAmount: number;

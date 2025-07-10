@@ -28,11 +28,7 @@ import OrderCardItem from "./OrderCardItem";
 import { Order } from "@/types/order";
 import { getTimestamp } from "@/utils/misc";
 import { createOrder, updateOrder } from "@/actions/order";
-import {
-  identifyUser,
-  trackCheckoutStarted,
-  trackPurchaseCompleted,
-} from "@/lib/analytics";
+import { identifyUser, trackPurchaseCompleted } from "@/lib/analytics";
 import {
   RazorpayPaymentGateway,
   RazorpayPaymentGatewayRef,
@@ -102,29 +98,6 @@ export default function CheckoutPage() {
   }
 
   const finalTotal = subtotal + shippingCost - discountAmount;
-
-  // Track checkout started event when component mounts
-  useEffect(() => {
-    if (items.length > 0) {
-      trackCheckoutStarted({
-        cartItems: items.map((item) => ({
-          productId: item.product.id,
-          productName: item.product.name,
-          categoryId: item.product.categoryId,
-          price: item.product.price,
-          quantity: item.quantity,
-          totalPrice: item.totalPrice,
-          customizations: item.customizations,
-        })),
-        totalItems: totalItems,
-        subtotal: subtotal,
-        shippingCost: shippingCost,
-        totalAmount: finalTotal,
-        couponCode: coupon?.code,
-        discountAmount: discountAmount,
-      });
-    }
-  }, []); // Empty dependency array to run only once when component mounts
 
   // Validation functions
   const validateEmail = (email: string): boolean => {

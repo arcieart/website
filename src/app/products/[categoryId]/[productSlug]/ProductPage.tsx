@@ -56,7 +56,7 @@ import { getWhatsappCustomizationHelpLink } from "@/utils/whatsappMessageLinks";
 import { RecommendedProducts } from "@/components/products/RecommendedProducts";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { trackProductViewed, trackAddToCart } from "@/lib/analytics";
+import { trackProductViewed } from "@/lib/analytics";
 import Markdown from "react-markdown";
 
 interface ProductPageProps {
@@ -159,18 +159,6 @@ export function ProductPage({ params }: ProductPageProps) {
     for (let i = 0; i < quantity; i++) {
       addToCart(product, customizations);
     }
-
-    // Track add to cart event
-    trackAddToCart({
-      productId: product.id,
-      productName: product.name,
-      categoryId: product.categoryId,
-      categoryName: product.baseDescription || product.categoryId,
-      price: product.price,
-      quantity: quantity,
-      customizations: customizations,
-      totalPrice: calculateTotalPrice(),
-    });
 
     setCartOpen(true);
   };
