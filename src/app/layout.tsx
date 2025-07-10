@@ -72,7 +72,7 @@ export const metadata: Metadata = {
         url: "https://www.arcie.art/og-image.jpg",
         width: 1200,
         height: 623,
-        alt: "Arcie Art - Personalized Art Logo",
+        alt: "Arcie Art Logo",
         type: "image/jpeg",
       },
     ],
