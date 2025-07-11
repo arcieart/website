@@ -27,7 +27,6 @@ export default function ContactPage() {
         <div className="grid md:grid-cols-2 gap-12 mb-16">
           {/* Contact Details */}
           <div className="space-y-8">
-
             {/* Phone */}
             <div className="flex items-start space-x-4">
               <div className="bg-primary/10 p-3 rounded-lg">
@@ -61,19 +60,6 @@ export default function ContactPage() {
                 >
                   myarcieart@gmail.com
                 </a>
-              </div>
-            </div>
-
-            {/* Address */}
-            <div className="flex items-start space-x-4">
-              <div className="bg-primary/10 p-3 rounded-lg">
-                <MapPin className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-md text-muted-foreground">
-                  Address
-                </h3>
-                <p className="font-medium text-foreground">Mumbai</p>
               </div>
             </div>
           </div>
