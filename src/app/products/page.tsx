@@ -33,7 +33,7 @@ function ProductsPage() {
             All Products
           </h1>
           <p className="text-muted-foreground">
-            Discover our complete collection of personalized products
+            Discover our complete collection of products
           </p>
         </div>
 

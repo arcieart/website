@@ -25,7 +25,7 @@ export default function CategoriesSection() {
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             From functional accessories to decorative art pieces, find the
-            perfect personalized product for any occasion
+            perfect product for any occasion
           </p>
         </div>
 

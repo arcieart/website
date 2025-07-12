@@ -20,9 +20,8 @@ export default function HeroSection() {
         </h1>
 
         <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-          Your one-stop shop for personalized keychains, earrings, desk
-          accessories and more. Bring your ideas to life with our custom 3D
-          printing services.
+          Your one-stop shop for unique decor and personalized products. Bring
+          your ideas to life with our custom 3D printing services.
         </p>
 
         <div className="flex justify-center">
