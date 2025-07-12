@@ -206,7 +206,7 @@ export const ProductsManagement = () => {
               <TableHead>Name</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Price</TableHead>
-              <TableHead>Available</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Description</TableHead>
               <TableHead className="w-40">Actions</TableHead>
             </TableRow>
@@ -264,15 +264,26 @@ export const ProductsManagement = () => {
                   </TableCell>
                   <TableCell>{formatPriceAdmin(product.price)}</TableCell>
                   <TableCell>
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        product.available
-                          ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
-                          : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
-                      }`}
-                    >
-                      {product.available ? "Available" : "Unavailable"}
-                    </span>
+                    <div className="flex flex-col gap-1">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          product.available
+                            ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                            : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                        }`}
+                      >
+                        {product.available ? "Available" : "Unavailable"}
+                      </span>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          product.isDiscoverable
+                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+                            : "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300"
+                        }`}
+                      >
+                        {product.isDiscoverable ? "Discoverable" : "Hidden"}
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell className="max-w-xs">
                     <div className="truncate text-sm text-muted-foreground">
