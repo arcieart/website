@@ -18,8 +18,8 @@ export const BaseCategories: Category[] = [
   },
   {
     id: "decor",
-    name: "Decor",
-    baseDescription: "A collection of beautiful and unique display pieces for your home or office.",
+    name: "Decor & Gifting",
+    baseDescription: "A collection of beautiful and unique display pieces for your home or office and perfect for gifting",
     images: [],
     price: 300,
     material: "pla",

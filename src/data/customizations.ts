@@ -56,6 +56,15 @@ export const BaseCustomizationsObj: Record<string, Customization> = {
     priceAdd: 0,
     afterSelectionLabel: "Decor Color",
   },
+  "decor-text-input": {
+    id: "decor-text-input",
+    categoryId: "decor",
+    label: "Enter Decor Text",
+    type: "input",
+    required: true,
+    priceAdd: 0,
+    afterSelectionLabel: "Decor Text",
+  },
 };
 
 export const PLAFilamentColors: FilamentColor[] = [
