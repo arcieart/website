@@ -44,11 +44,6 @@ export function Footer() {
             <p className="text-foreground font-caveat text-2xl mb-4 max-w-md">
               Art that tells your story
             </p>
-            <p className="text-muted-foreground mb-4 max-w-md">
-              Create personalized products that tell your story. From custom
-              keychains to unique earrings, we bring your ideas to life with
-              quality craftsmanship.
-            </p>
 
             {/* Contact Info */}
             <div className="space-y-2 text-sm text-muted-foreground">
