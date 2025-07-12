@@ -90,6 +90,7 @@ const defaultProductData: DBProduct = {
   customizationOptions: [] as DBCustomization[],
   available: true,
   isBestSeller: false,
+  isDiscoverable: true,
   createdAt: getTimestamp(),
 };
 
@@ -542,6 +543,29 @@ export function ProductSheet({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Discoverable
+            </label>
+            <Select
+              value={productData.isDiscoverable?.toString()}
+              onValueChange={(value) =>
+                setProductData((prev) => ({
+                  ...prev,
+                  isDiscoverable: value === "true",
+                }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="true">Yes</SelectItem>
+                <SelectItem value="false">No</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

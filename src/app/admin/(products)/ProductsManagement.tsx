@@ -32,11 +32,19 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw, AlertCircle, Trash2, Pencil } from "lucide-react";
+import {
+  Loader2,
+  RefreshCw,
+  AlertCircle,
+  Trash2,
+  Pencil,
+  Copy,
+} from "lucide-react";
 import Image from "next/image";
 import { deleteProduct } from "@/lib/products";
 import { DBProduct } from "@/types/product";
 import { formatPrice } from "@/utils/price";
+import { toast } from "sonner";
 
 export const ProductsManagement = () => {
   const [categoryFilter, setCategoryFilter] = useState<
@@ -66,6 +74,28 @@ export const ProductsManagement = () => {
 
   const getCategoryName = (categoryId: BaseCategoriesIds) => {
     return BaseCategoriesObj[categoryId]?.name || categoryId;
+  };
+
+  const generateProductUrl = (categoryId: string, productSlug: string) => {
+    const baseUrl =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : "https://arcie.art";
+    return `${baseUrl}/products/${categoryId}/${productSlug}`;
+  };
+
+  const handleCopyProductUrl = async (
+    categoryId: string,
+    productSlug: string
+  ) => {
+    try {
+      const productUrl = generateProductUrl(categoryId, productSlug);
+      await navigator.clipboard.writeText(productUrl);
+      toast.success(`Product URL copied to clipboard!`);
+    } catch (error) {
+      console.error("Failed to copy URL:", error);
+      toast.error("Failed to copy URL. Please try again.");
+    }
   };
 
   const handleEditProduct = (product: DBProduct) => {
@@ -178,7 +208,7 @@ export const ProductsManagement = () => {
               <TableHead>Price</TableHead>
               <TableHead>Available</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead className="w-32">Actions</TableHead>
+              <TableHead className="w-40">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -251,6 +281,16 @@ export const ProductsManagement = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          handleCopyProductUrl(product.categoryId, product.slug)
+                        }
+                        title="Copy product URL"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"

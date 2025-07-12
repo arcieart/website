@@ -19,10 +19,13 @@ export function RecommendedProducts({
 
   // Filter products from same category, excluding current product
   const recommended = shuffleArray(
-    products.filter(
-      (p) =>
-        p.id !== currentProduct.id && p.categoryId === currentProduct.categoryId
-    )
+    products
+      .filter((p) => p.isDiscoverable)
+      .filter(
+        (p) =>
+          p.id !== currentProduct.id &&
+          p.categoryId === currentProduct.categoryId
+      )
   ).slice(0, limit);
 
   if (isLoading) {

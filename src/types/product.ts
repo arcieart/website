@@ -9,6 +9,7 @@ export type BaseProduct = {
   slug: string;
   available: boolean;
   isBestSeller: boolean;
+  isDiscoverable: boolean;
   createdAt: number;
   description?: string;
   dimensions?: string;
