@@ -380,7 +380,7 @@ export function ProductPage({ params }: ProductPageProps) {
               <div className="flex items-center gap-2 mb-2">
                 <Link href={`/products/${product.categoryId}`}>
                   <span className="text-sm text-muted-foreground capitalize hover:text-primary transition-colors duration-200">
-                    {product.categoryId.replace("-", " ")}
+                    {BaseCategoriesObj[product.categoryId].name}
                   </span>
                 </Link>
               </div>
