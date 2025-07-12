@@ -176,6 +176,7 @@ export const ProductsManagement = () => {
               <TableHead>Name</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Price</TableHead>
+              <TableHead>Available</TableHead>
               <TableHead>Description</TableHead>
               <TableHead className="w-32">Actions</TableHead>
             </TableRow>
@@ -183,7 +184,7 @@ export const ProductsManagement = () => {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12">
+                <TableCell colSpan={8} className="text-center py-12">
                   <div className="flex items-center justify-center">
                     <Loader2 className="h-6 w-6 animate-spin mr-2" />
                     Loading products...
@@ -192,7 +193,7 @@ export const ProductsManagement = () => {
               </TableRow>
             ) : products.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12">
+                <TableCell colSpan={8} className="text-center py-12">
                   <div className="text-muted-foreground">
                     {categoryFilter === "all"
                       ? "No products found. Add your first product to get started."
@@ -232,6 +233,17 @@ export const ProductsManagement = () => {
                     </span>
                   </TableCell>
                   <TableCell>{formatPriceAdmin(product.price)}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        product.available
+                          ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                          : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                      }`}
+                    >
+                      {product.available ? "Available" : "Unavailable"}
+                    </span>
+                  </TableCell>
                   <TableCell className="max-w-xs">
                     <div className="truncate text-sm text-muted-foreground">
                       {product.description || "No description"}
