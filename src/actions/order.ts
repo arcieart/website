@@ -27,6 +27,10 @@ const recalculateOrderPricing = async (order: Omit<Order, "id">) => {
 
   for (const product of order.products) {
     const productData = await getProductById(product.productId);
+    if (!productData) {
+      console.error(`Product ${product.productId} not found`);
+      continue;
+    }
 
     const { id, ...restBaseCategory } =
       BaseCategoriesObj[productData.categoryId];
