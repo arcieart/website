@@ -1,3 +1,5 @@
+import { isProduction } from "@/utils/misc";
+
 export type Category = {
   id: string;
   name: string;
@@ -7,7 +9,7 @@ export type Category = {
   material: "pla" | "petg";
 };
 
-export const BaseCategories: Category[] = [
+const _BaseCategories: Category[] = [
   {
     id: "keychains",
     name: "Keychains",
@@ -33,7 +35,13 @@ export const BaseCategories: Category[] = [
     price: 150,
     material: "pla",
   },
-];
+]
+
+export const BaseCategories: Category[] =
+  isProduction
+    ? _BaseCategories.filter((category) => category.id !== "earrings")
+    : _BaseCategories;
+
 
 export const BaseCategoriesObj = BaseCategories.reduce(
   (acc: Record<string, Category>, category) => {
