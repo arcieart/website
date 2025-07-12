@@ -21,10 +21,8 @@ interface ProductCardProps {
 }
 
 function ProductCardContent({ product }: ProductCardProps) {
-  const addToCart = useCartStore((state) => state.addItem);
   const { toggleItem, isInFavorites } = useFavoritesStore();
   const isInWishlist = isInFavorites(product.id);
-  const { setCartOpen } = useCartSheet();
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -81,24 +79,26 @@ function ProductCardContent({ product }: ProductCardProps) {
           </div>
         </Link>
 
-        <CardContent className="p-2 pb-0">
+        <CardContent className="p-2 pb-0 space-y-1">
           {/* Brand/Category */}
-          <Link href={`/products/${product.categoryId}`}>
-            <div className="flex items-center">
-              <span className="text-[10px] md:text-xs text-muted-foreground capitalize hover:text-primary transition-colors duration-200">
-                {BaseCategoriesObj[product.categoryId].name}
-              </span>
-            </div>
-          </Link>
+          <div>
+            <Link href={`/products/${product.categoryId}`}>
+              <div className="flex items-center">
+                <span className="text-[10px] md:text-xs text-muted-foreground capitalize hover:text-primary transition-colors duration-200">
+                  {BaseCategoriesObj[product.categoryId].name}
+                </span>
+              </div>
+            </Link>
+          </div>
 
-          <Link href={`/products/${product.categoryId}/${product.slug}`}>
-            {/* Product Name */}
-            <h3 className="font-semibold text-foreground text-xs md:text-sm mb-1.5 line-clamp-2 leading-tight">
-              {product.name}
-            </h3>
+          <div>
+            <Link href={`/products/${product.categoryId}/${product.slug}`}>
+              {/* Product Name */}
+              <h3 className="font-semibold text-foreground text-xs md:text-sm mb-2 line-clamp-2 leading-tight">
+                {product.name}
+              </h3>
 
-            {/* Price */}
-            <div className="mb-2">
+              {/* Price */}
               <div className="flex items-baseline gap-1">
                 <span className="text-sm font-bold text-foreground">
                   {formatPrice(product.price)}
@@ -107,8 +107,8 @@ function ProductCardContent({ product }: ProductCardProps) {
                   {formatPrice(getStrikethroughPrice(product.price))}
                 </span>
               </div>
-            </div>
-          </Link>
+            </Link>
+          </div>
         </CardContent>
       </div>
 
@@ -117,7 +117,7 @@ function ProductCardContent({ product }: ProductCardProps) {
         <Link href={`/products/${product.categoryId}/${product.slug}`}>
           <Button className="w-full text-xs h-8" size="sm">
             <span className="flex items-center justify-between gap-1">
-              View Options
+              View Product
               <ArrowRight className="w-3 h-3 transition-transform duration-200 group-hover:translate-x-1" />
             </span>
           </Button>

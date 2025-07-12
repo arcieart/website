@@ -433,7 +433,7 @@ export function ProductPage({ params }: ProductPageProps) {
                 .
               </p>
               <p className="text-sm text-muted-foreground">
-                All products are proudly made in India. 🇮🇳
+                All products are proudly Made in India. 🇮🇳
               </p>
             </div>
 
