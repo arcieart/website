@@ -419,9 +419,6 @@ export function ProductPage({ params }: ProductPageProps) {
                 </div>
               )}
               <p className="text-sm text-muted-foreground">
-                {product.baseDescription}
-              </p>
-              <p className="text-sm text-muted-foreground">
                 Looking to customize further? Reach out to us on{" "}
                 <Link
                   target="_blank"
