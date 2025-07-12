@@ -58,6 +58,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { trackProductViewed } from "@/lib/analytics";
 import Markdown from "react-markdown";
+import { BaseCategoriesObj } from "@/data/categories";
 
 interface ProductPageProps {
   params: Promise<{ productSlug: string }>;
@@ -350,7 +351,7 @@ export function ProductPage({ params }: ProductPageProps) {
               <BreadcrumbLink asChild>
                 <Link href={`/products/${product.categoryId}`}>
                   <span className="capitalize">
-                    {product.categoryId.replace("-", " ")}
+                    {BaseCategoriesObj[product.categoryId].name}
                   </span>
                 </Link>
               </BreadcrumbLink>
