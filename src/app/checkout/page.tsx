@@ -37,6 +37,7 @@ import OrderConfirmationDialog from "@/components/OrderConfirmationDialog";
 import { useDiscountCoupon } from "@/hooks/useDiscountCoupon";
 import { calculateDiscountAmount } from "@/utils/coupon";
 import { CouponForm } from "./CouponForm";
+import { RequiredStar } from "@/components/misc/RequiredStar";
 
 // Form validation
 interface CheckoutFormData {
@@ -49,10 +50,6 @@ interface CheckoutFormData {
   pincode: string;
   landmark?: string;
 }
-
-const RequiredStar = () => {
-  return <span className="text-destructive">*</span>;
-};
 
 interface FormErrors {
   [key: string]: string;
