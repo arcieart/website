@@ -27,7 +27,7 @@ import { BaseCustomizationsObj } from "@/data/customizations";
 import { DBProduct } from "@/types/product";
 import { uploadImageToS3, generateImageKey } from "@/lib/aws-s3";
 import Image from "next/image";
-import { addProduct } from "@/lib/products";
+import { addProduct, updateProduct } from "@/lib/products";
 import { getNewProductDocId } from "@/lib/firebase";
 import { compressImage } from "@/lib/images";
 import { DBCustomization } from "@/types/customization";
@@ -74,6 +74,7 @@ const cleanObject = (obj: unknown): unknown => {
 interface ImageState {
   file: File | null;
   preview: string;
+  existingUrl?: string; // For existing images that are already uploaded
 }
 
 const defaultProductData: DBProduct = {
@@ -89,23 +90,69 @@ const defaultProductData: DBProduct = {
   customizationOptions: [] as DBCustomization[],
   available: true,
   isBestSeller: false,
+  isDiscoverable: true,
   createdAt: getTimestamp(),
 };
 
 interface ProductSheetProps {
   trigger?: React.ReactNode;
   onProductSaved?: () => void;
+  product?: DBProduct | null;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function ProductSheet({
+  trigger,
+  onProductSaved,
+  product,
+  isOpen: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+}: ProductSheetProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [productData, setProductData] = useState(defaultProductData);
+
+  const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const onOpenChange =
+    controlledOnOpenChange !== undefined
+      ? controlledOnOpenChange
+      : setInternalOpen;
+
+  const isEditMode = !!product;
 
   // State for handling file uploads and previews
   const [imageStates, setImageStates] = useState<ImageState[]>([
     { file: null, preview: "" },
   ]);
+
+  // Initialize form data when product changes or sheet opens
+  useEffect(() => {
+    if (isOpen) {
+      if (product) {
+        // Edit mode - load existing product data
+        setProductData(product);
+
+        // Initialize image states with existing images
+        const existingImageStates: ImageState[] = product.images.map((url) => ({
+          file: null,
+          preview: url,
+          existingUrl: url,
+        }));
+
+        // Ensure at least one empty state for adding new images
+        if (existingImageStates.length === 0) {
+          existingImageStates.push({ file: null, preview: "" });
+        }
+
+        setImageStates(existingImageStates);
+      } else {
+        // Add mode - reset to defaults
+        setProductData(defaultProductData);
+        setImageStates([{ file: null, preview: "" }]);
+      }
+    }
+  }, [isOpen, product]);
 
   // Reset form when sheet closes
   useEffect(() => {
@@ -120,23 +167,47 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
     setIsUploading(true);
 
     try {
-      const finalImageUrls: string[] = [];
+      let finalImageUrls: string[] = [];
+      let productId = productData.id;
 
-      // Generate new product ID
-      const productId = await getNewProductDocId();
-      console.log("New Product ID:", productId);
+      if (isEditMode) {
+        // For edit mode, start with existing images that haven't changed
+        finalImageUrls = imageStates
+          .filter((state) => state.existingUrl && !state.file)
+          .map((state) => state.existingUrl!);
 
-      // Handle image uploads
-      for (const imageState of imageStates) {
-        if (imageState.file) {
-          const imageKey = generateImageKey(imageState.file.name, productId);
-          const compressedImage = await compressImage(imageState.file);
-          const uploadedUrl = await uploadImageToS3(compressedImage, imageKey);
-          finalImageUrls.push(uploadedUrl);
+        // Upload new images
+        for (const imageState of imageStates) {
+          if (imageState.file) {
+            const imageKey = generateImageKey(imageState.file.name, productId);
+            const compressedImage = await compressImage(imageState.file);
+            const uploadedUrl = await uploadImageToS3(
+              compressedImage,
+              imageKey
+            );
+            finalImageUrls.push(uploadedUrl);
+          }
+        }
+      } else {
+        // For add mode, generate new product ID
+        productId = await getNewProductDocId();
+        console.log("New Product ID:", productId);
+
+        // Handle image uploads
+        for (const imageState of imageStates) {
+          if (imageState.file) {
+            const imageKey = generateImageKey(imageState.file.name, productId);
+            const compressedImage = await compressImage(imageState.file);
+            const uploadedUrl = await uploadImageToS3(
+              compressedImage,
+              imageKey
+            );
+            finalImageUrls.push(uploadedUrl);
+          }
         }
       }
 
-      // Create SEO-friendly slug by removing filler words
+      // Create/update slug
       const stopWords = [
         "and",
         "for",
@@ -178,21 +249,24 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
       ];
 
       const slug =
-        productData.name
-          .toLowerCase()
-          .trim()
-          .split(/\s+/) // Split by one or more whitespace characters
-          .filter((word) => word.length > 0 && !stopWords.includes(word)) // Remove empty strings and stop words
-          .join("-") +
-        "-" +
-        productId;
+        isEditMode && productData.slug
+          ? productData.slug // Keep existing slug in edit mode
+          : productData.name
+              .toLowerCase()
+              .trim()
+              .split(/\s+/)
+              .filter((word) => word.length > 0 && !stopWords.includes(word))
+              .join("-") +
+            "-" +
+            productId;
 
       // Update product data with final image URLs
       const finalProductData: DBProduct = {
         ...productData,
+        id: productId,
         slug,
         images: finalImageUrls,
-        createdAt: getTimestamp(),
+        createdAt: productData.createdAt || getTimestamp(),
       };
 
       const cleanedData: DBProduct = cleanObject(finalProductData) as DBProduct;
@@ -201,8 +275,15 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id: _, ...cleanedDataWithoutId } = cleanedData;
 
-      // Add new product
-      await addProduct(productId, cleanedDataWithoutId);
+      if (isEditMode) {
+        // Update existing product
+        await updateProduct(productId, cleanedDataWithoutId);
+        console.log("Updated product:", cleanedDataWithoutId);
+      } else {
+        // Add new product
+        await addProduct(productId, cleanedDataWithoutId);
+        console.log("Added product:", cleanedDataWithoutId);
+      }
 
       // Trigger callback
       onProductSaved?.();
@@ -210,7 +291,7 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
       // Reset form and close
       setProductData(defaultProductData);
       setImageStates([{ file: null, preview: "" }]);
-      setIsOpen(false);
+      onOpenChange(false);
     } catch (error) {
       console.error("Error saving product:", error);
       alert("Error saving product. Please try again.");
@@ -260,6 +341,7 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
               ? {
                   file,
                   preview: e.target?.result as string,
+                  existingUrl: undefined, // Clear existing URL when new file is selected
                 }
               : state
           )
@@ -269,7 +351,9 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
     } else {
       setImageStates((prev) =>
         prev.map((state, i) =>
-          i === index ? { file: null, preview: "" } : state
+          i === index
+            ? { file: null, preview: "", existingUrl: undefined }
+            : state
         )
       );
     }
@@ -289,9 +373,13 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
   const sheetContent = (
     <SheetContent className="w-[700px] sm:max-w-none overflow-y-auto p-8">
       <SheetHeader className="pb-6">
-        <SheetTitle className="text-2xl">Add New Product</SheetTitle>
+        <SheetTitle className="text-2xl">
+          {isEditMode ? "Edit Product" : "Add New Product"}
+        </SheetTitle>
         <SheetDescription className="text-base">
-          Create a new product with customization options
+          {isEditMode
+            ? `Update product details for ${productData.name}`
+            : "Create a new product with customization options"}
         </SheetDescription>
       </SheetHeader>
 
@@ -456,6 +544,29 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
               </Select>
             </div>
           </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Discoverable
+            </label>
+            <Select
+              value={productData.isDiscoverable?.toString()}
+              onValueChange={(value) =>
+                setProductData((prev) => ({
+                  ...prev,
+                  isDiscoverable: value === "true",
+                }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="true">Yes</SelectItem>
+                <SelectItem value="false">No</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Product Images */}
@@ -509,6 +620,11 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
                   <div className="flex-1 space-y-2">
                     <label className="text-sm font-medium">
                       Image {index + 1}
+                      {imageState.existingUrl && !imageState.file && (
+                        <span className="text-xs text-muted-foreground ml-2">
+                          (Current image)
+                        </span>
+                      )}
                     </label>
                     <div className="flex gap-2">
                       <Input
@@ -656,7 +772,7 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
           <Button
             type="button"
             variant="outline"
-            onClick={() => setIsOpen(false)}
+            onClick={() => onOpenChange(false)}
             disabled={isUploading}
           >
             Cancel
@@ -665,12 +781,12 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
             {isUploading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Uploading...
+                {isEditMode ? "Updating..." : "Adding..."}
               </>
             ) : (
               <>
                 <Plus className="w-4 h-4 mr-2" />
-                Add Product
+                {isEditMode ? "Update Product" : "Add Product"}
               </>
             )}
           </Button>
@@ -680,7 +796,7 @@ export function ProductSheet({ trigger, onProductSaved }: ProductSheetProps) {
   );
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet open={isOpen} onOpenChange={onOpenChange}>
       {trigger && <SheetTrigger asChild>{trigger}</SheetTrigger>}
       {sheetContent}
     </Sheet>

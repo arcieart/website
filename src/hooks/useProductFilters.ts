@@ -104,7 +104,7 @@ export function useProductFilters({
 
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
-    const filtered = products.filter((product) => {
+    const filtered = products.filter((product) => product.isDiscoverable).filter((product) => {
       // Category filter
       if (
         enableCategoryFilter &&

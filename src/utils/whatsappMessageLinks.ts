@@ -25,7 +25,7 @@ export const getWhatsappOrderConfirmationLink = (order: Order) => {
       "",
       "You should receive your order in 7-10 days.",
       "",
-      "Thanks for shopping with arcie.art! 🎉 ",
+      "Thanks for shopping with arcie.art! 🎊",
       "If you have any questions, please feel free to reply here."
     ].join("\n");
     const encodedMessage = encodeURIComponent(message);

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AddProductSheet } from "./ProductSheet";
-import { ProductJSONDialog } from "./ProductJSONDialog";
+import { AddProductSheet, ProductSheet } from "./ProductSheet";
 import { useProductsAdmin } from "@/hooks/useProductsAdmin";
 import {
   BaseCategoriesIds,
@@ -33,11 +32,19 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw, AlertCircle, Trash2, Pencil } from "lucide-react";
+import {
+  Loader2,
+  RefreshCw,
+  AlertCircle,
+  Trash2,
+  Pencil,
+  Copy,
+} from "lucide-react";
 import Image from "next/image";
 import { deleteProduct } from "@/lib/products";
 import { DBProduct } from "@/types/product";
 import { formatPrice } from "@/utils/price";
+import { toast } from "sonner";
 
 export const ProductsManagement = () => {
   const [categoryFilter, setCategoryFilter] = useState<
@@ -67,6 +74,28 @@ export const ProductsManagement = () => {
 
   const getCategoryName = (categoryId: BaseCategoriesIds) => {
     return BaseCategoriesObj[categoryId]?.name || categoryId;
+  };
+
+  const generateProductUrl = (categoryId: string, productSlug: string) => {
+    const baseUrl =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : "https://arcie.art";
+    return `${baseUrl}/products/${categoryId}/${productSlug}`;
+  };
+
+  const handleCopyProductUrl = async (
+    categoryId: string,
+    productSlug: string
+  ) => {
+    try {
+      const productUrl = generateProductUrl(categoryId, productSlug);
+      await navigator.clipboard.writeText(productUrl);
+      toast.success(`Product URL copied to clipboard!`);
+    } catch (error) {
+      console.error("Failed to copy URL:", error);
+      toast.error("Failed to copy URL. Please try again.");
+    }
   };
 
   const handleEditProduct = (product: DBProduct) => {
@@ -177,14 +206,15 @@ export const ProductsManagement = () => {
               <TableHead>Name</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Price</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead className="w-32">Actions</TableHead>
+              <TableHead className="w-40">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12">
+                <TableCell colSpan={8} className="text-center py-12">
                   <div className="flex items-center justify-center">
                     <Loader2 className="h-6 w-6 animate-spin mr-2" />
                     Loading products...
@@ -193,7 +223,7 @@ export const ProductsManagement = () => {
               </TableRow>
             ) : products.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12">
+                <TableCell colSpan={8} className="text-center py-12">
                   <div className="text-muted-foreground">
                     {categoryFilter === "all"
                       ? "No products found. Add your first product to get started."
@@ -233,6 +263,28 @@ export const ProductsManagement = () => {
                     </span>
                   </TableCell>
                   <TableCell>{formatPriceAdmin(product.price)}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          product.available
+                            ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                            : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                        }`}
+                      >
+                        {product.available ? "Available" : "Unavailable"}
+                      </span>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          product.isDiscoverable
+                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+                            : "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300"
+                        }`}
+                      >
+                        {product.isDiscoverable ? "Discoverable" : "Hidden"}
+                      </span>
+                    </div>
+                  </TableCell>
                   <TableCell className="max-w-xs">
                     <div className="truncate text-sm text-muted-foreground">
                       {product.description || "No description"}
@@ -240,6 +292,16 @@ export const ProductsManagement = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          handleCopyProductUrl(product.categoryId, product.slug)
+                        }
+                        title="Copy product URL"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
@@ -321,9 +383,9 @@ export const ProductsManagement = () => {
 
       {/* Edit Product Sheet - Rendered once */}
       {editingProduct && (
-        <ProductJSONDialog
+        <ProductSheet
           product={editingProduct}
-          onProductUpdated={handleProductUpdated}
+          onProductSaved={handleProductUpdated}
           isOpen={!!editingProduct}
           onOpenChange={(open) => {
             if (!open) setEditingProduct(null);

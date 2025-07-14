@@ -56,7 +56,9 @@ import { getWhatsappCustomizationHelpLink } from "@/utils/whatsappMessageLinks";
 import { RecommendedProducts } from "@/components/products/RecommendedProducts";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { trackProductViewed } from "@/lib/analytics";
 import Markdown from "react-markdown";
+import { BaseCategoriesObj } from "@/data/categories";
 
 interface ProductPageProps {
   params: Promise<{ productSlug: string }>;
@@ -97,8 +99,20 @@ export function ProductPage({ params }: ProductPageProps) {
       const product = products.find(
         (p) => p.slug === resolvedParams.productSlug
       );
-      if (product) setProduct(product);
-      else {
+      if (product) {
+        setProduct(product);
+
+        // Track product viewed
+        trackProductViewed({
+          productId: product.id,
+          productName: product.name,
+          categoryId: product.categoryId,
+          price: product.price,
+          slug: product.slug,
+          available: product.available,
+          isBestSeller: product.isBestSeller,
+        });
+      } else {
         toast.error("Product not found, redirecting to products page...");
         setTimeout(() => {
           router.replace("/products");
@@ -138,7 +152,7 @@ export function ProductPage({ params }: ProductPageProps) {
       );
 
     if (missingCustomizations.length > 0) {
-      toast.error(`Please select ${missingCustomizations.join(", ")}`);
+      toast.error(`Missing ${missingCustomizations.join(", ")}`);
       return;
     }
 
@@ -337,7 +351,7 @@ export function ProductPage({ params }: ProductPageProps) {
               <BreadcrumbLink asChild>
                 <Link href={`/products/${product.categoryId}`}>
                   <span className="capitalize">
-                    {product.categoryId.replace("-", " ")}
+                    {BaseCategoriesObj[product.categoryId].name}
                   </span>
                 </Link>
               </BreadcrumbLink>
@@ -366,7 +380,7 @@ export function ProductPage({ params }: ProductPageProps) {
               <div className="flex items-center gap-2 mb-2">
                 <Link href={`/products/${product.categoryId}`}>
                   <span className="text-sm text-muted-foreground capitalize hover:text-primary transition-colors duration-200">
-                    {product.categoryId.replace("-", " ")}
+                    {BaseCategoriesObj[product.categoryId].name}
                   </span>
                 </Link>
               </div>
@@ -406,9 +420,6 @@ export function ProductPage({ params }: ProductPageProps) {
                 </div>
               )}
               <p className="text-sm text-muted-foreground">
-                {product.baseDescription}
-              </p>
-              <p className="text-sm text-muted-foreground">
                 Looking to customize further? Reach out to us on{" "}
                 <Link
                   target="_blank"
@@ -422,7 +433,7 @@ export function ProductPage({ params }: ProductPageProps) {
                 .
               </p>
               <p className="text-sm text-muted-foreground">
-                All products are proudly made in India. 🇮🇳
+                All products are proudly Made in India. 🇮🇳
               </p>
             </div>
 

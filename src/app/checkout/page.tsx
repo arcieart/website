@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useCartStore } from "@/stores/cart";
 import { formatPriceLocalized } from "@/utils/price";
 import { getFreeShippingThreshold, getShippingCost } from "@/config/currency";
@@ -29,7 +29,7 @@ import OrderCardItem from "./OrderCardItem";
 import { Order } from "@/types/order";
 import { getTimestamp } from "@/utils/misc";
 import { createOrder, updateOrder } from "@/actions/order";
-import { identifyUser } from "@/lib/analytics";
+import { identifyUser, trackPurchaseCompleted } from "@/lib/analytics";
 import {
   RazorpayPaymentGateway,
   RazorpayPaymentGatewayRef,
@@ -38,6 +38,7 @@ import OrderConfirmationDialog from "@/components/OrderConfirmationDialog";
 import { useDiscountCoupon } from "@/hooks/useDiscountCoupon";
 import { calculateDiscountAmount } from "@/utils/coupon";
 import { CouponForm } from "./CouponForm";
+import { RequiredStar } from "@/components/misc/RequiredStar";
 
 // Form validation
 interface CheckoutFormData {
@@ -322,6 +323,25 @@ export default function CheckoutPage() {
 
   function finalizeOrder(orderId: string) {
     setConfirmedOrderId(orderId);
+
+    // Track purchase completed event
+    trackPurchaseCompleted({
+      orderId: orderId,
+      totalAmount: finalTotal,
+      subtotal: subtotal,
+      shippingCost: shippingCost,
+      discountAmount: discountAmount,
+      couponCode: coupon?.code,
+      paymentMethod: "razorpay",
+      items: items.map((item) => ({
+        productId: item.product.id,
+        productName: item.product.name,
+        categoryId: item.product.categoryId,
+        price: item.product.price,
+        quantity: item.quantity,
+        totalPrice: item.totalPrice,
+      })),
+    });
   }
 
   function handleCloseConfirmationDialog(orderId: string) {

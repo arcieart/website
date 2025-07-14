@@ -12,7 +12,7 @@ export const CURRENCY_CONFIG = {
   FREE_SHIPPING_THRESHOLD: 999,
   
   // Shipping cost (in the default currency)
-  SHIPPING_COST: 100,
+  SHIPPING_COST: 50,
   
   // Tax rate (as a decimal, e.g., 0.08 = 8%)
   TAX_RATE: 0.18,

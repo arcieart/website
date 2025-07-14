@@ -1,5 +1,7 @@
+import { RequiredStar } from "@/components/misc/RequiredStar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Coupon } from "@/types/coupon";
 import { formatPrice } from "@/utils/price";
 import { CheckCircle2, Loader2, X } from "lucide-react";
@@ -55,22 +57,31 @@ export const CouponForm = ({
         </div>
       ) : (
         <form onSubmit={handleCouponApplyForm}>
-          <div className="flex items-center gap-2">
-            <Input
-              type="text"
-              name="couponCode"
-              placeholder="Enter coupon code"
-              className={`w-full`}
-            />
-            <Button type="submit" variant="outline" disabled={couponIsLoading}>
-              {couponIsLoading ? (
-                <span>
-                  <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-                </span>
-              ) : (
-                <span>Apply</span>
-              )}
-            </Button>
+          <div className="flex flex-col items-start gap-2">
+            <Label htmlFor="couponCode" className="text-sm gap-1">
+              Have a discount code? <RequiredStar />
+            </Label>
+            <div className="flex items-center gap-2 w-full">
+              <Input
+                type="text"
+                name="couponCode"
+                placeholder="Enter here"
+                className="flex-1"
+              />
+              <Button
+                type="submit"
+                variant="outline"
+                disabled={couponIsLoading}
+              >
+                {couponIsLoading ? (
+                  <span>
+                    <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                  </span>
+                ) : (
+                  <span>Apply</span>
+                )}
+              </Button>
+            </div>
           </div>
         </form>
       )}

@@ -1,3 +1,5 @@
+import { isProduction } from "@/utils/misc";
+
 export type Category = {
   id: string;
   name: string;
@@ -7,20 +9,19 @@ export type Category = {
   material: "pla" | "petg";
 };
 
-export const BaseCategories: Category[] = [
-  // {
-  //   id: "keychains",
-  //   name: "Keychains",
-  //   baseDescription:
-  //     "A personalized accessory that adds character to your everyday carry. Perfect as a thoughtful gift or a unique touch to your own keys.",
-  //   images: [],
-  //   price: 150,
-  //   material: "pla",
-  // },
+const _BaseCategories: Category[] = [
   {
-    id: "showpieces",
-    name: "Display Showpieces",
-    baseDescription: "A collection of beautiful and unique display pieces for your home or office.",
+    id: "keychains",
+    name: "Keychains",
+    baseDescription:"Perfect as a meaningful keepsake or a thoughtful gift for loved ones.",
+    images: [],
+    price: 150,
+    material: "pla",
+  },
+  {
+    id: "decor",
+    name: "Decor & Gifting",
+    baseDescription: "A collection of beautiful and unique display pieces for your home or office and perfect for gifting",
     images: [],
     price: 300,
     material: "pla",
@@ -34,7 +35,13 @@ export const BaseCategories: Category[] = [
     price: 150,
     material: "pla",
   },
-];
+]
+
+export const BaseCategories: Category[] =
+  isProduction
+    ? _BaseCategories.filter((category) => category.id !== "earrings")
+    : _BaseCategories;
+
 
 export const BaseCategoriesObj = BaseCategories.reduce(
   (acc: Record<string, Category>, category) => {
@@ -44,4 +51,4 @@ export const BaseCategoriesObj = BaseCategories.reduce(
   {}
 );
 
-export type BaseCategoriesIds = "keychains" | "earrings" | "showpieces";
+export type BaseCategoriesIds = "keychains" | "earrings" | "decor";

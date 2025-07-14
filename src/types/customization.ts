@@ -50,4 +50,5 @@ export type FilamentColor = {
   available: boolean;
   priceAdd: number;
   assetType: "image" | "hex-code";
+  canBeMixed: boolean; // if true, the color can be mixed with other colors in a multicolor print
 };
