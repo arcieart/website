@@ -1,3 +1,9 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RequiredStar } from "@/components/ui/required-star";
+import { Textarea } from "@/components/ui/textarea";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { Metadata } from "next";
 
@@ -12,15 +18,92 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="container mx-auto px-4 py-16 max-w-4xl">
+      <div className="container mx-auto px-4 py-16 lg:max-w-6xl md:max-w-3xl">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 text-foreground">
+          <h1 className="text-4xl font-bold mb-8 text-foreground">
             Contact Us
           </h1>
-          <p className="text-md text-muted-foreground max-w-2xl mx-auto">
-            Reach out to us for any inquiries or collaborations
-          </p>
+          {/* <div className="md:flex mb-16"> */}
+          <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
+            <div className="basis-[48%]">
+              <p className="md:text-lg text-sm font-bold text-muted-foreground md:text-center lg:text-left my-2">
+                Have a question or idea?
+                <br />
+                We'd love to hear from you.
+              </p>
+              <p className="md:text-lg text-sm text-muted-foreground md:text-center lg:text-left mb-2 ">
+                Whether you're curious about our 3D printed products, interested
+                in customizing something special, or need help with an order,
+                we're here to help.
+              </p>
+              <p className="md:text-lg text-sm text-muted-foreground md:text-center lg:text-left mb-2">
+                Reach out to us using the form, or connect directly by phone or
+                email. We'll do our best to respond within 24 hours during
+                business hours.
+              </p>
+            </div>
+            <div className="basis-[60%]">
+              <Card>
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <form>
+                    <div className="space-y-3 sm:space-y-4 mb-5">
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <Label htmlFor="name" className="text-sm gap-1">
+                          Full Name
+                          <RequiredStar />
+                        </Label>
+                        <Input id="name" type="text" />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                        <div className="space-y-1.5 sm:space-y-2">
+                          <Label htmlFor="email" className="gap-1 text-sm">
+                            Email <RequiredStar />
+                          </Label>
+                          <Input id="email" type="email" />
+                        </div>
+
+                        <div className="space-y-1.5 sm:space-y-2">
+                          <Label htmlFor="phone" className="gap-1 text-sm">
+                            Phone <RequiredStar />
+                          </Label>
+
+                          <span className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">
+                              +91
+                            </span>
+                            <Input id="phone" type="tel" />
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <Label htmlFor="order" className="text-sm gap-1">
+                          Order Number
+                        </Label>
+                        <Input id="order" type="text" />
+                      </div>
+
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <Label htmlFor="address" className="text-sm gap-1">
+                          Message <RequiredStar />
+                        </Label>
+                        <Textarea id="address" rows={3} />
+                      </div>
+                    </div>
+                    <Button
+                      type="submit"
+                      className="w-full text-sm sm:text-base"
+                      size="lg"
+                    >
+                      Submit
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
 
         {/* Contact Information */}
@@ -68,7 +151,7 @@ export default function ContactPage() {
         {/* Business Hours */}
         <div className="text-center bg-muted/30 p-8 rounded-lg">
           <h2 className="text-2xl font-semibold mb-4">Business Hours</h2>
-          <div className="grid sm:grid-cols-2 gap-4 max-w-md mx-auto">
+          <div className="grid gap-4 max-w-md mx-auto">
             <div>
               <p className="font-medium">Monday - Friday</p>
               <p className="text-muted-foreground">10:00 AM - 6:00 PM</p>
