@@ -30,16 +30,16 @@ export default function ContactPage() {
               <p className="md:text-lg text-sm font-bold text-muted-foreground md:text-center lg:text-left my-2">
                 Have a question or idea?
                 <br />
-                We'd love to hear from you.
+                We&apos;d love to hear from you.
               </p>
               <p className="md:text-lg text-sm text-muted-foreground md:text-center lg:text-left mb-2 ">
-                Whether you're curious about our 3D printed products, interested
+                Whether you&apos;re curious about our 3D printed products, interested
                 in customizing something special, or need help with an order,
-                we're here to help.
+                we&apos;re here to help.
               </p>
               <p className="md:text-lg text-sm text-muted-foreground md:text-center lg:text-left mb-2">
                 Reach out to us using the form, or connect directly by phone or
-                email. We'll do our best to respond within 24 hours during
+                email. We&apos;ll do our best to respond within 24 hours during
                 business hours.
               </p>
             </div>
