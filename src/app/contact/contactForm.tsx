@@ -16,14 +16,14 @@ import {
 import { RequiredStar } from "@/components/misc/RequiredStar";
 
 export function ContactForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
     phone: "",
     message: "",
   });
-
-  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -64,6 +64,7 @@ export function ContactForm() {
       toast.error("Please fix the errors in the form");
       return;
     }
+    setIsSubmitting(true);
 
     console.log("Message received");
   };
@@ -155,8 +156,13 @@ export function ContactForm() {
           )}
         </div>
       </div>
-      <Button type="submit" className="w-full text-sm sm:text-base" size="lg">
-        Submit
+      <Button
+        type="submit"
+        className="w-full text-sm sm:text-base"
+        size="lg"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Message Sent" : "Submit"}
       </Button>
     </form>
   );
