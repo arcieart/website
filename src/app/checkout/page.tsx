@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { RequiredStar } from "@/components/ui/required-star";
 import {
   ArrowLeft,
   ShoppingCart,
@@ -19,14 +18,13 @@ import {
   MapPin,
   User,
   Tag,
-  X,
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import OrderCardItem from "./OrderCardItem";
-import { Order } from "@/types/order";
+import { CustomerInfo, Order } from "@/types/order";
 import { getTimestamp } from "@/utils/misc";
 import { createOrder, updateOrder } from "@/actions/order";
 import { identifyUser, trackPurchaseCompleted } from "@/lib/analytics";
@@ -40,21 +38,12 @@ import { calculateDiscountAmount } from "@/utils/coupon";
 import { CouponForm } from "./CouponForm";
 import { RequiredStar } from "@/components/misc/RequiredStar";
 
-// Form validation
-interface CheckoutFormData {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  state: string;
-  pincode: string;
-  landmark?: string;
-}
-
-interface FormErrors {
-  [key: string]: string;
-}
+import {
+  FormData,
+  FormErrors,
+  validateForm,
+  validateField,
+} from "@/utils/inputValidation";
 
 export default function CheckoutPage() {
   const { items, totalItems, totalPrice, clearCart } = useCartStore();
@@ -72,7 +61,7 @@ export default function CheckoutPage() {
   const [confirmedOrderId, setConfirmedOrderId] = useState("");
   const [isNavigatingToOrder, setIsNavigatingToOrder] = useState(false);
 
-  const [formData, setFormData] = useState<CheckoutFormData>({
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
     phone: "",
@@ -97,111 +86,7 @@ export default function CheckoutPage() {
 
   const finalTotal = subtotal + shippingCost - discountAmount;
 
-  // Validation functions
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePhone = (phone: string): boolean => {
-    const phoneRegex = /^[6-9]\d{9}$/; // Indian mobile number format
-    return phoneRegex.test(phone);
-  };
-
-  const validatePincode = (pincode: string): boolean => {
-    const pincodeRegex = /^[1-9][0-9]{5}$/; // Indian pincode format
-    return pincodeRegex.test(pincode);
-  };
-
-  const validateForm = (): boolean => {
-    const errors: FormErrors = {};
-
-    // Validate all required fields using the single validateField function
-    const fieldsToValidate: (keyof CheckoutFormData)[] = [
-      "name",
-      "email",
-      "phone",
-      "address",
-      "city",
-      "state",
-      "pincode",
-    ];
-
-    fieldsToValidate.forEach((field) => {
-      const error = validateField(field, formData[field] || "");
-      if (error) {
-        errors[field] = error;
-      }
-    });
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const validateField = (
-    field: keyof CheckoutFormData,
-    value: string
-  ): string => {
-    switch (field) {
-      case "name":
-        if (!value.trim()) {
-          return "Name is required";
-        } else if (value.trim().length < 2) {
-          return "Name must be at least 2 characters long";
-        }
-        break;
-
-      case "email":
-        if (!value.trim()) {
-          return "Email is required";
-        } else if (!validateEmail(value)) {
-          return "Please enter a valid email address";
-        }
-        break;
-
-      case "phone":
-        if (!value.trim()) {
-          return "Phone number is required";
-        } else if (!validatePhone(value)) {
-          return "Please enter a valid 10-digit Indian mobile number";
-        }
-        break;
-
-      case "address":
-        if (!value.trim()) {
-          return "Address is required";
-        } else if (value.trim().length < 10) {
-          return "Please enter a complete address (at least 10 characters)";
-        }
-        break;
-
-      case "city":
-        if (!value.trim()) {
-          return "City is required";
-        }
-        break;
-
-      case "state":
-        if (!value.trim()) {
-          return "State is required";
-        }
-        break;
-
-      case "pincode":
-        if (!value.trim()) {
-          return "Pincode is required";
-        } else if (!validatePincode(value)) {
-          return "Please enter a valid 6-digit pincode";
-        }
-        break;
-
-      default:
-        break;
-    }
-    return "";
-  };
-
-  const handleInputChange = (field: keyof CheckoutFormData, value: string) => {
+  const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Clear error when user starts typing
@@ -210,7 +95,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleInputBlur = (field: keyof CheckoutFormData) => {
+  const handleInputBlur = (field: keyof FormData) => {
     const value = formData[field];
     const error = validateField(field, value || "");
 
@@ -240,7 +125,22 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    const fieldsToValidate: (keyof FormData)[] = [
+      "name",
+      "email",
+      "phone",
+      "address",
+      "city",
+      "state",
+      "pincode",
+    ];
+
+    const submitErrors = validateForm(formData, fieldsToValidate);
+
+    const isFormValid = Object.keys(submitErrors).length === 0;
+
+    if (!isFormValid) {
+      setFormErrors(submitErrors);
       toast.error("Please fix the errors in the form");
       return;
     }
@@ -252,9 +152,21 @@ export default function CheckoutPage() {
 
     setIsSubmitting(true);
 
+    // Review
+    const customerInfo: CustomerInfo = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      address: formData.address ?? "",
+      city: formData.city ?? "",
+      state: formData.state ?? "",
+      pincode: formData.pincode ?? "",
+      landmark: formData.landmark,
+    };
+
     try {
       const order: Omit<Order, "id"> = {
-        customerInfo: formData,
+        customerInfo,
         products: items.map((item) => ({
           id: item.id,
           productId: item.product.id,
