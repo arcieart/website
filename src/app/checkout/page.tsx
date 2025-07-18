@@ -39,10 +39,10 @@ import { CouponForm } from "./CouponForm";
 import { RequiredStar } from "@/components/misc/RequiredStar";
 
 import {
-  FormData,
   FormErrors,
   validateForm,
   validateField,
+  CheckoutFormData,
 } from "@/utils/inputValidation";
 
 export default function CheckoutPage() {
@@ -61,7 +61,7 @@ export default function CheckoutPage() {
   const [confirmedOrderId, setConfirmedOrderId] = useState("");
   const [isNavigatingToOrder, setIsNavigatingToOrder] = useState(false);
 
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<CheckoutFormData>({
     name: "",
     email: "",
     phone: "",
@@ -86,7 +86,7 @@ export default function CheckoutPage() {
 
   const finalTotal = subtotal + shippingCost - discountAmount;
 
-  const handleInputChange = (field: keyof FormData, value: string) => {
+  const handleInputChange = (field: keyof CheckoutFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Clear error when user starts typing
@@ -95,9 +95,9 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleInputBlur = (field: keyof FormData) => {
+  const handleInputBlur = (field: keyof CheckoutFormData) => {
     const value = formData[field];
-    const error = validateField(field, value || "");
+    const error = validateField<CheckoutFormData>(field, value || "");
 
     if (error) {
       setFormErrors((prev) => ({ ...prev, [field]: error }));
@@ -125,7 +125,7 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const fieldsToValidate: (keyof FormData)[] = [
+    const fieldsToValidate: (keyof CheckoutFormData)[] = [
       "name",
       "email",
       "phone",
@@ -157,10 +157,10 @@ export default function CheckoutPage() {
       name: formData.name,
       email: formData.email,
       phone: formData.phone,
-      address: formData.address ?? "",
-      city: formData.city ?? "",
-      state: formData.state ?? "",
-      pincode: formData.pincode ?? "",
+      address: formData.address,
+      city: formData.city,
+      state: formData.state,
+      pincode: formData.pincode,
       landmark: formData.landmark,
     };
 

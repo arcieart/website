@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import {
-  FormData,
+  ContactUsFormData,
   FormErrors,
   validateField,
   validateForm,
@@ -18,14 +18,14 @@ import { RequiredStar } from "@/components/misc/RequiredStar";
 export function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<ContactUsFormData>({
     name: "",
     email: "",
     phone: "",
     message: "",
   });
 
-  const handleInputChange = (field: keyof FormData, value: string) => {
+  const handleInputChange = (field: keyof ContactUsFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Clear error when user starts typing
@@ -34,9 +34,9 @@ export function ContactForm() {
     }
   };
 
-  const handleInputBlur = (field: keyof FormData) => {
+  const handleInputBlur = (field: keyof ContactUsFormData) => {
     const value = formData[field];
-    const error = validateField(field, value || "");
+    const error = validateField<ContactUsFormData>(field, value || "");
 
     if (error) {
       setFormErrors((prev) => ({ ...prev, [field]: error }));
@@ -48,14 +48,17 @@ export function ContactForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const fieldsToValidate: (keyof FormData)[] = [
+    const fieldsToValidate: (keyof ContactUsFormData)[] = [
       "name",
       "email",
       "phone",
       "message",
     ];
 
-    const submitErrors = validateForm(formData, fieldsToValidate);
+    const submitErrors = validateForm<ContactUsFormData>(
+      formData,
+      fieldsToValidate
+    );
 
     const isFormValid = Object.keys(submitErrors).length === 0;
 

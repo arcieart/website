@@ -1,13 +1,19 @@
-export interface FormData {
+export interface ContactUsFormData {
   name: string;
   email: string;
   phone: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  pincode?: string;
-  landmark?: string;
   message?: string;
+}
+
+export interface CheckoutFormData {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  landmark: string;
 }
 
 export interface FormErrors {
@@ -29,23 +35,26 @@ const validatePincode = (pincode: string): boolean => {
   return pincodeRegex.test(pincode);
 };
 
-export const validateForm = (
-  formData: Partial<FormData>,
-  fieldsToValidate: (keyof FormData)[]
+export const validateForm = <T>(
+  formData: Partial<T>,
+  fieldsToValidate: (keyof T)[]
 ): FormErrors => {
   const errors: FormErrors = {};
 
   fieldsToValidate.forEach((field) => {
-    const error = validateField(field, formData[field] || "");
+    const error = validateField<T>(field, formData[field] as string);
     if (error) {
-      errors[field] = error;
+      errors[field as string] = error;
     }
   });
 
   return errors;
 };
 
-export const validateField = (field: keyof FormData, value: string): string => {
+export const validateField = <T>(
+  field: keyof T,
+  value: string
+): string => {
   switch (field) {
     case "name":
       if (!value.trim()) {
