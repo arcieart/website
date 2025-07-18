@@ -1,12 +1,20 @@
 "use server";
 
+import { getDiscordContactUsMessage } from "@/utils/discordMessages";
+import { ContactUsFormData } from "@/utils/inputValidation";
 import { isProduction } from "@/utils/misc";
 import { MessageCreateOptions } from "discord.js";
 
 const orderChannelId = "1382393907010211980";
+const contactUsChannelId = "1395844196950216845";
 
 export const sendOrderMessage = async (data: MessageCreateOptions) => {
   return sendDiscordMessage(orderChannelId, data);
+};
+
+export const sendContactUsMessage = async (formData: ContactUsFormData) => {
+  const data = getDiscordContactUsMessage(formData);
+  return sendDiscordMessage(contactUsChannelId, data);
 };
 
 const sendDiscordMessage = async (
