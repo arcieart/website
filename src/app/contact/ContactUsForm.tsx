@@ -14,6 +14,7 @@ import {
   validateForm,
 } from "@/utils/inputValidation";
 import { RequiredStar } from "@/components/misc/RequiredStar";
+import { sendContactUsMessage } from "@/actions/discord";
 
 export function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,7 +70,8 @@ export function ContactForm() {
     }
     setIsSubmitting(true);
 
-    console.log("Message received");
+    await sendContactUsMessage(formData);
+    toast.success("Message sent successfully");
   };
 
   return (
