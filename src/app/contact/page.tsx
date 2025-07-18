@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Phone, Mail, MapPin } from "lucide-react";
+import { Phone, Mail } from "lucide-react";
 import { Metadata } from "next";
-import { ContactForm } from "./contactForm";
+import { ContactForm } from "./ContactUsForm";
 
 export const metadata: Metadata = {
   title: "Arcie Art | Contact Us",
