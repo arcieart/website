@@ -72,6 +72,9 @@ export function ContactForm() {
 
     await sendContactUsMessage(formData);
     toast.success("Message sent successfully");
+
+    setFormData({ name: "", email: "", phone: "", message: "" });
+    setIsSubmitting(false);
   };
 
   return (
@@ -167,7 +170,11 @@ export function ContactForm() {
         size="lg"
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Message Sent" : "Submit"}
+        {isSubmitting ? (
+          <div className="h-3 w-3 sm:h-4 sm:w-4 mr-2 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+        ) : (
+          "Submit"
+        )}
       </Button>
     </form>
   );
