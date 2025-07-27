@@ -27,6 +27,14 @@ const _BaseCategories: Category[] = [
     material: "pla",
   },
   {
+    id: "desk-accessories",
+    name: "Desk Accessories",
+    baseDescription: "A collection of Desk Accessories to help you organize your desk and keep your desk clean and tidy.",
+    images: [],
+    price: 300,
+    material: "pla",
+  },
+  {
     id: "earrings",
     name: "Earrings",
     baseDescription:
@@ -51,4 +59,4 @@ export const BaseCategoriesObj = BaseCategories.reduce(
   {}
 );
 
-export type BaseCategoriesIds = "keychains" | "earrings" | "decor";
+export type BaseCategoriesIds = "keychains" | "earrings" | "decor" | "desk-accessories";

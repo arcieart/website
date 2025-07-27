@@ -65,6 +65,33 @@ export const BaseCustomizationsObj: Record<string, Customization> = {
     priceAdd: 0,
     afterSelectionLabel: "Decor Text",
   },
+  "desk-accessories-phone-stand-seat-color": {
+    id: "desk-accessories-phone-stand-seat-color",
+    categoryId: "desk-accessories",
+    label: "Select Seat Color",
+    type: "fixed-color-picker",
+    required: true,
+    priceAdd: 0,
+    afterSelectionLabel: "Seat Color",
+  },
+  "desk-accessories-phone-stand-frame-color": {
+    id: "desk-accessories-phone-stand-frame-color",
+    categoryId: "desk-accessories",
+    label: "Select Support Frame Color",
+    type: "fixed-color-picker",
+    required: true,
+    priceAdd: 0,
+    afterSelectionLabel: "Support Frame Color",
+  },
+  "desk-accessories-phone-stand-text": {
+    id: "desk-accessories-phone-stand-text",
+    categoryId: "desk-accessories",
+    label: "Enter Stand Text",
+    type: "input",
+    required: false,
+    priceAdd: 0,
+    afterSelectionLabel: "Stand Text",
+  },
 };
 
 export const PLAFilamentColors: FilamentColor[] = [
