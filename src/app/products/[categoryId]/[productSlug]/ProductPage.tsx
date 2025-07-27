@@ -43,7 +43,7 @@ import {
 import { toast } from "sonner";
 import { useProducts } from "@/hooks/useProducts";
 import { UIProduct } from "@/types/product";
-import { ProductPageImageCarousel } from "@/components/carousels/ProductPageImageCarousel";
+import { ProductPageMediaCarousel } from "@/components/carousels/ProductPageMediaCarousel";
 import { Customization, DBCustomization } from "@/types/customization";
 import Link from "next/link";
 import { QuantityStepper } from "@/components/misc/QuantityStepper";
@@ -366,8 +366,9 @@ export function ProductPage({ params }: ProductPageProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 lg:gap-20">
           {/* Product Images */}
           <div className="md:sticky md:top-18 md:self-start">
-            <ProductPageImageCarousel
+            <ProductPageMediaCarousel
               images={product.images}
+              videos={product.videos}
               alt={product.name}
               product={product}
             />

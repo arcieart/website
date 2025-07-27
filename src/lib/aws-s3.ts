@@ -37,8 +37,38 @@ export async function uploadImageToS3(file: File, key: string): Promise<string> 
   }
 }
 
+export async function uploadVideoToS3(file: File, key: string): Promise<string> {
+  try {
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: file,
+      ContentType: file.type,
+      CacheControl: 'public, max-age=31536000, immutable', // 1 year cache
+      Metadata: {
+        'uploaded-at': new Date().toISOString(),
+        'file-type': 'video',
+      },
+    });
+
+    await s3Client.send(command);
+    
+    // Return the public URL of the uploaded video
+    return `https://${BUCKET_NAME}.s3.amazonaws.com/${key}`;
+  } catch (error) {
+    console.error("Error uploading video to S3:", error);
+    throw new Error("Failed to upload video");
+  }
+}
+
 export function generateImageKey(fileName: string, docId: string): string {
   const extension = fileName.split('.').pop() || '';
   const imageId = nanoid(12);
   return `${Collections.Products}/${docId}/${imageId}.${extension}`;
+}
+
+export function generateVideoKey(fileName: string, docId: string): string {
+  const extension = fileName.split('.').pop() || '';
+  const videoId = nanoid(12);
+  return `${Collections.Products}/${docId}/videos/${videoId}.${extension}`;
 }

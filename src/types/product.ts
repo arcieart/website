@@ -5,6 +5,7 @@ export type BaseProduct = {
   id: string;
   name: string;
   images: string[];
+  videos: string[];
   categoryId: BaseCategoriesIds;
   slug: string;
   available: boolean;

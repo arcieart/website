@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, X, Image as ImageIcon, Loader2 } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  X,
+  Image as ImageIcon,
+  Loader2,
+  Video,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,11 +32,17 @@ import {
 import { BaseCategories, BaseCategoriesIds } from "@/data/categories";
 import { BaseCustomizationsObj } from "@/data/customizations";
 import { DBProduct } from "@/types/product";
-import { uploadImageToS3, generateImageKey } from "@/lib/aws-s3";
+import {
+  uploadImageToS3,
+  generateImageKey,
+  uploadVideoToS3,
+  generateVideoKey,
+} from "@/lib/aws-s3";
 import Image from "next/image";
 import { addProduct, updateProduct } from "@/lib/products";
 import { getNewProductDocId } from "@/lib/firebase";
 import { compressImage } from "@/lib/images";
+import { validateVideoFile } from "@/lib/videos";
 import { DBCustomization } from "@/types/customization";
 import { getTimestamp } from "@/utils/misc";
 import { getCurrencySymbol } from "@/utils/price";
@@ -70,11 +83,12 @@ const cleanObject = (obj: unknown): unknown => {
   return obj;
 };
 
-// Type for image state to handle files and preview URLs
-interface ImageState {
+// Type for media state to handle files and preview URLs
+interface MediaState {
   file: File | null;
   preview: string;
-  existingUrl?: string; // For existing images that are already uploaded
+  existingUrl?: string; // For existing media that are already uploaded
+  type: "image" | "video";
 }
 
 const defaultProductData: DBProduct = {
@@ -84,6 +98,7 @@ const defaultProductData: DBProduct = {
   dimensions: "",
   weight: 0,
   images: [],
+  videos: [],
   slug: "",
   price: 0,
   categoryId: "keychains" as BaseCategoriesIds,
@@ -122,8 +137,8 @@ export function ProductSheet({
   const isEditMode = !!product;
 
   // State for handling file uploads and previews
-  const [imageStates, setImageStates] = useState<ImageState[]>([
-    { file: null, preview: "" },
+  const [mediaStates, setMediaStates] = useState<MediaState[]>([
+    { file: null, preview: "", type: "image" },
   ]);
 
   // Initialize form data when product changes or sheet opens
@@ -133,23 +148,32 @@ export function ProductSheet({
         // Edit mode - load existing product data
         setProductData(product);
 
-        // Initialize image states with existing images
-        const existingImageStates: ImageState[] = product.images.map((url) => ({
-          file: null,
-          preview: url,
-          existingUrl: url,
-        }));
+        // Initialize media states with existing images and videos
+        const existingMediaStates: MediaState[] = [
+          ...product.images.map((url) => ({
+            file: null,
+            preview: url,
+            existingUrl: url,
+            type: "image" as const,
+          })),
+          ...product.videos.map((url) => ({
+            file: null,
+            preview: url,
+            existingUrl: url,
+            type: "video" as const,
+          })),
+        ];
 
-        // Ensure at least one empty state for adding new images
-        if (existingImageStates.length === 0) {
-          existingImageStates.push({ file: null, preview: "" });
+        // Ensure at least one empty state for adding new media
+        if (existingMediaStates.length === 0) {
+          existingMediaStates.push({ file: null, preview: "", type: "image" });
         }
 
-        setImageStates(existingImageStates);
+        setMediaStates(existingMediaStates);
       } else {
         // Add mode - reset to defaults
         setProductData(defaultProductData);
-        setImageStates([{ file: null, preview: "" }]);
+        setMediaStates([{ file: null, preview: "", type: "image" }]);
       }
     }
   }, [isOpen, product]);
@@ -158,7 +182,7 @@ export function ProductSheet({
   useEffect(() => {
     if (!isOpen) {
       setProductData(defaultProductData);
-      setImageStates([{ file: null, preview: "" }]);
+      setMediaStates([{ file: null, preview: "", type: "image" }]);
     }
   }, [isOpen]);
 
@@ -168,24 +192,50 @@ export function ProductSheet({
 
     try {
       let finalImageUrls: string[] = [];
+      let finalVideoUrls: string[] = [];
       let productId = productData.id;
 
       if (isEditMode) {
-        // For edit mode, start with existing images that haven't changed
-        finalImageUrls = imageStates
-          .filter((state) => state.existingUrl && !state.file)
+        // For edit mode, start with existing media that haven't changed
+        finalImageUrls = mediaStates
+          .filter(
+            (state) =>
+              state.existingUrl && !state.file && state.type === "image"
+          )
           .map((state) => state.existingUrl!);
 
-        // Upload new images
-        for (const imageState of imageStates) {
-          if (imageState.file) {
-            const imageKey = generateImageKey(imageState.file.name, productId);
-            const compressedImage = await compressImage(imageState.file);
-            const uploadedUrl = await uploadImageToS3(
-              compressedImage,
-              imageKey
-            );
-            finalImageUrls.push(uploadedUrl);
+        finalVideoUrls = mediaStates
+          .filter(
+            (state) =>
+              state.existingUrl && !state.file && state.type === "video"
+          )
+          .map((state) => state.existingUrl!);
+
+        // Upload new media
+        for (const mediaState of mediaStates) {
+          if (mediaState.file) {
+            if (mediaState.type === "image") {
+              const imageKey = generateImageKey(
+                mediaState.file.name,
+                productId
+              );
+              const compressedImage = await compressImage(mediaState.file);
+              const uploadedUrl = await uploadImageToS3(
+                compressedImage,
+                imageKey
+              );
+              finalImageUrls.push(uploadedUrl);
+            } else if (mediaState.type === "video") {
+              const videoKey = generateVideoKey(
+                mediaState.file.name,
+                productId
+              );
+              const uploadedUrl = await uploadVideoToS3(
+                mediaState.file,
+                videoKey
+              );
+              finalVideoUrls.push(uploadedUrl);
+            }
           }
         }
       } else {
@@ -193,16 +243,31 @@ export function ProductSheet({
         productId = await getNewProductDocId();
         console.log("New Product ID:", productId);
 
-        // Handle image uploads
-        for (const imageState of imageStates) {
-          if (imageState.file) {
-            const imageKey = generateImageKey(imageState.file.name, productId);
-            const compressedImage = await compressImage(imageState.file);
-            const uploadedUrl = await uploadImageToS3(
-              compressedImage,
-              imageKey
-            );
-            finalImageUrls.push(uploadedUrl);
+        // Handle media uploads
+        for (const mediaState of mediaStates) {
+          if (mediaState.file) {
+            if (mediaState.type === "image") {
+              const imageKey = generateImageKey(
+                mediaState.file.name,
+                productId
+              );
+              const compressedImage = await compressImage(mediaState.file);
+              const uploadedUrl = await uploadImageToS3(
+                compressedImage,
+                imageKey
+              );
+              finalImageUrls.push(uploadedUrl);
+            } else if (mediaState.type === "video") {
+              const videoKey = generateVideoKey(
+                mediaState.file.name,
+                productId
+              );
+              const uploadedUrl = await uploadVideoToS3(
+                mediaState.file,
+                videoKey
+              );
+              finalVideoUrls.push(uploadedUrl);
+            }
           }
         }
       }
@@ -260,12 +325,13 @@ export function ProductSheet({
             "-" +
             productId;
 
-      // Update product data with final image URLs
+      // Update product data with final media URLs
       const finalProductData: DBProduct = {
         ...productData,
         id: productId,
         slug,
         images: finalImageUrls,
+        videos: finalVideoUrls,
         createdAt: productData.createdAt || getTimestamp(),
       };
 
@@ -290,7 +356,7 @@ export function ProductSheet({
 
       // Reset form and close
       setProductData(defaultProductData);
-      setImageStates([{ file: null, preview: "" }]);
+      setMediaStates([{ file: null, preview: "", type: "image" }]);
       onOpenChange(false);
     } catch (error) {
       console.error("Error saving product:", error);
@@ -312,13 +378,13 @@ export function ProductSheet({
     }));
   };
 
-  const addImage = () => {
-    setImageStates((prev) => [...prev, { file: null, preview: "" }]);
+  const addMedia = (type: "image" | "video" = "image") => {
+    setMediaStates((prev) => [...prev, { file: null, preview: "", type }]);
   };
 
-  const removeImage = (index: number) => {
-    if (imageStates.length > 1) {
-      setImageStates((prev) => prev.filter((_, i) => i !== index));
+  const removeMedia = (index: number) => {
+    if (mediaStates.length > 1) {
+      setMediaStates((prev) => prev.filter((_, i) => i !== index));
     }
   };
 
@@ -331,17 +397,45 @@ export function ProductSheet({
     }));
   };
 
-  const handleImageChange = (index: number, file: File | null) => {
+  const handleMediaChange = (
+    index: number,
+    file: File | null,
+    type?: "image" | "video"
+  ) => {
     if (file) {
+      const mediaType =
+        type || (file.type.startsWith("video/") ? "video" : "image");
+
+      // Validate file type
+      if (mediaType === "video" && !validateVideoFile(file)) {
+        alert(
+          "Please select a valid video file (MP4, WebM, OGG, AVI, MOV, WMV)"
+        );
+        return;
+      }
+
+      // Check file size (50MB limit for videos, 10MB for images)
+      const maxSize =
+        mediaType === "video" ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
+      if (file.size > maxSize) {
+        alert(
+          `File size too large. Maximum size: ${
+            mediaType === "video" ? "50MB" : "10MB"
+          }`
+        );
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (e) => {
-        setImageStates((prev) =>
+        setMediaStates((prev) =>
           prev.map((state, i) =>
             i === index
               ? {
                   file,
                   preview: e.target?.result as string,
                   existingUrl: undefined, // Clear existing URL when new file is selected
+                  type: mediaType,
                 }
               : state
           )
@@ -349,10 +443,15 @@ export function ProductSheet({
       };
       reader.readAsDataURL(file);
     } else {
-      setImageStates((prev) =>
+      setMediaStates((prev) =>
         prev.map((state, i) =>
           i === index
-            ? { file: null, preview: "", existingUrl: undefined }
+            ? {
+                file: null,
+                preview: "",
+                existingUrl: undefined,
+                type: state.type,
+              }
             : state
         )
       );
@@ -569,49 +668,75 @@ export function ProductSheet({
           </div>
         </div>
 
-        {/* Product Images */}
+        {/* Product Media */}
         <div className="space-y-6 p-6 border rounded-lg">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Product Images</h3>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addImage}
-            >
-              <ImageIcon className="w-4 h-4 mr-2" />
-              Add Image
-            </Button>
+            <h3 className="text-lg font-semibold">Product Media</h3>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => addMedia("image")}
+              >
+                <ImageIcon className="w-4 h-4 mr-2" />
+                Add Image
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => addMedia("video")}
+              >
+                <Video className="w-4 h-4 mr-2" />
+                Add Video
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-4">
-            {imageStates.map((imageState, index) => (
+            {mediaStates.map((mediaState, index) => (
               <div key={index} className="border rounded-lg p-4">
                 <div className="flex gap-4">
-                  {/* Image Preview */}
+                  {/* Media Preview */}
                   <div className="flex-shrink-0">
-                    {imageState.preview ? (
+                    {mediaState.preview ? (
                       <div className="relative">
-                        <Image
-                          src={imageState.preview}
-                          alt={`Preview ${index + 1}`}
-                          width={80}
-                          height={80}
-                          className="w-20 h-20 object-cover rounded-md border"
-                        />
+                        {mediaState.type === "image" ? (
+                          <Image
+                            src={mediaState.preview}
+                            alt={`Preview ${index + 1}`}
+                            width={80}
+                            height={80}
+                            className="w-20 h-20 object-cover rounded-md border"
+                          />
+                        ) : (
+                          <video
+                            src={mediaState.preview}
+                            width={80}
+                            height={80}
+                            className="w-20 h-20 object-cover rounded-md border"
+                            controls={false}
+                            muted
+                          />
+                        )}
                         <Button
                           type="button"
                           variant="outline"
                           size="icon"
                           className="absolute -top-2 -right-2 h-6 w-6"
-                          onClick={() => handleImageChange(index, null)}
+                          onClick={() => handleMediaChange(index, null)}
                         >
                           <X className="w-3 h-3" />
                         </Button>
                       </div>
                     ) : (
                       <div className="w-20 h-20 border-2 border-dashed border-border rounded-md flex items-center justify-center">
-                        <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                        {mediaState.type === "image" ? (
+                          <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                        ) : (
+                          <Video className="w-8 h-8 text-muted-foreground" />
+                        )}
                       </div>
                     )}
                   </div>
@@ -619,38 +744,41 @@ export function ProductSheet({
                   {/* File Input */}
                   <div className="flex-1 space-y-2">
                     <label className="text-sm font-medium">
-                      Image {index + 1}
-                      {imageState.existingUrl && !imageState.file && (
+                      {mediaState.type === "image" ? "Image" : "Video"}{" "}
+                      {index + 1}
+                      {mediaState.existingUrl && !mediaState.file && (
                         <span className="text-xs text-muted-foreground ml-2">
-                          (Current image)
+                          (Current {mediaState.type})
                         </span>
                       )}
                     </label>
                     <div className="flex gap-2">
                       <Input
                         type="file"
-                        accept="image/*"
+                        accept={
+                          mediaState.type === "image" ? "image/*" : "video/*"
+                        }
                         onChange={(e) => {
                           const file = e.target.files?.[0] || null;
-                          handleImageChange(index, file);
+                          handleMediaChange(index, file);
                         }}
                         className="flex-1"
                       />
-                      {imageStates.length > 1 && (
+                      {mediaStates.length > 1 && (
                         <Button
                           type="button"
                           variant="outline"
                           size="icon"
-                          onClick={() => removeImage(index)}
+                          onClick={() => removeMedia(index)}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       )}
                     </div>
-                    {imageState.file && (
+                    {mediaState.file && (
                       <p className="text-xs text-muted-foreground">
-                        {imageState.file.name} (
-                        {Math.round(imageState.file.size / 1024)} KB)
+                        {mediaState.file.name} (
+                        {Math.round(mediaState.file.size / 1024)} KB)
                       </p>
                     )}
                   </div>
