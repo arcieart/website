@@ -2,7 +2,7 @@ import { Phone, Mail, MapPin } from "lucide-react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Arcie Art | Contact Us",
+  title: "Contact Us | Arcie Art",
   description: "Reach out to us for any inquiries or collaborations",
   alternates: {
     canonical: "https://myarcieart.com/contact",
