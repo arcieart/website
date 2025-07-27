@@ -14,7 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, ShoppingCart } from "lucide-react";
 import Link from "next/link";
-import CouponBanner from "@/components/banners/CouponBanner";
+
+import OffersBanner from "@/components/banners/OffersBanner";
 import { formatPriceLocalized } from "@/utils/price";
 import CartItem from "@/components/cart/CartItem";
 import { useCartSheet } from "@/hooks/useCartSheet";
@@ -33,11 +34,11 @@ function CartSheet({ children }: CartSheetProps) {
     <Sheet open={cartOpen} onOpenChange={setCartOpen}>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="w-[90%] sm:max-w-sm">
-        <SheetHeader className="space-y-6 px-2 pb-0 pt-3">
+        <SheetHeader className="space-y-4 px-2 pb-0 pt-3">
           <div className="flex items-center justify-center">
             <SheetTitle className="text-foreground">Shopping Cart</SheetTitle>
           </div>
-          {/* <CouponBanner /> */}
+          <OffersBanner />
         </SheetHeader>
 
         <div className="flex flex-1 flex-col gap-6 overflow-y-scroll">

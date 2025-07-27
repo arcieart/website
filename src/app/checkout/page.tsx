@@ -711,7 +711,7 @@ export default function CheckoutPage() {
                         <div className="flex justify-between text-sm sm:text-sm">
                           <span className="flex flex-col items-start gap-1">
                             <span className="flex items-center gap-1">
-                              <ShoppingCart className="h-3 w-3" />
+                              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
                               Subtotal
                             </span>
                             <span className="text-xs text-muted-foreground">
@@ -725,7 +725,7 @@ export default function CheckoutPage() {
                           <div className="flex justify-between text-sm">
                             <span className="flex flex-col items-start gap-1">
                               <span className="flex items-center gap-1">
-                                <Tag className="h-3 w-3" />
+                                <Tag className="h-3 w-3 sm:h-4 sm:w-4" />
                                 Discount
                               </span>
                               <span className="text-xs text-muted-foreground">
@@ -736,7 +736,9 @@ export default function CheckoutPage() {
                               </span>
                             </span>
 
-                            <span>{formatPriceLocalized(discountAmount)}</span>
+                            <span className="text-positive">
+                              - {formatPriceLocalized(discountAmount)}
+                            </span>
                           </div>
                         )}
 

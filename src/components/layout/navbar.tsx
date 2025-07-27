@@ -121,8 +121,6 @@ export function Navbar() {
                         All Products
                       </Link>
                     </DropdownMenuItem>
-
-                    <DropdownMenuLabel>Categories</DropdownMenuLabel>
                     {BaseCategories.map((category) => (
                       <DropdownMenuItem key={category.id} asChild>
                         <Link
