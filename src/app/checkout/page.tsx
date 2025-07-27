@@ -88,7 +88,7 @@ export default function CheckoutPage() {
   const discountAmount = coupon ? calculateDiscountAmount(coupon, subtotal) : 0;
 
   let shippingCost =
-    subtotal > getFreeShippingThreshold() ? 0 : getShippingCost(); // Free shipping over ₹999
+    subtotal > getFreeShippingThreshold() ? 0 : getShippingCost(); // Free shipping above threshold
 
   if (coupon && coupon.discountType === "free_shipping") {
     shippingCost = 0;

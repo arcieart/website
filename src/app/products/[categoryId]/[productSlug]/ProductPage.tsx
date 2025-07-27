@@ -40,6 +40,7 @@ import {
   getStrikethroughPrice,
   calculateProductPrice,
 } from "@/utils/price";
+import { getFreeShippingThreshold } from "@/config/currency";
 import { toast } from "sonner";
 import { useProducts } from "@/hooks/useProducts";
 import { UIProduct } from "@/types/product";
@@ -358,7 +359,11 @@ export function ProductPage({ params }: ProductPageProps) {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>{product.name}</BreadcrumbPage>
+              <BreadcrumbPage>
+                {product.name.length > 20
+                  ? `${product.name.substring(0, 30)}...`
+                  : product.name}
+              </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -402,12 +407,13 @@ export function ProductPage({ params }: ProductPageProps) {
                 <span className="text-sm text-muted-foreground line-through">
                   {formatPrice(getStrikethroughPrice(product.price))}
                 </span>
-                <div className="flex items-baseline gap-2">
+                <div className="flex items-baseline flex-col gap-2">
                   <span className="text-2xl font-bold text-foreground">
                     {formatPrice(product.price)}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    (excl. shipping)
+                    Free shipping for orders above{" "}
+                    {formatPrice(getFreeShippingThreshold())}
                   </span>
                 </div>
               </div>
