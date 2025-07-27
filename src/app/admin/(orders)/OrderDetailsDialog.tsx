@@ -28,7 +28,7 @@ import {
   Phone,
   Mail,
   Calendar,
-  Receipt,
+  Banknote,
 } from "lucide-react";
 import { Order } from "@/types/order";
 import { formatPrice } from "@/utils/price";
@@ -38,7 +38,8 @@ import { Collections } from "@/constants/Collections";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CustomizationBadge } from "@/components/products/CustomizationBadge";
-import { getDate } from "@/utils/date";
+import { getDate, getTimestamp } from "@/utils/date";
+import { getPaymentStatusConfig } from "@/config/payment";
 
 interface OrderDetailsDialogProps {
   order: Order | null;
@@ -53,7 +54,8 @@ export function OrderDetailsDialog({
   onOpenChange,
   onOrderUpdated,
 }: OrderDetailsDialogProps) {
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isUpdatingOrderStatus, setIsUpdatingOrderStatus] = useState(false);
+  const [isUpdatingPayment, setIsUpdatingPayment] = useState(false);
 
   const formatDate = (timestamp: number) => {
     return getDate(timestamp).toLocaleDateString("en-IN", {
@@ -69,7 +71,7 @@ export function OrderDetailsDialog({
     if (!order) return;
 
     try {
-      setIsUpdating(true);
+      setIsUpdatingOrderStatus(true);
       const orderRef = doc(db, Collections.Orders, order.id);
 
       const updateData: Partial<Order> = {
@@ -78,7 +80,7 @@ export function OrderDetailsDialog({
 
       // Add confirmation timestamp if status is confirmed
       if (newStatus === "confirmed") {
-        updateData.confirmedAt = Date.now();
+        updateData.confirmedAt = getTimestamp();
       }
 
       await updateDoc(orderRef, updateData);
@@ -87,7 +89,36 @@ export function OrderDetailsDialog({
       console.error("Error updating order status:", error);
       alert("Failed to update order status. Please try again.");
     } finally {
-      setIsUpdating(false);
+      setIsUpdatingOrderStatus(false);
+    }
+  };
+
+  const handlePaymentStatusUpdate = async (
+    newPaymentStatus: Order["payment"]["status"]
+  ) => {
+    if (!order) return;
+
+    try {
+      setIsUpdatingPayment(true);
+      const orderRef = doc(db, Collections.Orders, order.id);
+
+      const updateData: Partial<Order> = {
+        payment: {
+          ...order.payment,
+          status: newPaymentStatus,
+          ...(newPaymentStatus === "completed"
+            ? { paidAt: getTimestamp() }
+            : {}),
+        },
+      };
+
+      await updateDoc(orderRef, updateData);
+      onOrderUpdated?.();
+    } catch (error) {
+      console.error("Error updating payment status:", error);
+      alert("Failed to update payment status. Please try again.");
+    } finally {
+      setIsUpdatingPayment(false);
     }
   };
 
@@ -222,7 +253,8 @@ export function OrderDetailsDialog({
 
                       {product.description && (
                         <p className="text-muted-foreground text-sm leading-relaxed">
-                          {product.description}
+                          {product.description.slice(0, 50)}
+                          {product.description.length > 50 && "..."}
                         </p>
                       )}
 
@@ -334,26 +366,35 @@ export function OrderDetailsDialog({
                   </div>
                 </div>
 
-                <div className=" p-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="p-3 flex flex-col gap-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                   <div className="flex items-center gap-3">
-                    <CreditCard className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    {order.payment.method === "cod" ? (
+                      <Banknote className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    ) : (
+                      <CreditCard className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    )}
                     <span className="font-medium text-foreground text-sm">
                       Payment Method:
                     </span>
                     <span className="capitalize text-foreground text-sm">
                       {order.payment.method}
                     </span>
+                    <Badge
+                      className={
+                        getPaymentStatusConfig(order.payment.status).color
+                      }
+                      variant="secondary"
+                    >
+                      {getPaymentStatusConfig(order.payment.status).label}
+                    </Badge>
                   </div>
-                  <Badge
-                    variant={
-                      order.payment.status === "completed"
-                        ? "default"
-                        : "secondary"
-                    }
-                    className="px-3 py-1 w-fit"
-                  >
-                    {order.payment.status}
-                  </Badge>
+
+                  {order.payment.paidAt && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="w-3 h-3" />
+                      <span>Paid: {formatDate(order.payment.paidAt)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -375,7 +416,7 @@ export function OrderDetailsDialog({
                   onValueChange={(value) =>
                     handleStatusUpdate(value as Order["status"])
                   }
-                  disabled={isUpdating}
+                  disabled={isUpdatingOrderStatus}
                 >
                   <SelectTrigger className="w-full h-12">
                     <SelectValue />
@@ -392,7 +433,7 @@ export function OrderDetailsDialog({
                   </SelectContent>
                 </Select>
 
-                {isUpdating && (
+                {isUpdatingOrderStatus && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     Updating order status...
@@ -401,6 +442,67 @@ export function OrderDetailsDialog({
               </div>
             </CardContent>
           </Card>
+
+          {/* Payment Status Update for COD orders */}
+          {order.payment.method === "cod" && (
+            <Card className="border shadow-sm bg-card gap-0">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-3 text-lg">
+                  <div className="p-2 rounded-full bg-orange-100 dark:bg-orange-900/50">
+                    <Banknote className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  Payment Status Management
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="text-sm text-muted-foreground">
+                    Update the payment status for this cash on delivery order.
+                  </div>
+                  <Select
+                    value={order.payment.status}
+                    onValueChange={(value) =>
+                      handlePaymentStatusUpdate(
+                        value as Order["payment"]["status"]
+                      )
+                    }
+                    disabled={isUpdatingPayment}
+                  >
+                    <SelectTrigger className="w-full h-12">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">
+                        <div className="flex items-center gap-3 py-1">
+                          <div className="w-2 h-2 bg-yellow-500 rounded-full" />
+                          <span className="font-medium">Pending</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="completed">
+                        <div className="flex items-center gap-3 py-1">
+                          <div className="w-2 h-2 bg-green-500 rounded-full" />
+                          <span className="font-medium">Completed</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="failed">
+                        <div className="flex items-center gap-3 py-1">
+                          <div className="w-2 h-2 bg-red-500 rounded-full" />
+                          <span className="font-medium">Failed</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {isUpdatingPayment && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Updating payment status...
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </DialogContent>
     </Dialog>

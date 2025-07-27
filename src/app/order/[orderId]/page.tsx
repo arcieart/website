@@ -23,7 +23,7 @@ import { CustomizationBadge } from "@/components/products/CustomizationBadge";
 import { formatOrderStatus } from "@/data/orderStatuses";
 
 export const metadata: Metadata = {
-  title: "Arcie Art | Order Details",
+  title: "Order Details | Arcie Art",
   description: "View your order details and track your order status",
 };
 
@@ -213,7 +213,9 @@ export default async function OrderPage({
           <div className="space-y-2">
             <div className="flex justify-between">
               <span>Payment Platform</span>
-              <span className="capitalize">{order.payment.method}</span>
+              <span className="">
+                {order.payment.method === "cod" ? "Cash" : "Razorpay"}
+              </span>
             </div>
             <div className="flex justify-between">
               <span>Payment Status</span>

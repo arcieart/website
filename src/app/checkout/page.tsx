@@ -55,6 +55,8 @@ interface FormErrors {
   [key: string]: string;
 }
 
+const BRO_DISCOUNT_CODE = process.env.NEXT_PUBLIC_BRO_DISCOUNT_CODE;
+
 export default function CheckoutPage() {
   const { items, totalItems, totalPrice, clearCart } = useCartStore();
   const {
@@ -91,6 +93,10 @@ export default function CheckoutPage() {
     subtotal > getFreeShippingThreshold() ? 0 : getShippingCost(); // Free shipping above threshold
 
   if (coupon && coupon.discountType === "free_shipping") {
+    shippingCost = 0;
+  }
+
+  if (coupon && coupon.code === BRO_DISCOUNT_CODE) {
     shippingCost = 0;
   }
 
@@ -276,7 +282,7 @@ export default function CheckoutPage() {
           couponCode: coupon?.code || undefined,
         },
         payment: {
-          method: "razorpay",
+          method: coupon?.code === BRO_DISCOUNT_CODE ? "cod" : "razorpay",
           status: "pending",
         },
         status: "initiated",
@@ -289,7 +295,6 @@ export default function CheckoutPage() {
         email: order.customerInfo.email,
       });
 
-      // console.log("Creating order", order);
       const createdOrder = await createOrder(order);
 
       // console.log("Created order:", createdOrder);

@@ -86,9 +86,7 @@ export const createOrder = async (order: Omit<Order, "id">) => {
         paymentStatus: "created",
       };
     } else if (order.payment.method === "cod") {
-      newOrder.payment.status = "completed";
       newOrder.status = "confirmed";
-      newOrder.payment.paidAt = getTimestamp();
       newOrder.confirmedAt = getTimestamp();
       sendOrderMessage(getDiscordOrderMessage({ ...newOrder, id: dbId }));
     }

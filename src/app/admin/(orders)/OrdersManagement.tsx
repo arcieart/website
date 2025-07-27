@@ -30,18 +30,25 @@ import {
 } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, RefreshCw, AlertCircle, Eye, CreditCard } from "lucide-react";
+import {
+  Loader2,
+  RefreshCw,
+  AlertCircle,
+  Eye,
+  CreditCard,
+  Banknote,
+  Copy,
+} from "lucide-react";
 import { formatPrice } from "@/utils/price";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { Collections } from "@/constants/Collections";
-import { getDate } from "@/utils/date";
+import { getDate, getTimestamp } from "@/utils/date";
+import { getPaymentStatusConfig } from "@/config/payment";
+import { toast } from "sonner";
 
 export const OrdersManagement = () => {
   const [statusFilter, setStatusFilter] = useState<Order["status"] | "all">(
     "all"
   );
-  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const pageSize = 20;
 
@@ -66,33 +73,6 @@ export const OrdersManagement = () => {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
-
-  const handleStatusUpdate = async (
-    orderId: string,
-    newStatus: Order["status"]
-  ) => {
-    try {
-      setUpdatingOrderId(orderId);
-      const orderRef = doc(db, Collections.Orders, orderId);
-
-      const updateData: Partial<Order> = {
-        status: newStatus,
-      };
-
-      // Add confirmation timestamp if status is confirmed
-      if (newStatus === "confirmed") {
-        updateData.confirmedAt = Date.now();
-      }
-
-      await updateDoc(orderRef, updateData);
-      refetch();
-    } catch (error) {
-      console.error("Error updating order status:", error);
-      alert("Failed to update order status. Please try again.");
-    } finally {
-      setUpdatingOrderId(null);
-    }
   };
 
   const getTotalProducts = (products: Order["products"]) => {
@@ -209,7 +189,17 @@ export const OrdersManagement = () => {
                 return (
                   <TableRow key={order.id}>
                     <TableCell className="font-mono text-sm">
-                      {order.id.slice(-8)}
+                      {order.id.slice(0, 8)}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          navigator.clipboard.writeText(order.id);
+                          toast.success("Order ID copied to clipboard");
+                        }}
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
                     </TableCell>
                     <TableCell className="text-sm">
                       {formatDate(order.createdAt)}
@@ -230,12 +220,24 @@ export const OrdersManagement = () => {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-col">
+                      <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2">
-                          <CreditCard className="w-4 h-4" />
+                          {order.payment.method === "cod" ? (
+                            <Banknote className="w-4 h-4" />
+                          ) : (
+                            <CreditCard className="w-4 h-4" />
+                          )}
                           <span className="capitalize font-medium">
                             {order.payment.method}
                           </span>
+                          <Badge
+                            className={`${
+                              getPaymentStatusConfig(order.payment.status).color
+                            } text-xs`}
+                            variant="secondary"
+                          >
+                            {order.payment.status}
+                          </Badge>
                         </div>
                         <span className="text-sm text-muted-foreground">
                           {formatPrice(order.pricing.total)}
@@ -254,39 +256,10 @@ export const OrdersManagement = () => {
                       <div className="flex items-center gap-2">
                         <Button
                           variant="outline"
-                          size="sm"
                           onClick={() => setSelectedOrder(order)}
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
-
-                        <Select
-                          value={order.status}
-                          onValueChange={(value) =>
-                            handleStatusUpdate(
-                              order.id,
-                              value as Order["status"]
-                            )
-                          }
-                          disabled={updatingOrderId === order.id}
-                        >
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {orderStatuses.map((status) => (
-                              <SelectItem
-                                key={status.value}
-                                value={status.value}
-                              >
-                                <div className="flex items-center gap-2">
-                                  {status.icon}
-                                  {status.label}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -348,11 +321,15 @@ export const OrdersManagement = () => {
       {/* Order Details Dialog */}
       <OrderDetailsDialog
         order={selectedOrder}
+        onOrderUpdated={() => {
+          refetch();
+          setSelectedOrder(null);
+          toast.success("Order updated successfully");
+        }}
         isOpen={!!selectedOrder}
         onOpenChange={(open) => {
           if (!open) setSelectedOrder(null);
         }}
-        onOrderUpdated={refetch}
       />
     </>
   );
