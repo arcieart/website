@@ -28,7 +28,7 @@ function CategoryDropdown({ isMobile = false }: { isMobile?: boolean }) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className={`${textSize} text-foreground`}>
-          {isMobile ? <Menu className="w-5 h-5" /> : "All Products"}
+          {isMobile ? <Menu className="w-5 h-5" /> : "Products"}
           {!isMobile && <ChevronDown className="w-3 h-3 ml-1" />}
           {isMobile && <span className="sr-only">Open menu</span>}
         </Button>
