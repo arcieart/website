@@ -412,8 +412,10 @@ export function ProductPage({ params }: ProductPageProps) {
                     {formatPrice(product.price)}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    Free shipping for orders above{" "}
-                    {formatPrice(getFreeShippingThreshold())}
+                    Free shipping on orders above{" "}
+                    {formatPrice(getFreeShippingThreshold(), {
+                      decimalPlaces: 0,
+                    })}
                   </span>
                 </div>
               </div>

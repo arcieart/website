@@ -72,9 +72,7 @@ export const offerThemes = {
 const copyToClipboard = async (text: string) => {
   try {
     await navigator.clipboard.writeText(text);
-    toast.success(`Coupon code "${text}" copied to clipboard!`, {
-      description: "You can now paste it at checkout",
-    });
+    toast.success(`"${text}" copied to clipboard!`);
   } catch (err) {
     console.error("Failed to copy text: ", err);
     toast.error("Failed to copy coupon code", {
@@ -131,8 +129,7 @@ export const offers: Offer[] = [
       <div className="space-y-1">
         <div className="flex justify-center items-center">
           <span className="text-center">
-            Use <InlineCouponCode code="FIVEOFF" /> to get a flat 5% off
-            sitewide
+            Use <InlineCouponCode code="ARCIE5" /> to get a flat 5% off sitewide
           </span>
         </div>
         <div className="flex justify-center items-center text-muted-foreground">
