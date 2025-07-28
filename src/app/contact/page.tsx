@@ -1,5 +1,7 @@
-import { Phone, Mail, MapPin } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Phone, Mail } from "lucide-react";
 import { Metadata } from "next";
+import { ContactForm } from "./ContactUsForm";
 
 export const metadata: Metadata = {
   title: "Contact Us | Arcie Art",
@@ -12,85 +14,80 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="container mx-auto px-4 py-16 max-w-4xl">
+      <div className="container mx-auto px-4 py-16 lg:max-w-6xl md:max-w-3xl">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 text-foreground">
-            Contact Us
-          </h1>
-          <p className="text-md text-muted-foreground max-w-2xl mx-auto">
-            Reach out to us for any inquiries or collaborations
-          </p>
-        </div>
-
-        {/* Contact Information */}
-        <div className="grid md:grid-cols-2 gap-12 mb-16">
-          {/* Contact Details */}
-          <div className="space-y-8">
-            <h2 className="text-2xl font-semibold mb-6">Get in Touch</h2>
-
-            {/* Phone */}
-            <div className="flex items-start space-x-4">
-              <div className="bg-primary/10 p-3 rounded-lg">
-                <Phone className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-md text-muted-foreground">
-                  Phone
-                </h3>
-                <a
-                  href="tel:+919769910657"
-                  className="hover:underline font-medium"
-                >
-                  +91 97699 10657
-                </a>
-              </div>
-            </div>
-
-            {/* Email */}
-            <div className="flex items-start space-x-4">
-              <div className="bg-primary/10 p-3 rounded-lg">
-                <Mail className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-md text-muted-foreground">
-                  Email
-                </h3>
-                <a
-                  href="mailto:myarcieart@gmail.com"
-                  className="hover:underline font-medium"
-                >
-                  myarcieart@gmail.com
-                </a>
-              </div>
-            </div>
-
-            {/* Address */}
-            <div className="flex items-start space-x-4">
-              <div className="bg-primary/10 p-3 rounded-lg">
-                <MapPin className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-md text-muted-foreground">
-                  Address
-                </h3>
-                <p className="font-medium text-foreground">Mumbai</p>
+        {/* <div className="mb-18"> */}
+        <h1 className="text-4xl text-center font-bold mb-12 text-foreground">
+          Contact Us
+        </h1>
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
+          <div className="basis-[48%]">
+            <p className="md:text-lg text-base font-semibold text-muted-foreground md:text-center lg:text-left my-2">
+              Have a question or idea?
+              <br />
+              We&apos;d love to hear from you.
+            </p>
+            <p className="md:text-base text-sm text-muted-foreground md:text-center lg:text-left mb-2 ">
+              Whether you&apos;re curious about our 3D printed products,
+              interested in customizing something special, or need help with an
+              order, we&apos;re here to help. We&apos;ll do our best to respond
+              within 24 hours during business hours.
+            </p>
+            {/* Contact Information */}
+            <div className="mt-6 lg:block hidden">
+              <div className="space-y-8 text-left">
+                <ContactInfo />
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Business Hours */}
-        <div className="text-center bg-muted/30 p-8 rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">Business Hours</h2>
-          <div className="grid sm:grid-cols-2 gap-4 max-w-md mx-auto">
-            <div>
-              <p className="font-medium">Monday - Friday</p>
-              <p className="text-muted-foreground">10:00 AM - 6:00 PM</p>
-            </div>
+          <div className="basis-[60%]">
+            <Card>
+              <CardContent className="space-y-3 sm:space-y-4">
+                <ContactForm />
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
+      {/* Contact Information */}
+      <div className="lg:hidden block">
+        <div className="grid grid-cols-1 md:grid-cols-2 space-y-8 text-left">
+          <ContactInfo />
+        </div>
+      </div>
     </div>
+  );
+}
+
+function ContactInfo() {
+  return (
+    <>
+      <div className="flex items-start space-x-4">
+        <div className="bg-primary/10 p-3 rounded-lg">
+          <Phone className="h-6 w-6 text-primary" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-md text-muted-foreground">Phone</h3>
+          <a href="tel:+919769910657" className="hover:underline font-medium">
+            +91 97699 10657
+          </a>
+        </div>
+      </div>
+
+      <div className="flex items-start space-x-4">
+        <div className="bg-primary/10 p-3 rounded-lg">
+          <Mail className="h-6 w-6 text-primary" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-md text-muted-foreground">Email</h3>
+          <a
+            href="mailto:myarcieart@gmail.com"
+            className="hover:underline font-medium"
+          >
+            myarcieart@gmail.com
+          </a>
+        </div>
+      </div>
+    </>
   );
 }

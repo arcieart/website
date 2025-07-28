@@ -3,6 +3,7 @@ import { MessageCreateOptions } from "discord.js";
 import { getDate } from "./date";
 import { getAddressString } from "./address";
 import { getWhatsappOrderConfirmationLink } from "./whatsappMessageLinks";
+import { ContactUsFormData } from "./inputValidation";
 
 // Utility function to generate product URL
 const getProductUrl = (categoryId: string, productSlug: string) => {
@@ -57,3 +58,20 @@ export const getDiscordOrderMessage = (order: Order) => {
     } as MessageCreateOptions;
   };
   
+  export const getDiscordContactUsMessage = (formData: ContactUsFormData) => {
+    return {
+      content: `${formData.name} has sent a query!`,
+      embeds: [
+        {
+          title: "Query Details",
+          color: 0x0099ff,
+          fields: [
+            { name: "Name", value: formData.name },
+            { name: "Email", value: formData.email },
+            { name: "Phone", value: formData.phone },
+            { name: "Message", value: formData.message },
+          ],
+        },
+      ],
+    } as MessageCreateOptions;
+  };
