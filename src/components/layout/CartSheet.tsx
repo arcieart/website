@@ -43,15 +43,14 @@ function CartSheet({ children }: CartSheetProps) {
 
         <div className="flex flex-1 flex-col gap-6 overflow-y-scroll">
           {items.length === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center gap-6 py-12">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
-                <ShoppingCart className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <div className="text-center space-y-2">
-                <h3 className="font-semibold text-foreground">
-                  Your cart is empty 🥺
-                </h3>
-              </div>
+            <div className="text-center text-muted h-full flex items-center justify-center">
+              <p className="text-3xl font-semibold sm:text-5xl flex flex-col gap-3">
+                {"Add Some Joy To Your Journey".split(" ").map((char, i) => (
+                  <span key={i} className="italic">
+                    {char}
+                  </span>
+                ))}
+              </p>
             </div>
           ) : (
             <>
@@ -74,7 +73,7 @@ function CartSheet({ children }: CartSheetProps) {
           <Separator />
 
           <div className="space-y-4 px-2">
-            <div className="rounded-lg bg-muted/30 px-2">
+            <div className="rounded-lg px-2">
               <div className="flex items-center justify-between">
                 <span className="text-base font-medium text-foreground">
                   Subtotal
