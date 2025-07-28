@@ -343,6 +343,8 @@ export default function CheckoutPage() {
     router.push(`/order/${orderId}`);
   }
 
+  const isCashOrder = !!(coupon && coupon.code === BRO_DISCOUNT_CODE);
+
   return (
     <>
       <RazorpayPaymentGateway
@@ -634,7 +636,7 @@ export default function CheckoutPage() {
                         <>
                           <CreditCard className="h-3 w-3 sm:h-4 sm:w-4" />
                           <span className="text-sm sm:text-base">
-                            Place Order
+                            Place Order {isCashOrder ? " in Cash" : ""}
                             {totalItems > 0 &&
                               ` • ${formatPriceLocalized(finalTotal)}`}
                           </span>
