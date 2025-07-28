@@ -49,11 +49,8 @@ function CartSheet({ children }: CartSheetProps) {
               </div>
               <div className="text-center space-y-2">
                 <h3 className="font-semibold text-foreground">
-                  Your cart is empty
+                  Your cart is empty 🥺
                 </h3>
-                <p className="text-sm text-muted-foreground">
-                  Add some items to get started
-                </p>
               </div>
             </div>
           ) : (
