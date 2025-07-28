@@ -55,6 +55,8 @@ interface FormErrors {
   [key: string]: string;
 }
 
+const BRO_DISCOUNT_CODE = process.env.NEXT_PUBLIC_BRO_DISCOUNT_CODE;
+
 export default function CheckoutPage() {
   const { items, totalItems, totalPrice, clearCart } = useCartStore();
   const {
@@ -88,9 +90,13 @@ export default function CheckoutPage() {
   const discountAmount = coupon ? calculateDiscountAmount(coupon, subtotal) : 0;
 
   let shippingCost =
-    subtotal > getFreeShippingThreshold() ? 0 : getShippingCost(); // Free shipping over ₹999
+    subtotal > getFreeShippingThreshold() ? 0 : getShippingCost(); // Free shipping above threshold
 
   if (coupon && coupon.discountType === "free_shipping") {
+    shippingCost = 0;
+  }
+
+  if (coupon && coupon.code === BRO_DISCOUNT_CODE) {
     shippingCost = 0;
   }
 
@@ -276,7 +282,7 @@ export default function CheckoutPage() {
           couponCode: coupon?.code || undefined,
         },
         payment: {
-          method: "razorpay",
+          method: coupon?.code === BRO_DISCOUNT_CODE ? "cod" : "razorpay",
           status: "pending",
         },
         status: "initiated",
@@ -289,7 +295,6 @@ export default function CheckoutPage() {
         email: order.customerInfo.email,
       });
 
-      // console.log("Creating order", order);
       const createdOrder = await createOrder(order);
 
       // console.log("Created order:", createdOrder);
@@ -711,7 +716,7 @@ export default function CheckoutPage() {
                         <div className="flex justify-between text-sm sm:text-sm">
                           <span className="flex flex-col items-start gap-1">
                             <span className="flex items-center gap-1">
-                              <ShoppingCart className="h-3 w-3" />
+                              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
                               Subtotal
                             </span>
                             <span className="text-xs text-muted-foreground">
@@ -725,7 +730,7 @@ export default function CheckoutPage() {
                           <div className="flex justify-between text-sm">
                             <span className="flex flex-col items-start gap-1">
                               <span className="flex items-center gap-1">
-                                <Tag className="h-3 w-3" />
+                                <Tag className="h-3 w-3 sm:h-4 sm:w-4" />
                                 Discount
                               </span>
                               <span className="text-xs text-muted-foreground">
@@ -736,7 +741,9 @@ export default function CheckoutPage() {
                               </span>
                             </span>
 
-                            <span>{formatPriceLocalized(discountAmount)}</span>
+                            <span className="text-positive">
+                              - {formatPriceLocalized(discountAmount)}
+                            </span>
                           </div>
                         )}
 

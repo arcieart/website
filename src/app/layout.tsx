@@ -21,7 +21,7 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
-const title = "Arcie Art - Personalized Products | 3D Printing Services";
+const title = "Arcie Art - Decorative Products | 3D Printing Services";
 const description =
   "Your one stop shop for desk decor, personalized items, and more. Create your own unique products with your own designs.";
 
