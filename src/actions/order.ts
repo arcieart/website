@@ -10,8 +10,8 @@ import { getTimestamp } from "@/utils/date";
 import { getProductById } from "@/lib/products";
 import { BaseCategoriesObj } from "@/data/categories";
 import { calculateProductPrice } from "@/utils/price";
-import { getFreeShippingThreshold, getShippingCost } from "@/config/currency";
 import { validateCouponAndGetSavings } from "./coupon";
+import { calculateShippingCost } from "@/utils/shipping";
 
 export const getOrder = async (id: string) => {
   const order = await db.collection(Collections.Orders).doc(id).get();
@@ -45,17 +45,16 @@ const recalculateOrderPricing = async (order: Omit<Order, "id">) => {
     subtotal += productPrice;
   }
 
-  let shipping = subtotal > getFreeShippingThreshold() ? 0 : getShippingCost();
+  let shipping = calculateShippingCost(subtotal, null);
   let discountAmount = 0;
+
   if (order.pricing.couponCode) {
     const couponData = await validateCouponAndGetSavings(
       order.pricing.couponCode,
       subtotal
     );
     if (couponData.isValid && couponData.coupon) {
-      if (couponData.coupon.discountType === "free_shipping") {
-        shipping = 0;
-      }
+      shipping = calculateShippingCost(subtotal, couponData.coupon);
       discountAmount = couponData.discountAmount;
     }
   }

@@ -5,7 +5,6 @@ export const calculateDiscountAmount = (coupon: Coupon, subtotal: number) => {
 
   switch (coupon.discountType) {
     case "fixed":
-      
       discountAmount = Math.max(coupon.discountValue, 0);
       break;
 
@@ -26,3 +25,6 @@ export const calculateDiscountAmount = (coupon: Coupon, subtotal: number) => {
 
   return discountAmount;
 };
+
+
+export const BRO_DISCOUNT_CODE = process.env.NEXT_PUBLIC_BRO_DISCOUNT_CODE;

@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { useCartStore } from "@/stores/cart";
 import { formatPriceLocalized } from "@/utils/price";
-import { getFreeShippingThreshold, getShippingCost } from "@/config/currency";
+import { getShippingCost } from "@/config/currency";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,6 @@ import {
   MapPin,
   User,
   Tag,
-  X,
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
@@ -35,9 +34,10 @@ import {
 } from "@/components/RzpGateway";
 import OrderConfirmationDialog from "@/components/OrderConfirmationDialog";
 import { useDiscountCoupon } from "@/hooks/useDiscountCoupon";
-import { calculateDiscountAmount } from "@/utils/coupon";
+import { BRO_DISCOUNT_CODE, calculateDiscountAmount } from "@/utils/coupon";
 import { CouponForm } from "./CouponForm";
 import { RequiredStar } from "@/components/misc/RequiredStar";
+import { calculateShippingCost } from "@/utils/shipping";
 
 // Form validation
 interface CheckoutFormData {
@@ -54,8 +54,6 @@ interface CheckoutFormData {
 interface FormErrors {
   [key: string]: string;
 }
-
-const BRO_DISCOUNT_CODE = process.env.NEXT_PUBLIC_BRO_DISCOUNT_CODE;
 
 export default function CheckoutPage() {
   const { items, totalItems, totalPrice, clearCart } = useCartStore();
@@ -88,17 +86,7 @@ export default function CheckoutPage() {
 
   const subtotal = totalPrice;
   const discountAmount = coupon ? calculateDiscountAmount(coupon, subtotal) : 0;
-
-  let shippingCost =
-    subtotal > getFreeShippingThreshold() ? 0 : getShippingCost(); // Free shipping above threshold
-
-  if (coupon && coupon.discountType === "free_shipping") {
-    shippingCost = 0;
-  }
-
-  if (coupon && coupon.code === BRO_DISCOUNT_CODE) {
-    shippingCost = 0;
-  }
+  const shippingCost = calculateShippingCost(subtotal, coupon);
 
   const finalTotal = subtotal + shippingCost - discountAmount;
 

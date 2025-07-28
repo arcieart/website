@@ -21,6 +21,7 @@ import { MessageCircleIcon } from "lucide-react";
 import { Metadata } from "next";
 import { CustomizationBadge } from "@/components/products/CustomizationBadge";
 import { formatOrderStatus } from "@/data/orderStatuses";
+import { getShippingCost } from "@/config/currency";
 
 export const metadata: Metadata = {
   title: "Order Details | Arcie Art",
@@ -176,12 +177,7 @@ export default async function OrderPage({
                 <span>{formatPrice(order.pricing.tax)}</span>
               </div>
             )}
-            {order.pricing.shipping > 0 && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Shipping</span>
-                <span>{formatPrice(order.pricing.shipping)}</span>
-              </div>
-            )}
+
             {!!order.pricing.discount && order.pricing.discount > 0 && (
               <div className="flex justify-between items-center text-green-600 dark:text-green-400">
                 <span className="flex items-center gap-2">
@@ -197,6 +193,22 @@ export default async function OrderPage({
                 </span>
               </div>
             )}
+
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Shipping</span>
+              {order.pricing.shipping > 0 ? (
+                <span>{formatPrice(order.pricing.shipping)}</span>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="line-through">
+                    {formatPrice(getShippingCost())}
+                  </span>
+                  <span className="text-green-600 dark:text-green-400 font-medium uppercase">
+                    Free
+                  </span>
+                </div>
+              )}
+            </div>
 
             <Separator className="my-5" />
 
