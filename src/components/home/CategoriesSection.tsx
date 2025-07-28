@@ -33,7 +33,7 @@ export default function CategoriesSection() {
           {BaseCategories.map((category) => (
             <Card
               key={category.id}
-              className="group hover:shadow-lg transition-all duration-300 cursor-pointer"
+              className="group hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col justify-between"
             >
               <CardHeader>
                 <div className="flex items-center justify-between mb-4">
@@ -46,6 +46,7 @@ export default function CategoriesSection() {
                   {category.baseDescription}
                 </CardDescription>
               </CardHeader>
+
               <CardContent>
                 <Link href={`/products/${category.id}`}>
                   <Button variant="outline" className="w-full">
