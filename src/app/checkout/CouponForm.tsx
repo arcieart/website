@@ -59,7 +59,7 @@ export const CouponForm = ({
         <form onSubmit={handleCouponApplyForm}>
           <div className="flex flex-col items-start gap-2">
             <Label htmlFor="couponCode" className="text-sm gap-1">
-              Have a discount code? <RequiredStar />
+              Have a discount code?
             </Label>
             <div className="flex items-center gap-2 w-full">
               <Input

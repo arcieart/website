@@ -220,6 +220,13 @@ export default function CheckoutPage() {
     const couponCode = (e.target as HTMLFormElement).couponCode.value;
     const normalCouponCode = couponCode.trim().toUpperCase();
 
+    if (normalCouponCode === "") {
+      toast.error(
+        "Oops! That coupon code seems a bit shy of characters. Mind sharing a real one?"
+      );
+      return;
+    }
+
     const { success, error } = await handleCouponApply(
       normalCouponCode,
       subtotal
@@ -399,7 +406,126 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <div className="flex flex-col-reverse lg:flex-row gap-4 sm:gap-6 lg:gap-8">
+          <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
+            {/* Order Summary */}
+            <div className="flex-1">
+              <Card>
+                <CardHeader className="">
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="flex items-center justify-between gap-2 w-full">
+                      <span>Order Summary</span>
+                      <span className="text-xs text-muted-foreground">
+                        {totalItems} {totalItems === 1 ? "item" : "items"}
+                      </span>
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 sm:space-y-4">
+                  {items.length === 0 ? (
+                    /* Empty Cart State */
+                    <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
+                      <ShoppingCart className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mb-4" />
+                      <h3 className="text-lg sm:text-xl font-semibold text-muted-foreground mb-2">
+                        Your cart is empty 🥺
+                      </h3>
+                      <p className="text-sm sm:text-base text-muted-foreground mb-4">
+                        Add some items to your cart to proceed with checkout
+                      </p>
+                      <Link href="/products">
+                        <Button variant="outline" size="sm" className="group">
+                          Continue Shopping
+                          <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Cart Items */}
+                      <div className="space-y-2 sm:space-y-3">
+                        {items.map((item) => (
+                          <OrderCardItem key={item.id} item={item} />
+                        ))}
+                      </div>
+
+                      <Separator className="my-5" />
+
+                      <CouponForm
+                        coupon={coupon}
+                        handleCouponRemove={handleCouponRemove}
+                        handleCouponApplyForm={handleCouponApplyForm}
+                        couponIsLoading={couponIsLoading}
+                        discountAmount={discountAmount}
+                      />
+
+                      <Separator className="my-5" />
+
+                      {/* Pricing Breakdown */}
+                      <div className="space-y-3">
+                        <div className="flex justify-between text-sm sm:text-sm">
+                          <span className="flex flex-col items-start gap-1">
+                            <span className="flex items-center gap-1">
+                              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
+                              Subtotal
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {totalItems} {totalItems === 1 ? "item" : "items"}
+                            </span>
+                          </span>
+                          <span>{formatPriceLocalized(subtotal)}</span>
+                        </div>
+
+                        {coupon && discountAmount > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span className="flex flex-col items-start gap-1">
+                              <span className="flex items-center gap-1">
+                                <Tag className="h-3 w-3 sm:h-4 sm:w-4" />
+                                Discount
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                Applied{" "}
+                                <span className="font-semibold text-primary">
+                                  {coupon.code}
+                                </span>
+                              </span>
+                            </span>
+
+                            <span className="text-positive">
+                              - {formatPriceLocalized(discountAmount)}
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="flex justify-between text-sm sm:text-sm items-center">
+                          <div className="flex items-center gap-1">
+                            <Truck className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span>Shipping</span>
+                          </div>
+                          {shippingCost > 0 ? (
+                            <span>{formatPriceLocalized(shippingCost)}</span>
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              <span className="line-through">
+                                {formatPriceLocalized(getShippingCost())}
+                              </span>
+                              <span className="text-positive">FREE</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <Separator className="my-5" />
+
+                        <div className="flex justify-between font-semibold text-lg sm:text-lg">
+                          <span>Total</span>
+                          <span>{formatPriceLocalized(finalTotal)}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
             {/* Order Form */}
             <div className="flex-1">
               <Card>
@@ -644,125 +770,6 @@ export default function CheckoutPage() {
                       )}
                     </Button>
                   </form>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Order Summary */}
-            <div className="flex-1">
-              <Card>
-                <CardHeader className="">
-                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                    <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
-                    <span className="flex items-center justify-between gap-2 w-full">
-                      <span>Order Summary</span>
-                      <span className="text-xs text-muted-foreground">
-                        {totalItems} {totalItems === 1 ? "item" : "items"}
-                      </span>
-                    </span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 sm:space-y-4">
-                  {items.length === 0 ? (
-                    /* Empty Cart State */
-                    <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
-                      <ShoppingCart className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mb-4" />
-                      <h3 className="text-lg sm:text-xl font-semibold text-muted-foreground mb-2">
-                        Your cart is empty 🥺
-                      </h3>
-                      <p className="text-sm sm:text-base text-muted-foreground mb-4">
-                        Add some items to your cart to proceed with checkout
-                      </p>
-                      <Link href="/products">
-                        <Button variant="outline" size="sm" className="group">
-                          Continue Shopping
-                          <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
-                        </Button>
-                      </Link>
-                    </div>
-                  ) : (
-                    <>
-                      {/* Cart Items */}
-                      <div className="space-y-2 sm:space-y-3">
-                        {items.map((item) => (
-                          <OrderCardItem key={item.id} item={item} />
-                        ))}
-                      </div>
-
-                      <Separator className="my-5" />
-
-                      <CouponForm
-                        coupon={coupon}
-                        handleCouponRemove={handleCouponRemove}
-                        handleCouponApplyForm={handleCouponApplyForm}
-                        couponIsLoading={couponIsLoading}
-                        discountAmount={discountAmount}
-                      />
-
-                      <Separator className="my-5" />
-
-                      {/* Pricing Breakdown */}
-                      <div className="space-y-3">
-                        <div className="flex justify-between text-sm sm:text-sm">
-                          <span className="flex flex-col items-start gap-1">
-                            <span className="flex items-center gap-1">
-                              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
-                              Subtotal
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {totalItems} {totalItems === 1 ? "item" : "items"}
-                            </span>
-                          </span>
-                          <span>{formatPriceLocalized(subtotal)}</span>
-                        </div>
-
-                        {coupon && discountAmount > 0 && (
-                          <div className="flex justify-between text-sm">
-                            <span className="flex flex-col items-start gap-1">
-                              <span className="flex items-center gap-1">
-                                <Tag className="h-3 w-3 sm:h-4 sm:w-4" />
-                                Discount
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                Applied{" "}
-                                <span className="font-semibold text-primary">
-                                  {coupon.code}
-                                </span>
-                              </span>
-                            </span>
-
-                            <span className="text-positive">
-                              - {formatPriceLocalized(discountAmount)}
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="flex justify-between text-sm sm:text-sm items-center">
-                          <div className="flex items-center gap-1">
-                            <Truck className="h-3 w-3 sm:h-4 sm:w-4" />
-                            <span>Shipping</span>
-                          </div>
-                          {shippingCost > 0 ? (
-                            <span>{formatPriceLocalized(shippingCost)}</span>
-                          ) : (
-                            <div className="flex items-center gap-1">
-                              <span className="line-through">
-                                {formatPriceLocalized(getShippingCost())}
-                              </span>
-                              <span className="text-positive">FREE</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <Separator className="my-5" />
-
-                        <div className="flex justify-between font-semibold text-lg sm:text-lg">
-                          <span>Total</span>
-                          <span>{formatPriceLocalized(finalTotal)}</span>
-                        </div>
-                      </div>
-                    </>
-                  )}
                 </CardContent>
               </Card>
             </div>
