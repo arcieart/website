@@ -40,7 +40,7 @@ import {
   Copy,
 } from "lucide-react";
 import { formatPrice } from "@/utils/price";
-import { getDate, getTimestamp } from "@/utils/date";
+import { formatDate, getDate, getTimestamp } from "@/utils/date";
 import { getPaymentStatusConfig } from "@/config/payment";
 import { toast } from "sonner";
 
@@ -64,16 +64,6 @@ export const OrdersManagement = () => {
     prevPage,
     refetch,
   } = useOrdersAdmin({ pageSize, statusFilter });
-
-  const formatDate = (timestamp: number) => {
-    return getDate(timestamp).toLocaleDateString("en-IN", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const getTotalProducts = (products: Order["products"]) => {
     return products.reduce((sum, product) => sum + product.quantity, 0);

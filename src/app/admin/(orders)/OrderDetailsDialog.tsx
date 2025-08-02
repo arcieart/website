@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -38,7 +37,7 @@ import { Collections } from "@/constants/Collections";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CustomizationBadge } from "@/components/products/CustomizationBadge";
-import { getDate, getTimestamp } from "@/utils/date";
+import { formatDate, getTimestamp } from "@/utils/date";
 import { getPaymentStatusConfig } from "@/config/payment";
 
 interface OrderDetailsDialogProps {
@@ -56,16 +55,6 @@ export function OrderDetailsDialog({
 }: OrderDetailsDialogProps) {
   const [isUpdatingOrderStatus, setIsUpdatingOrderStatus] = useState(false);
   const [isUpdatingPayment, setIsUpdatingPayment] = useState(false);
-
-  const formatDate = (timestamp: number) => {
-    return getDate(timestamp).toLocaleDateString("en-IN", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const handleStatusUpdate = async (newStatus: Order["status"]) => {
     if (!order) return;

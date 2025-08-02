@@ -5,8 +5,11 @@ export const getTimestamp = (): number => {
   };
 
   export const formatDate = (timestamp: number) => {
-    return new Intl.DateTimeFormat('en-IN', {
-      dateStyle: 'long',
-      timeStyle: 'short',
-    }).format(new Date(timestamp * 1000));
+    return getDate(timestamp).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };

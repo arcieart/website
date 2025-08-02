@@ -2,8 +2,8 @@
 
 import { useRef, useState } from "react";
 import { useCartStore } from "@/stores/cart";
-import { formatPriceLocalized } from "@/utils/price";
-import { getShippingCost } from "@/config/currency";
+import { formatPrice, formatPriceLocalized } from "@/utils/price";
+import { getFreeShippingThreshold, getShippingCost } from "@/config/currency";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -497,10 +497,21 @@ export default function CheckoutPage() {
                         )}
 
                         <div className="flex justify-between text-sm sm:text-sm items-center">
-                          <div className="flex items-center gap-1">
-                            <Truck className="h-3 w-3 sm:h-4 sm:w-4" />
-                            <span>Shipping</span>
+                          <div>
+                            <div className="flex items-center gap-1">
+                              <Truck className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <span>Shipping</span>
+                            </div>
+                            {shippingCost > 0 && (
+                              <span className="text-xs text-muted-foreground">
+                                Free shipping on orders above{" "}
+                                {formatPrice(getFreeShippingThreshold(), {
+                                  decimalPlaces: 0,
+                                })}
+                              </span>
+                            )}
                           </div>
+
                           {shippingCost > 0 ? (
                             <span>{formatPriceLocalized(shippingCost)}</span>
                           ) : (

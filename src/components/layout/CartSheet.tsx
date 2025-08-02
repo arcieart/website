@@ -44,7 +44,7 @@ function CartSheet({ children }: CartSheetProps) {
         <div className="flex flex-1 flex-col gap-6 overflow-y-scroll">
           {items.length === 0 ? (
             <div className="text-center text-muted h-full flex items-center justify-center">
-              <p className="text-3xl font-semibold sm:text-5xl flex flex-col gap-3">
+              <p className="text-3xl font-semibold sm:text-5xl flex flex-col gap-3 select-none">
                 {"Add Some Joy To Your Journey".split(" ").map((char, i) => (
                   <span key={i} className="italic">
                     {char}

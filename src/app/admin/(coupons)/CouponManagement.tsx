@@ -39,6 +39,7 @@ import {
 import { Coupon } from "@/types/coupon";
 import { deleteCouponAdmin, getCouponsAdmin } from "@/actions/coupon";
 import { getTimestamp } from "@/utils/misc";
+import { formatDate } from "@/utils/date";
 
 type CouponFilter = "all" | "active" | "inactive" | "expired";
 
@@ -103,11 +104,6 @@ export const CouponManagement = () => {
 
   const refetch = () => {
     fetchCoupons();
-  };
-
-  const formatDate = (timestamp: number | null) => {
-    if (!timestamp) return "No expiry";
-    return new Date(timestamp).toLocaleDateString();
   };
 
   const formatDiscountValue = (coupon: Coupon) => {
@@ -326,7 +322,9 @@ export const CouponManagement = () => {
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4 text-muted-foreground" />
-                        {formatDate(coupon.validUntil)}
+                        {coupon.validUntil
+                          ? formatDate(coupon.validUntil)
+                          : "No expiry"}
                       </div>
                     </TableCell>
                     <TableCell>
