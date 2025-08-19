@@ -105,6 +105,15 @@ export const PLAFilamentColors: FilamentColor[] = [
     canBeMixed: true,
   },
   {
+    id: "pla-light-grey",
+    label: "Light Grey",
+    value: "#D3D3D3",
+    available: true,
+    priceAdd: 0,
+    assetType: "hex-code",
+    canBeMixed: true,
+  },
+  {
     id: "pla-midnight-black",
     label: "Midnight Black",
     value: "#000000",
@@ -128,7 +137,8 @@ export const PLAFilamentColors: FilamentColor[] = [
     available: false,
     priceAdd: 50,
     assetType: "image",
-    value: "https://arcieart-main.s3.ap-south-1.amazonaws.com/filament-materials/pla-white-marble.jpg",
+    value:
+      "https://arcieart-main.s3.ap-south-1.amazonaws.com/filament-materials/pla-white-marble.jpg",
     canBeMixed: false,
   },
 ];
