@@ -92,6 +92,15 @@ export const BaseCustomizationsObj: Record<string, Customization> = {
     priceAdd: 0,
     afterSelectionLabel: "Stand Text",
   },
+  "desk-accessories-headphone-stand-color": {
+    id: "desk-accessories-headphone-stand-color",
+    categoryId: "desk-accessories",
+    label: "Select Headphone Stand Color",
+    type: "fixed-color-picker",
+    required: true,
+    priceAdd: 0,
+    afterSelectionLabel: "Stand Color",
+  },
 };
 
 export const PLAFilamentColors: FilamentColor[] = [
