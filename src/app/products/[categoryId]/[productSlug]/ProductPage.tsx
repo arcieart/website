@@ -66,10 +66,19 @@ interface ProductPageProps {
   params: Promise<{ productSlug: string }>;
 }
 
-const CustomizationLabel = ({ label, required }: Partial<Customization>) => (
+const CustomizationLabel = ({
+  label,
+  required,
+  priceAdd,
+}: Partial<Customization>) => (
   <Label className="gap-1">
     {label}
     {required && <span className="text-red-500">*</span>}
+    {!!priceAdd && (
+      <span className="text-muted-foreground text-xs">
+        +{formatPrice(priceAdd)}
+      </span>
+    )}
   </Label>
 );
 
@@ -131,8 +140,17 @@ export function ProductPage({ params }: ProductPageProps) {
 
   const handleCustomizationChange = (
     customizationId: string,
-    value: string
+    value: string | undefined | null
   ) => {
+    if (value === null) value = undefined;
+    if (value === undefined) {
+      setCustomizations((prev) => {
+        const newCustomizations = { ...prev };
+        delete newCustomizations[customizationId];
+        return newCustomizations;
+      });
+      return;
+    }
     setCustomizations((prev) => ({ ...prev, [customizationId]: value }));
   };
 
@@ -187,6 +205,7 @@ export function ProductPage({ params }: ProductPageProps) {
             <CustomizationLabel
               label={customization.label}
               required={customization.required}
+              priceAdd={customization.priceAdd}
             />
             <Input
               id={customization.id}
@@ -214,6 +233,7 @@ export function ProductPage({ params }: ProductPageProps) {
             <CustomizationLabel
               label={customization.label}
               required={customization.required}
+              priceAdd={customization.priceAdd}
             />
             <ColorPicker
               customization={customization as ColorPickerCustomization}
@@ -231,6 +251,7 @@ export function ProductPage({ params }: ProductPageProps) {
             <CustomizationLabel
               label={customization.label}
               required={customization.required}
+              priceAdd={customization.priceAdd}
             />
             <Select
               value={customization.id || ""}

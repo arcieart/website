@@ -203,7 +203,7 @@ export const LuggageTagColors: Color[] = [
     label: "Red",
     value: "#CC0000",
     available: true,
-    priceAdd: 100,
+    priceAdd: 0,
     assetType: "hex-code",
   },
   {
@@ -219,7 +219,7 @@ export const LuggageTagColors: Color[] = [
     label: "Light Blue", 
     value: "#87CEEB",
     available: true,
-    priceAdd: 33,
+    priceAdd: 0,
     assetType: "hex-code",
 
   },

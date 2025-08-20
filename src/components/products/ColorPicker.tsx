@@ -1,13 +1,20 @@
 import Image from "next/image";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Color, ColorPickerCustomization } from "@/types/customization";
+import { X } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import { ColorPickerCustomization } from "@/types/customization";
 import { getColorsBySet, findColorById } from "@/data/customizations";
 import { formatPrice } from "@/utils/price";
 
 interface ColorPickerProps {
   customization: ColorPickerCustomization;
   selectedColorId?: string;
-  onColorChange: (colorId: string) => void;
+  onColorChange: (colorId: string | undefined) => void;
 }
 
 export function ColorPicker({
@@ -16,54 +23,56 @@ export function ColorPicker({
   onColorChange,
 }: ColorPickerProps) {
   const colors = getColorsBySet(customization.colorSet);
-  const selectedColorObj = selectedColorId ? findColorById(selectedColorId) : undefined;
+  const selectedColorObj = selectedColorId
+    ? findColorById(selectedColorId)
+    : undefined;
 
   return (
     <div className="space-y-2">
       <TooltipProvider>
         <div className="flex flex-wrap gap-3">
-          {colors.filter((color) => color.available).map((color) => (
-            <Tooltip key={color.id}>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => onColorChange(color.id)}
-                  className={`relative w-10 h-10 rounded-full border-1 transition-all hover:scale-110 focus:outline-none ${
-                    selectedColorId === color.id
-                      ? "shadow-lg border-primary border-2"
-                      : "border-border hover:shadow-md"
-                  }`}
-                  style={{ backgroundColor: color.value }}
-                  aria-label={`Select ${color.label} color`}
-                >
-                  {color.assetType === "image" && (
-                    <Image
-                      src={color.value}
-                      alt={color.label}
-                      className="object-cover w-full h-full rounded-full"
-                      width={40}
-                      height={40}
-                    />
-                  )}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-xs">
-                <div className="flex items-center gap-2">
-                  <p className="font-medium">{color.label}</p>
-                  {color.priceAdd > 0 && (
-                    <p className="text-xs">
-                      +{formatPrice(color.priceAdd)}
-                    </p>
-                  )}
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          ))}
+          {colors
+            .filter((color) => color.available)
+            .map((color) => (
+              <Tooltip key={color.id}>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => onColorChange(color.id)}
+                    className={`relative w-10 h-10 rounded-full border-1 transition-all hover:scale-110 focus:outline-none ${
+                      selectedColorId === color.id
+                        ? "shadow-lg border-primary border-2"
+                        : "border-border hover:shadow-md"
+                    }`}
+                    style={{ backgroundColor: color.value }}
+                    aria-label={`Select ${color.label} color`}
+                  >
+                    {color.assetType === "image" && (
+                      <Image
+                        src={color.value}
+                        alt={color.label}
+                        className="object-cover w-full h-full rounded-full"
+                        width={40}
+                        height={40}
+                      />
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium">{color.label}</p>
+                    {color.priceAdd > 0 && (
+                      <p className="text-xs">+{formatPrice(color.priceAdd)}</p>
+                    )}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            ))}
         </div>
       </TooltipProvider>
-      
+
       {selectedColorObj && (
         <div className="mt-3 p-3 bg-muted/50 rounded-lg border">
-          <div className="flex items-center justify-start gap-2">
+          <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <div
                 className="w-4 h-4 rounded-full border border-border"
@@ -82,11 +91,29 @@ export function ColorPicker({
               <span className="text-sm font-medium">
                 {selectedColorObj.label}
               </span>
+              {selectedColorObj.priceAdd > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  +{formatPrice(selectedColorObj.priceAdd)}
+                </span>
+              )}
             </div>
-            {selectedColorObj.priceAdd > 0 && (
-              <span className="text-xs text-muted-foreground">
-                +{formatPrice(selectedColorObj.priceAdd)}
-              </span>
+            {!customization.required && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onColorChange(undefined)}
+                    className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
+                    aria-label="Clear color selection"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>Clear selection</p>
+                </TooltipContent>
+              </Tooltip>
             )}
           </div>
         </div>
