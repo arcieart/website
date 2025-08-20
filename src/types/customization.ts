@@ -1,6 +1,6 @@
 import { BaseCategoriesIds } from "@/data/categories";
 
-export type Customization =SelectCustomization | InputCustomization | CheckboxCustomization | ImageCustomization | FixedColorPickerCustomization;
+export type Customization = SelectCustomization | InputCustomization | CheckboxCustomization | ImageCustomization | ColorPickerCustomization;
 
 export type BaseCustomization = {
   id: string;
@@ -14,7 +14,6 @@ export type BaseCustomization = {
 export type DBCustomization = Partial<BaseCustomization> & {
   customizationRefId: string;
 }
-
 
 export type InputCustomization = BaseCustomization & {
   type: "input";
@@ -39,16 +38,22 @@ export type ImageCustomization = BaseCustomization & {
   allowedImageFormats: ("png" | "svg")[];
 };
 
-export type FixedColorPickerCustomization = BaseCustomization & {
-  type: "fixed-color-picker";
+export type ColorPickerCustomization = BaseCustomization & {
+  type: "color-picker";
+  colorSet: "pla-filament" | "luggage-tag";
 };
 
-export type FilamentColor = {
+// Unified color type that works for both filament and luggage tag colors
+export type Color = {
   id: string;
   label: string;
   value: string;
   available: boolean;
   priceAdd: number;
   assetType: "image" | "hex-code";
-  canBeMixed: boolean; // if true, the color can be mixed with other colors in a multicolor print
+  canBeMixed?: boolean; // if true, the color can be mixed with other colors in a multicolor print
 };
+
+// Legacy types for backward compatibility
+export type FilamentColor = Color;
+export type LuggageTagColor = Color;

@@ -29,10 +29,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  BaseCustomizationsObj,
-  PLAFilamentColors,
-} from "@/data/customizations";
+import { BaseCustomizationsObj } from "@/data/customizations";
+import { ColorPicker } from "@/components/products/ColorPicker";
 import { useCartStore } from "@/stores/cart";
 import { useFavoritesStore } from "@/stores/favorites";
 import {
@@ -45,7 +43,11 @@ import { toast } from "sonner";
 import { useProducts } from "@/hooks/useProducts";
 import { UIProduct } from "@/types/product";
 import { ProductPageMediaCarousel } from "@/components/carousels/ProductPageMediaCarousel";
-import { Customization, DBCustomization } from "@/types/customization";
+import {
+  Customization,
+  DBCustomization,
+  ColorPickerCustomization,
+} from "@/types/customization";
 import Link from "next/link";
 import { QuantityStepper } from "@/components/misc/QuantityStepper";
 import { useCartSheet } from "@/hooks/useCartSheet";
@@ -56,7 +58,6 @@ import { Materials } from "@/data/materials";
 import { getWhatsappCustomizationHelpLink } from "@/utils/whatsappMessageLinks";
 import { RecommendedProducts } from "@/components/products/RecommendedProducts";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { trackProductViewed } from "@/lib/analytics";
 import Markdown from "react-markdown";
 import { BaseCategoriesObj } from "@/data/categories";
@@ -207,94 +208,20 @@ export function ProductPage({ params }: ProductPageProps) {
           </div>
         );
 
-      case "fixed-color-picker":
-        const selectedColor = customizations[customization.id];
-        const selectedColorObj = PLAFilamentColors.find(
-          (c) => c.id === selectedColor
-        );
+      case "color-picker":
         return (
           <div key={customization.id} className="space-y-2">
             <CustomizationLabel
               label={customization.label}
               required={customization.required}
             />
-            <TooltipProvider>
-              <div className="flex flex-wrap gap-3">
-                {PLAFilamentColors.filter((color) => color.available).map(
-                  (color) => (
-                    <Tooltip key={color.id}>
-                      <TooltipTrigger asChild>
-                        <button
-                          onClick={() =>
-                            handleCustomizationChange(
-                              customization.id,
-                              color.id
-                            )
-                          }
-                          className={`relative w-10 h-10 rounded-full border-1 transition-all hover:scale-110 focus:outline-none ${
-                            selectedColor === color.id
-                              ? "shadow-lg border-primary border-2"
-                              : "border-border hover:shadow-md"
-                          }`}
-                          style={{ backgroundColor: color.value }}
-                          aria-label={`Select ${color.label} color`}
-                        >
-                          {color.assetType === "image" && (
-                            <Image
-                              src={color.value}
-                              alt={color.label}
-                              className="object-cover w-full h-full rounded-full"
-                              width={40}
-                              height={40}
-                            />
-                          )}
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium">{color.label}</p>
-                          {color.priceAdd > 0 && (
-                            <p className="text-xs">
-                              +{formatPrice(color.priceAdd)}
-                            </p>
-                          )}
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  )
-                )}
-              </div>
-            </TooltipProvider>
-            {selectedColorObj && (
-              <div className="mt-3 p-3 bg-muted/50 rounded-lg border">
-                <div className="flex items-center justify-start gap-2">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-4 h-4 rounded-full border border-border"
-                      style={{ backgroundColor: selectedColorObj.value }}
-                    >
-                      {selectedColorObj.assetType === "image" && (
-                        <Image
-                          src={selectedColorObj.value}
-                          alt={selectedColorObj.label}
-                          width={40}
-                          height={40}
-                          className="object-cover w-full h-full rounded-full"
-                        />
-                      )}
-                    </div>
-                    <span className="text-sm font-medium">
-                      {selectedColorObj.label}
-                    </span>
-                  </div>
-                  {selectedColorObj.priceAdd > 0 && (
-                    <span className="text-xs text-muted-foreground">
-                      +{formatPrice(selectedColorObj.priceAdd)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
+            <ColorPicker
+              customization={customization as ColorPickerCustomization}
+              selectedColorId={customizations[customization.id]}
+              onColorChange={(colorId) =>
+                handleCustomizationChange(customization.id, colorId)
+              }
+            />
           </div>
         );
 

@@ -1,11 +1,12 @@
-import { Customization, FilamentColor } from "@/types/customization";
+import { Customization, Color } from "@/types/customization";
 
 export const BaseCustomizationsObj: Record<string, Customization> = {
   "keychain-primary-color": {
     id: "keychain-primary-color",
     categoryId: "keychains",
     label: "Select Primary Color",
-    type: "fixed-color-picker",
+    type: "color-picker",
+    colorSet: "pla-filament",
     required: true,
     priceAdd: 0,
     afterSelectionLabel: "Primary Color",
@@ -14,7 +15,8 @@ export const BaseCustomizationsObj: Record<string, Customization> = {
     id: "keychain-secondary-color",
     categoryId: "keychains",
     label: "Select Background Color",
-    type: "fixed-color-picker",
+    type: "color-picker",
+    colorSet: "pla-filament",
     required: true,
     priceAdd: 0,
     afterSelectionLabel: "Background Color",
@@ -33,7 +35,8 @@ export const BaseCustomizationsObj: Record<string, Customization> = {
     id: "earrings-primary-color",
     categoryId: "earrings",
     label: "Select Primary Color",
-    type: "fixed-color-picker",
+    type: "color-picker",
+    colorSet: "pla-filament",
     required: true,
     priceAdd: 0,
     afterSelectionLabel: "Primary Color",
@@ -42,7 +45,8 @@ export const BaseCustomizationsObj: Record<string, Customization> = {
     id: "earrings-background-color",
     categoryId: "earrings",
     label: "Select Background Color",
-    type: "fixed-color-picker",
+    type: "color-picker",
+    colorSet: "pla-filament",
     required: true,
     priceAdd: 0,
     afterSelectionLabel: "Background Color",
@@ -51,7 +55,8 @@ export const BaseCustomizationsObj: Record<string, Customization> = {
     id: "decor-primary-color",
     categoryId: "decor",
     label: "Select Decor Color",
-    type: "fixed-color-picker",
+    type: "color-picker",
+    colorSet: "pla-filament",
     required: true,
     priceAdd: 0,
     afterSelectionLabel: "Decor Color",
@@ -69,7 +74,8 @@ export const BaseCustomizationsObj: Record<string, Customization> = {
     id: "desk-accessories-phone-stand-seat-color",
     categoryId: "desk-accessories",
     label: "Select Seat Color",
-    type: "fixed-color-picker",
+    type: "color-picker",
+    colorSet: "pla-filament",
     required: true,
     priceAdd: 0,
     afterSelectionLabel: "Seat Color",
@@ -78,7 +84,8 @@ export const BaseCustomizationsObj: Record<string, Customization> = {
     id: "desk-accessories-phone-stand-frame-color",
     categoryId: "desk-accessories",
     label: "Select Support Frame Color",
-    type: "fixed-color-picker",
+    type: "color-picker",
+    colorSet: "pla-filament",
     required: true,
     priceAdd: 0,
     afterSelectionLabel: "Support Frame Color",
@@ -96,14 +103,44 @@ export const BaseCustomizationsObj: Record<string, Customization> = {
     id: "desk-accessories-headphone-stand-color",
     categoryId: "desk-accessories",
     label: "Select Headphone Stand Color",
-    type: "fixed-color-picker",
+    type: "color-picker",
+    colorSet: "pla-filament",
     required: true,
     priceAdd: 0,
     afterSelectionLabel: "Stand Color",
   },
+  "accessories-luggage-tag-color": {
+    id: "accessories-luggage-tag-color",
+    categoryId: "accessories",
+    label: "Select Luggage Tag Color",
+    type: "color-picker",
+    colorSet: "luggage-tag",
+    required: true,
+    priceAdd: 0,
+    afterSelectionLabel: "Luggage Tag Color",
+  },
+  "accessories-text-color": {
+    id: "accessories-text-color",
+    categoryId: "accessories",
+    label: "Select Text Color",
+    type: "color-picker",
+    colorSet: "pla-filament",
+    required: false,
+    priceAdd: 0,
+    afterSelectionLabel: "Text Color",
+  },
+  "accessories-text-input": {
+    id: "accessories-text-input",
+    categoryId: "accessories",
+    label: "Enter Text",
+    type: "input",
+    required: false,
+    priceAdd: 0,
+    afterSelectionLabel: "Custom Text",
+  },
 };
 
-export const PLAFilamentColors: FilamentColor[] = [
+export const PLAFilamentColors: Color[] = [
   {
     id: "pla-candy-red",
     label: "Candy Red",
@@ -151,3 +188,105 @@ export const PLAFilamentColors: FilamentColor[] = [
     canBeMixed: false,
   },
 ];
+
+export const LuggageTagColors: Color[] = [
+  {
+    id: "luggage-tag-black",
+    label: "Black",
+    value: "#000000",
+    available: true,
+    priceAdd: 0,
+    assetType: "hex-code",
+  },
+  {
+    id: "luggage-tag-red",
+    label: "Red",
+    value: "#CC0000",
+    available: true,
+    priceAdd: 100,
+    assetType: "hex-code",
+  },
+  {
+    id: "luggage-tag-blue",
+    label: "Blue",
+    value: "#0000FF",
+    available: true,
+    priceAdd: 0,
+    assetType: "hex-code",
+  },
+  {
+    id: "luggage-tag-light-blue",
+    label: "Light Blue", 
+    value: "#87CEEB",
+    available: true,
+    priceAdd: 33,
+    assetType: "hex-code",
+
+  },
+  {
+    id: "luggage-tag-gold",
+    label: "Gold",
+    value: "#dcd8af",
+    available: true,
+    priceAdd: 0,
+    assetType: "hex-code",
+  },
+  {
+    id: "luggage-tag-violet",
+    label: "Violet",
+    value: "#8c93d4",
+    available: true,
+    priceAdd: 0,
+    assetType: "hex-code",
+  },
+  {
+    id: "luggage-tag-pink",
+    label: "Pink",
+    value: "#FFC0CB",
+    available: true,
+    priceAdd: 0,
+    assetType: "hex-code",
+  },
+  
+  {
+    id: "luggage-tag-brown",
+    label: "Brown",
+    value: "#663a2e",
+    available: true,
+    priceAdd: 0,
+    assetType: "hex-code",
+  },
+  {
+    id: "luggage-tag-gray",
+    label: "Gray",
+    value: "#808080",
+    available: true,
+    priceAdd: 0,
+    assetType: "hex-code",
+  },
+  {
+    id: "luggage-tag-dark-green",
+    label: "Dark Green",
+    value: "#182528",
+    available: true,
+    priceAdd: 0,
+    assetType: "hex-code",
+  },
+];
+
+// Color set mapping for easy access
+export const ColorSets = {
+  "pla-filament": PLAFilamentColors,
+  "luggage-tag": LuggageTagColors,
+} as const;
+
+// Helper function to get colors by color set
+export function getColorsBySet(colorSet: "pla-filament" | "luggage-tag"): Color[] {
+  return ColorSets[colorSet];
+}
+
+// Helper function to find a color by ID across all color sets
+export function findColorById(colorId: string): Color | undefined {
+  const allColors = [...PLAFilamentColors, ...LuggageTagColors];
+  return allColors.find(color => color.id === colorId);
+}

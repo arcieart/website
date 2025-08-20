@@ -1,7 +1,7 @@
 import { Badge } from "../ui/badge";
 import {
   BaseCustomizationsObj,
-  PLAFilamentColors,
+  findColorById,
 } from "@/data/customizations";
 
 export const CustomizationBadge = ({
@@ -15,8 +15,8 @@ export const CustomizationBadge = ({
   if (!customization) return null;
 
   let displayValue = "";
-  if (customization.type === "fixed-color-picker") {
-    const color = PLAFilamentColors.find((c) => c.id === value);
+  if (customization.type === "color-picker") {
+    const color = findColorById(value);
     if (color) displayValue = color.label;
   }
   if (customization.type === "select") {
