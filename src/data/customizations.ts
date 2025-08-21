@@ -226,7 +226,7 @@ export const LuggageTagColors: Color[] = [
   {
     id: "luggage-tag-gold",
     label: "Gold",
-    value: "#dcd8af",
+    value: "#e6e1be",
     available: true,
     priceAdd: 0,
     assetType: "hex-code",
