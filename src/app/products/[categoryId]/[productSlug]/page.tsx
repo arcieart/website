@@ -4,6 +4,7 @@ import { ProductPage } from "./ProductPage";
 import { Metadata } from "next";
 import { getProductBySlug } from "@/lib/products";
 import { BaseCategoriesObj } from "@/data/categories";
+import removeMd from "remove-markdown";
 
 interface ProductPageProps {
   params: Promise<{ productSlug: string }>;
@@ -19,7 +20,7 @@ export async function generateMetadata({
     const category = BaseCategoriesObj[product.categoryId];
     const newMetadata: Metadata = {
       title: product.name + " | " + "by Arcie Art",
-      description: product.description ?? category.baseDescription,
+      description: removeMd(product.description ?? category.baseDescription),
     };
 
     if (product.imageMapping[0].url) {
