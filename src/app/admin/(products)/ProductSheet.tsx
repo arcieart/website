@@ -204,8 +204,8 @@ export function ProductSheet({
     setIsUploading(true);
 
     try {
-      let finalImageMapping: ProductImage[] = [];
-      let finalVideoUrls: string[] = [];
+      const finalImageMapping: ProductImage[] = [];
+      const finalVideoUrls: string[] = [];
       let productId = productData.id;
 
       if (!isEditMode) {

@@ -15,6 +15,7 @@ import { DBProduct, ProductImage } from "@/types/product";
  * 3. Removes the old `images` field
  * 4. Updates products in batches for efficiency
  */
+/*
  async function migrateImagesToImageMapping() {
   try {
     console.log("Starting migration from images[] to imageMapping[]...");
@@ -102,9 +103,7 @@ import { DBProduct, ProductImage } from "@/types/product";
   }
 }
 
-/**
- * Utility action to check how many products still use the old images field
- */
+
 export async function checkMigrationStatus() {
   try {
     const snapshot = await db.collection(Collections.Products).get();
@@ -138,3 +137,4 @@ export async function checkMigrationStatus() {
     throw error;
   }
 }
+*/

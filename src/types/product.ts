@@ -10,7 +10,6 @@ export type ProductImage = {
 export type BaseProduct = {
   id: string;
   name: string;
-  images?: string[]; // aws s3 urls
   imageMapping: ProductImage[]; // images with customization mapping
   videos: string[]; // aws s3 urls
   categoryId: BaseCategoriesIds;
