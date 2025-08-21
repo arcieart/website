@@ -30,8 +30,12 @@ import {
 } from "@/components/ui/sheet";
 
 import { BaseCategories, BaseCategoriesIds } from "@/data/categories";
-import { BaseCustomizationsObj } from "@/data/customizations";
-import { DBProduct } from "@/types/product";
+import {
+  BaseCustomizationsObj,
+  PLAFilamentColors,
+  LuggageTagColors,
+} from "@/data/customizations";
+import { DBProduct, ProductImage } from "@/types/product";
 import {
   uploadImageToS3,
   generateImageKey,
@@ -89,6 +93,7 @@ interface MediaState {
   preview: string;
   existingUrl?: string; // For existing media that are already uploaded
   type: "image" | "video";
+  customizationMapping?: Record<string, string>; // For images - customization mapping
 }
 
 const defaultProductData: DBProduct = {
@@ -97,7 +102,8 @@ const defaultProductData: DBProduct = {
   description: "",
   dimensions: "",
   weight: 0,
-  images: [],
+
+  imageMapping: [],
   videos: [],
   slug: "",
   price: 0,
@@ -149,19 +155,26 @@ export function ProductSheet({
         setProductData(product);
 
         // Initialize media states with existing images and videos
-        const existingMediaStates: MediaState[] = [
-          ...product.images.map((url) => ({
+        const existingImageStates: MediaState[] = product.imageMapping.map(
+          (productImage) => ({
             file: null,
-            preview: url,
-            existingUrl: url,
+            preview: productImage.url,
+            existingUrl: productImage.url,
             type: "image" as const,
-          })),
-          ...product.videos.map((url) => ({
-            file: null,
-            preview: url,
-            existingUrl: url,
-            type: "video" as const,
-          })),
+            customizationMapping: productImage.customizationMapping,
+          })
+        );
+
+        const existingVideoStates: MediaState[] = product.videos.map((url) => ({
+          file: null,
+          preview: url,
+          existingUrl: url,
+          type: "video" as const,
+        }));
+
+        const existingMediaStates: MediaState[] = [
+          ...existingImageStates,
+          ...existingVideoStates,
         ];
 
         // Ensure at least one empty state for adding new media
@@ -191,83 +204,51 @@ export function ProductSheet({
     setIsUploading(true);
 
     try {
-      let finalImageUrls: string[] = [];
+      let finalImageMapping: ProductImage[] = [];
       let finalVideoUrls: string[] = [];
       let productId = productData.id;
 
-      if (isEditMode) {
-        // For edit mode, start with existing media that haven't changed
-        finalImageUrls = mediaStates
-          .filter(
-            (state) =>
-              state.existingUrl && !state.file && state.type === "image"
-          )
-          .map((state) => state.existingUrl!);
-
-        finalVideoUrls = mediaStates
-          .filter(
-            (state) =>
-              state.existingUrl && !state.file && state.type === "video"
-          )
-          .map((state) => state.existingUrl!);
-
-        // Upload new media
-        for (const mediaState of mediaStates) {
-          if (mediaState.file) {
-            if (mediaState.type === "image") {
-              const imageKey = generateImageKey(
-                mediaState.file.name,
-                productId
-              );
-              const compressedImage = await compressImage(mediaState.file);
-              const uploadedUrl = await uploadImageToS3(
-                compressedImage,
-                imageKey
-              );
-              finalImageUrls.push(uploadedUrl);
-            } else if (mediaState.type === "video") {
-              const videoKey = generateVideoKey(
-                mediaState.file.name,
-                productId
-              );
-              const uploadedUrl = await uploadVideoToS3(
-                mediaState.file,
-                videoKey
-              );
-              finalVideoUrls.push(uploadedUrl);
-            }
-          }
-        }
-      } else {
+      if (!isEditMode) {
         // For add mode, generate new product ID
         productId = await getNewProductDocId();
         console.log("New Product ID:", productId);
+      }
 
-        // Handle media uploads
-        for (const mediaState of mediaStates) {
+      // Process all media states
+      for (const mediaState of mediaStates) {
+        if (mediaState.type === "image") {
           if (mediaState.file) {
-            if (mediaState.type === "image") {
-              const imageKey = generateImageKey(
-                mediaState.file.name,
-                productId
-              );
-              const compressedImage = await compressImage(mediaState.file);
-              const uploadedUrl = await uploadImageToS3(
-                compressedImage,
-                imageKey
-              );
-              finalImageUrls.push(uploadedUrl);
-            } else if (mediaState.type === "video") {
-              const videoKey = generateVideoKey(
-                mediaState.file.name,
-                productId
-              );
-              const uploadedUrl = await uploadVideoToS3(
-                mediaState.file,
-                videoKey
-              );
-              finalVideoUrls.push(uploadedUrl);
-            }
+            // Upload new image
+            const imageKey = generateImageKey(mediaState.file.name, productId);
+            const compressedImage = await compressImage(mediaState.file);
+            const uploadedUrl = await uploadImageToS3(
+              compressedImage,
+              imageKey
+            );
+
+            finalImageMapping.push({
+              url: uploadedUrl,
+              customizationMapping: mediaState.customizationMapping || {},
+            });
+          } else if (mediaState.existingUrl) {
+            // Keep existing image
+            finalImageMapping.push({
+              customizationMapping: mediaState.customizationMapping || {},
+              url: mediaState.existingUrl,
+            });
+          }
+        } else if (mediaState.type === "video") {
+          if (mediaState.file) {
+            // Upload new video
+            const videoKey = generateVideoKey(mediaState.file.name, productId);
+            const uploadedUrl = await uploadVideoToS3(
+              mediaState.file,
+              videoKey
+            );
+            finalVideoUrls.push(uploadedUrl);
+          } else if (mediaState.existingUrl) {
+            // Keep existing video
+            finalVideoUrls.push(mediaState.existingUrl);
           }
         }
       }
@@ -330,7 +311,7 @@ export function ProductSheet({
         ...productData,
         id: productId,
         slug,
-        images: finalImageUrls,
+        imageMapping: finalImageMapping,
         videos: finalVideoUrls,
         createdAt: productData.createdAt || getTimestamp(),
       };
@@ -395,6 +376,29 @@ export function ProductSheet({
         (_, i) => i !== index
       ),
     }));
+  };
+
+  const handleCustomizationMappingChange = (
+    index: number,
+    customizationId: string,
+    value: string | null
+  ) => {
+    setMediaStates((prev) =>
+      prev.map((state, i) =>
+        i === index
+          ? {
+              ...state,
+              customizationMapping: value
+                ? { ...state.customizationMapping, [customizationId]: value }
+                : Object.fromEntries(
+                    Object.entries(state.customizationMapping || {}).filter(
+                      ([key]) => key !== customizationId
+                    )
+                  ),
+            }
+          : state
+      )
+    );
   };
 
   const handleMediaChange = (
@@ -780,6 +784,132 @@ export function ProductSheet({
                         {mediaState.file.name} (
                         {Math.round(mediaState.file.size / 1024)} KB)
                       </p>
+                    )}
+
+                    {/* Customization Mapping for Images */}
+                    {mediaState.type === "image" && (
+                      <div className="mt-4 p-3 bg-muted/30 rounded-md">
+                        <h5 className="text-sm font-medium mb-2">
+                          Link to Customizations (Optional)
+                        </h5>
+                        <p className="text-xs text-muted-foreground mb-3">
+                          When users select these customizations, this image
+                          will be shown
+                        </p>
+                        <div className="space-y-2">
+                          {productData.customizationOptions.map(
+                            (customizationOption) => {
+                              const baseCustomization =
+                                BaseCustomizationsObj[
+                                  customizationOption.customizationRefId
+                                ];
+                              if (!baseCustomization) return null;
+
+                              return (
+                                <div
+                                  key={baseCustomization.id}
+                                  className="flex items-center gap-2"
+                                >
+                                  <label className="text-xs font-medium min-w-24">
+                                    {baseCustomization.afterSelectionLabel}:
+                                  </label>
+                                  {baseCustomization.type === "color-picker" ? (
+                                    <Select
+                                      value={
+                                        mediaState.customizationMapping?.[
+                                          baseCustomization.id
+                                        ] || ""
+                                      }
+                                      onValueChange={(value) =>
+                                        handleCustomizationMappingChange(
+                                          index,
+                                          baseCustomization.id,
+                                          value || null
+                                        )
+                                      }
+                                    >
+                                      <SelectTrigger className="h-8 text-xs">
+                                        <SelectValue placeholder="Select color" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {baseCustomization.colorSet ===
+                                          "pla-filament" &&
+                                          PLAFilamentColors.map((color) => (
+                                            <SelectItem
+                                              key={color.id}
+                                              value={color.id}
+                                            >
+                                              {color.label}
+                                            </SelectItem>
+                                          ))}
+                                        {baseCustomization.colorSet ===
+                                          "luggage-tag" &&
+                                          LuggageTagColors.map((color) => (
+                                            <SelectItem
+                                              key={color.id}
+                                              value={color.id}
+                                            >
+                                              {color.label}
+                                            </SelectItem>
+                                          ))}
+                                      </SelectContent>
+                                    </Select>
+                                  ) : baseCustomization.type === "input" ? (
+                                    <Input
+                                      className="h-8 text-xs"
+                                      placeholder="Enter text value"
+                                      value={
+                                        mediaState.customizationMapping?.[
+                                          baseCustomization.id
+                                        ] || ""
+                                      }
+                                      onChange={(e) =>
+                                        handleCustomizationMappingChange(
+                                          index,
+                                          baseCustomization.id,
+                                          e.target.value || null
+                                        )
+                                      }
+                                    />
+                                  ) : baseCustomization.type === "select" ? (
+                                    <Select
+                                      value={
+                                        mediaState.customizationMapping?.[
+                                          baseCustomization.id
+                                        ] || ""
+                                      }
+                                      onValueChange={(value) =>
+                                        handleCustomizationMappingChange(
+                                          index,
+                                          baseCustomization.id,
+                                          value || null
+                                        )
+                                      }
+                                    >
+                                      <SelectTrigger className="h-8 text-xs">
+                                        <SelectValue placeholder="Select option" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="">None</SelectItem>
+                                        {baseCustomization.options?.map(
+                                          (option) => (
+                                            <SelectItem
+                                              key={option.id}
+                                              value={option.id}
+                                            >
+                                              {option.label}
+                                            </SelectItem>
+                                          )
+                                        )}
+                                      </SelectContent>
+                                    </Select>
+                                  ) : null}
+                                </div>
+                              );
+                            }
+                          )}
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>

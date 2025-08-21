@@ -40,7 +40,7 @@ function ProductCardContent({ product }: ProductCardProps) {
             {/* Product Image */}
             <div className="aspect-square relative bg-transparent">
               <Image
-                src={product.images[0] || "/placeholder-product.jpg"}
+                src={product.imageMapping[0].url}
                 alt={product.name}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-200"

@@ -264,7 +264,7 @@ export default function CheckoutPage() {
           price: item.product.price,
           quantity: item.quantity,
           total: item.product.price * item.quantity,
-          imageUrl: item.product.images[0],
+          imageUrl: item.product.imageMapping[0].url,
           sku: item.id,
           description: item.product.description,
           customizations: item.customizations,

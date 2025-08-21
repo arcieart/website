@@ -22,9 +22,9 @@ export async function generateMetadata({
       description: product.description ?? category.baseDescription,
     };
 
-    if (product.images[0]) {
-      newMetadata.openGraph = { images: [product.images[0]] };
-      newMetadata.twitter = { images: [product.images[0]] };
+    if (product.imageMapping[0].url) {
+      newMetadata.openGraph = { images: [product.imageMapping[0].url] };
+      newMetadata.twitter = { images: [product.imageMapping[0].url] };
     }
 
     return newMetadata;

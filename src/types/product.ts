@@ -1,11 +1,18 @@
 import { BaseCategoriesIds, Category } from "@/data/categories";
 import { DBCustomization } from "./customization";
 
+// Image with optional customization mapping
+export type ProductImage = {
+  url: string;
+  customizationMapping: Record<string, string>; // customizationId -> value pairs that this image represents
+};
+
 export type BaseProduct = {
   id: string;
   name: string;
-  images: string[];
-  videos: string[];
+  images?: string[]; // aws s3 urls
+  imageMapping: ProductImage[]; // images with customization mapping
+  videos: string[]; // aws s3 urls
   categoryId: BaseCategoriesIds;
   slug: string;
   available: boolean;
@@ -24,4 +31,5 @@ export type DBProduct = BaseProduct & {
 
 export type UIProduct = BaseProduct & Category & {
   price: number;
+  material: string;
 };

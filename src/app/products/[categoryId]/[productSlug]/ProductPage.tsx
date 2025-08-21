@@ -320,10 +320,9 @@ export function ProductPage({ params }: ProductPageProps) {
           {/* Product Images */}
           <div className="md:sticky md:top-18 md:self-start">
             <ProductPageMediaCarousel
-              images={product.images}
-              videos={product.videos}
-              alt={product.name}
               product={product}
+              alt={product.name}
+              selectedCustomizations={customizations}
             />
           </div>
 

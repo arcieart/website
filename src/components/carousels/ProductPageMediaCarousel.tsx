@@ -17,12 +17,60 @@ import { UIProduct } from "@/types/product";
 import { useVideoHandling } from "@/hooks/useVideoHandling";
 
 interface MediaCarouselProps {
-  images: string[];
-  videos: string[];
   alt: string;
   className?: string;
   product: UIProduct;
+  selectedCustomizations?: Record<string, string>; // current customization selections
 }
+
+// Helper function to find the best matching image based on current customizations
+const findBestMatchingImageIndex = (
+  product: UIProduct,
+  selectedCustomizations?: Record<string, string>
+): number => {
+  if (!selectedCustomizations || !product.imageMapping.length) {
+    return 0; // Default to first image
+  }
+
+  // Create a priority map based on product's customization options order
+  const customizationPriorities = product.customizationOptions.reduce(
+    (acc, option, index) => {
+      // Higher priority (weight) for earlier customizations
+      // First customization gets weight 10, second gets 7, third gets 5, etc.
+      const weight = Math.max(10 - index * 3, 1);
+      acc[option.customizationRefId] = weight;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  // Find the image with the highest weighted score
+  let bestMatch = -1; // -1 indicates no meaningful match found
+  let maxScore = 0;
+
+  product.imageMapping.forEach((productImage, index) => {
+    if (!productImage.customizationMapping) return;
+
+    let score = 0;
+    Object.entries(productImage.customizationMapping).forEach(
+      ([customizationId, expectedValue]) => {
+        if (selectedCustomizations[customizationId] === expectedValue) {
+          // Add weighted score based on customization priority
+          const weight = customizationPriorities[customizationId] || 1;
+          score += weight;
+        }
+      }
+    );
+
+    if (score > maxScore) {
+      maxScore = score;
+      bestMatch = index;
+    }
+  });
+
+  // Return -1 if no matches found (maxScore = 0), otherwise return the best match
+  return maxScore > 0 ? bestMatch : -1;
+};
 
 const ShareButton = ({ product }: { product: UIProduct }) => {
   return (
@@ -38,23 +86,25 @@ const ShareButton = ({ product }: { product: UIProduct }) => {
 };
 
 export function ProductPageMediaCarousel({
-  images,
-  videos,
   alt,
   className,
   product,
+  selectedCustomizations,
 }: MediaCarouselProps) {
   // Combine images and videos into a single media array with type information
   const mediaItems = [
-    ...images.map((url) => ({ url, type: "image" as const })),
-    ...videos.map((url) => ({ url, type: "video" as const })),
+    ...product.imageMapping.map((img) => ({
+      url: img.url,
+      type: "image" as const,
+    })),
+    ...product.videos.map((url) => ({ url, type: "video" as const })),
   ];
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
 
   // Use custom hook for video handling
   const { videoThumbnails, videoRefs } = useVideoHandling(
-    videos,
+    product.videos,
     mediaItems,
     current
   );
@@ -68,6 +118,22 @@ export function ProductPageMediaCarousel({
       setCurrent(api.selectedScrollSnap() + 1);
     });
   }, [api]);
+
+  // Auto-navigate to best matching image when customizations change
+  React.useEffect(() => {
+    if (!api || !selectedCustomizations) return;
+
+    const bestMatchIndex = findBestMatchingImageIndex(
+      product,
+      selectedCustomizations
+    );
+
+    // Only navigate if we found a meaningful match (score > 0) and it's different from current
+    const currentIndex = api.selectedScrollSnap();
+    if (bestMatchIndex !== currentIndex && bestMatchIndex !== -1) {
+      api.scrollTo(bestMatchIndex);
+    }
+  }, [api, selectedCustomizations, product]);
 
   const handleThumbnailClick = (index: number) => {
     api?.scrollTo(index);

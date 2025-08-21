@@ -12,11 +12,11 @@ export default function OrderCardItem({ item }: { item: CartItem }) {
         <Link
           href={`/products/${item.product.categoryId}/${item.product.slug}`}
         >
-          {item.product.images && item.product.images[0] ? (
+          {item.product.imageMapping[0].url ? (
             <Image
               width={64}
               height={64}
-              src={item.product.images[0]}
+              src={item.product.imageMapping[0].url}
               alt={item.product.name}
               className="object-cover w-full h-full"
             />

@@ -238,10 +238,10 @@ export const ProductsManagement = () => {
                 <TableRow key={product.id}>
                   <TableCell>{product.id}</TableCell>
                   <TableCell>
-                    {product.images && product.images.length > 0 ? (
+                    {product.imageMapping[0].url ? (
                       <div className="relative w-12 h-12 rounded-md overflow-hidden">
                         <Image
-                          src={product.images[0]}
+                          src={product.imageMapping[0].url}
                           alt={product.name}
                           fill
                           className="object-cover"

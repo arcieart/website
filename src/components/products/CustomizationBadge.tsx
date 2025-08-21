@@ -1,8 +1,5 @@
 import { Badge } from "../ui/badge";
-import {
-  BaseCustomizationsObj,
-  findColorById,
-} from "@/data/customizations";
+import { BaseCustomizationsObj, findColorById } from "@/data/customizations";
 
 export const CustomizationBadge = ({
   customizationId,
