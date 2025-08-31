@@ -27,6 +27,7 @@ interface UseProductFiltersProps {
 }
 
 const defaultSortBy = "name-a-z";
+const defaultPriceRange = { min: 0, max: 100000 };
 
 
 export function useProductFilters({ 
@@ -59,12 +60,12 @@ export function useProductFilters({
   });
 
   const [priceRange, setPriceRange] = useState<{ min: number; max: number }>(() => {
-    if (!enablePriceFilter) return { min: 0, max: 1000 };
+    if (!enablePriceFilter) return defaultPriceRange;
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
     return {
-      min: minPrice ? parseInt(minPrice, 10) : 0,
-      max: maxPrice ? parseInt(maxPrice, 10) : 1000,
+      min: minPrice ? parseInt(minPrice, 10) : defaultPriceRange.min,
+      max: maxPrice ? parseInt(maxPrice, 10) : defaultPriceRange.max,
     };
   });
 
@@ -89,10 +90,10 @@ export function useProductFilters({
 
     // Add price range parameters
     if (enablePriceFilter) {
-      if (priceRange.min !== 0) {
+      if (priceRange.min !== defaultPriceRange.min) {
         params.set('minPrice', priceRange.min.toString());
       }
-      if (priceRange.max !== 1000) {
+      if (priceRange.max !== defaultPriceRange.max) {
         params.set('maxPrice', priceRange.max.toString());
       }
     }
@@ -169,7 +170,7 @@ export function useProductFilters({
     }
     setShowBestSellers(false);
     if (enablePriceFilter) {
-      setPriceRange({ min: 0, max: 1000 });
+      setPriceRange(defaultPriceRange);
     }
     setSortBy(defaultSortBy);
   };
@@ -177,7 +178,7 @@ export function useProductFilters({
   const activeFiltersCount =
     (enableCategoryFilter ? selectedCategories.length : 0) + 
     (showBestSellers ? 1 : 0) +
-    (enablePriceFilter && (priceRange.min !== 0 || priceRange.max !== 1000) ? 1 : 0);
+      (enablePriceFilter && (priceRange.min !== defaultPriceRange.min || priceRange.max !== defaultPriceRange.max) ? 1 : 0);
 
   return {
     // State
