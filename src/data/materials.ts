@@ -1,7 +1,7 @@
 export const Materials = {
   pla: {
     id: "pla",
-    name: "Plastic PLA",
+    name: "Plastic PLA+",
     description: "Plastic is a great material for 3D printing.",
   },
   petg: {
