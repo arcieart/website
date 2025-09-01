@@ -142,6 +142,24 @@ export const BaseCustomizationsObj: Record<string, Customization> = {
 
 export const PLAFilamentColors: Color[] = [
   {
+    id: "pla-midnight-black",
+    label: "Midnight Black",
+    value: "#000000",
+    available: true,
+    priceAdd: 0,
+    assetType: "hex-code",
+    canBeMixed: true,
+  },
+  {
+    id: "pla-natural-white",
+    label: "Natural White",
+    value: "#FFFFFF",
+    available: true,
+    priceAdd: 0,
+    assetType: "hex-code",
+    canBeMixed: true,
+  },
+  {
     id: "pla-candy-red",
     label: "Candy Red",
     value: "#FF0000",
@@ -160,23 +178,15 @@ export const PLAFilamentColors: Color[] = [
     canBeMixed: true,
   },
   {
-    id: "pla-midnight-black",
-    label: "Midnight Black",
-    value: "#000000",
+    id: "pla-military-khaki",
+    label: "Military Khaki",
+    value: "#c3aa75",
     available: true,
     priceAdd: 0,
     assetType: "hex-code",
     canBeMixed: true,
   },
-  {
-    id: "pla-natural-white",
-    label: "Natural White",
-    value: "#FFFFFF",
-    available: true,
-    priceAdd: 0,
-    assetType: "hex-code",
-    canBeMixed: true,
-  },
+
   {
     id: "pla-white-marble",
     label: "White Marble",
@@ -235,7 +245,7 @@ export const LuggageTagColors: Color[] = [
     id: "luggage-tag-violet",
     label: "Violet",
     value: "#8c93d4",
-    available: true,
+    available: false,
     priceAdd: 0,
     assetType: "hex-code",
   },
