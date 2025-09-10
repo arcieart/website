@@ -112,7 +112,7 @@ const defaultProductData: DBProduct = {
   available: true,
   isBestSeller: false,
   isDiscoverable: true,
-  createdAt: getTimestamp(),
+  createdAt: 0,
 };
 
 interface ProductSheetProps {
