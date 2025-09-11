@@ -9,6 +9,7 @@ export type BaseCustomization = {
   priceAdd: number;
   categoryId: BaseCategoriesIds;
   afterSelectionLabel: string;
+  description?: string;
 };
 
 export type DBCustomization = Partial<BaseCustomization> & {

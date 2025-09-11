@@ -5,13 +5,6 @@ import { Heart, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
@@ -25,6 +18,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { BaseCustomizationsObj } from "@/data/customizations";
 import { ColorPicker } from "@/components/products/ColorPicker";
+import { OptionPicker } from "@/components/products/OptionPicker";
 import { useCartStore } from "@/stores/cart";
 import { useFavoritesStore } from "@/stores/favorites";
 import {
@@ -41,6 +35,7 @@ import {
   Customization,
   DBCustomization,
   ColorPickerCustomization,
+  SelectCustomization,
 } from "@/types/customization";
 import Link from "next/link";
 import { QuantityStepper } from "@/components/misc/QuantityStepper";
@@ -64,15 +59,25 @@ const CustomizationLabel = ({
   label,
   required,
   priceAdd,
+  description,
 }: Partial<Customization>) => (
-  <Label className="gap-1">
-    {label}
-    {required && <span className="text-red-500">*</span>}
-    {!!priceAdd && (
-      <span className="text-muted-foreground text-xs">
-        +{formatPrice(priceAdd)}
-      </span>
-    )}
+  <Label>
+    <div className="space-y-1">
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
+          {label}
+          {required && <span className="text-red-500">*</span>}
+        </div>
+        {!!priceAdd && (
+          <span className="text-muted-foreground text-xs">
+            +{formatPrice(priceAdd)}
+          </span>
+        )}
+      </div>
+      {description && (
+        <div className="text-muted-foreground text-xs">{description}</div>
+      )}
+    </div>
   </Label>
 );
 
@@ -226,6 +231,7 @@ export function ProductPage({ params }: ProductPageProps) {
           <div key={customization.id} className="space-y-2">
             <CustomizationLabel
               label={customization.label}
+              description={customization.description}
               required={customization.required}
               priceAdd={customization.priceAdd}
             />
@@ -247,23 +253,13 @@ export function ProductPage({ params }: ProductPageProps) {
               required={customization.required}
               priceAdd={customization.priceAdd}
             />
-            <Select
-              value={customization.id || ""}
-              onValueChange={(value) => {
-                handleCustomizationChange(customization.id, value);
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select an option" />
-              </SelectTrigger>
-              <SelectContent>
-                {customization.options.map((option) => (
-                  <SelectItem key={option.id} value={option.id}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <OptionPicker
+              customization={customization as SelectCustomization}
+              selectedOptionId={customizations[customization.id]}
+              onOptionChange={(optionId) =>
+                handleCustomizationChange(customization.id, optionId)
+              }
+            />
           </div>
         );
 

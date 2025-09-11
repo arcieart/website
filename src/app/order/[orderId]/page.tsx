@@ -22,6 +22,7 @@ import { Metadata } from "next";
 import { CustomizationBadge } from "@/components/products/CustomizationBadge";
 import { formatOrderStatus } from "@/data/orderStatuses";
 import { getShippingCost } from "@/config/currency";
+import Markdown from "react-markdown";
 
 export const metadata: Metadata = {
   title: "Order Details | Arcie Art",
@@ -134,9 +135,9 @@ export default async function OrderPage({
                 <div className="flex-1">
                   <h3 className="font-medium">{product.name}</h3>
                   {product.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2 max-w-[75%]">
-                      {product.description}
-                    </p>
+                    <span className="text-sm text-muted-foreground line-clamp-2 max-w-[75%]">
+                      <Markdown>{product.description}</Markdown>
+                    </span>
                   )}
                   <div className="mt-2 flex flex-col gap-2">
                     {product.customizations &&

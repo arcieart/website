@@ -138,6 +138,30 @@ export const BaseCustomizationsObj: Record<string, Customization> = {
     priceAdd: 0,
     afterSelectionLabel: "Custom Text",
   },
+  "decor-stand-color": {
+    id: "decor-stand-color",
+    categoryId: "decor",
+    description: "If not selected, stand will not be shipped",
+    label: "Select Stand Color",
+    type: "color-picker",
+    colorSet: "pla-filament",
+    required: false,
+    priceAdd: 50,
+    afterSelectionLabel: "Stand Color",
+  },
+  "decor-art-size": {
+    id: "decor-art-size",
+    categoryId: "decor",
+    label: "Select Size",
+    type: "select",
+    required: true,
+    priceAdd: 0,
+    options: [
+      { id: "decor-art-size-15cm", label: "15 x 15cm" },
+      { id: "decor-art-size-20cm", label: "20 x 20cm"},
+    ],
+    afterSelectionLabel: "Size",
+  },
 };
 
 export const PLAFilamentColors: Color[] = [

@@ -890,7 +890,6 @@ export function ProductSheet({
                                         <SelectValue placeholder="Select option" />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="">None</SelectItem>
                                         {baseCustomization.options?.map(
                                           (option) => (
                                             <SelectItem
