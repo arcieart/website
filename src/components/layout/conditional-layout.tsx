@@ -17,7 +17,13 @@ if (typeof window !== "undefined") {
   }
 }
 
-export function ConditionalLayout({ children }: { children: React.ReactNode }) {
+export function ConditionalLayout({
+  children,
+  banner,
+}: {
+  children: React.ReactNode;
+  banner?: React.ReactNode;
+}) {
   const pathname = usePathname();
   const isAdminPage = pathname?.startsWith("/admin");
 
@@ -32,7 +38,10 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <Navbar />
+      <div className="sticky top-0 z-50">
+        {banner}
+        <Navbar />
+      </div>
       <main className="flex-1">{children}</main>
       <Footer />
     </>

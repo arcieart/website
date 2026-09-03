@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/providers/theme";
 import { TanstackProvider } from "@/providers/tanstack";
 import { ConditionalLayout } from "@/components/layout/conditional-layout";
+import { NavBarBanner } from "@/components/banners/TopLayoutBanner";
 
 const caveat = Caveat({
   variable: "--font-caveat",
@@ -118,7 +119,9 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <Toaster richColors position="top-right" />
-              <ConditionalLayout>{children}</ConditionalLayout>
+              <ConditionalLayout banner={<NavBarBanner />}>
+                {children}
+              </ConditionalLayout>
             </ThemeProvider>
           </TanstackProvider>
         </PostHogProvider>

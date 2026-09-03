@@ -36,10 +36,10 @@ const bannerConfig = {
     iconColor: "text-red-600",
   },
   promotion: {
-    bgColor: "bg-gradient-to-r from-purple-500 to-pink-500",
-    textColor: "text-white",
+    bgColor: "bg-primary border-primary",
+    textColor: "text-primary-foreground",
     icon: Gift,
-    iconColor: "text-white",
+    iconColor: "text-primary-foreground",
   },
 };
 
@@ -59,14 +59,13 @@ export const TopLayoutBanner: React.FC<TopLayoutBannerProps> = ({
     <div
       className={cn(
         "w-full border-b transition-all duration-300 ease-in-out",
-        config.bgColor,
-        type === "promotion" ? "animate-pulse" : ""
+        config.bgColor
       )}
     >
-      <div className="container mx-auto px-4 py-2 relative flex items-center justify-between">
-        <div className="flex items-center flex-1 lg:justify-center">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-2 relative flex items-center justify-between">
+        <div className="flex items-center flex-1 justify-center">
           <div className="flex items-center gap-3">
-            <Icon className={cn("h-5 w-5 flex-shrink-0", config.iconColor)} />
+            <Icon className={cn("h-5 w-5 shrink-0", config.iconColor)} />
             <span
               className={cn(
                 "text-sm font-medium leading-relaxed",
@@ -95,15 +94,9 @@ export const TopLayoutBanner: React.FC<TopLayoutBannerProps> = ({
 };
 
 export const NavBarBanner = () => {
-  return null;
-
   return (
-    <TopLayoutBanner type="warning" dismissible={false}>
-      <p>
-        Our store will be closed from 24th June to 7th July 2025 on occasion of
-        Muharram. Orders placed during this time will be processed on 8th July
-        2025
-      </p>
+    <TopLayoutBanner type="promotion" dismissible={false}>
+      20% off on all items, no coupon needed
     </TopLayoutBanner>
   );
 };

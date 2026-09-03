@@ -18,7 +18,6 @@ import { FullLogo } from "../logos/FullLogo";
 import CartSheet from "./CartSheet";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { isProduction } from "@/utils/misc";
-import { NavBarBanner } from "../banners/TopLayoutBanner";
 
 // Reusable component for category dropdown
 function CategoryDropdown({ isMobile = false }: { isMobile?: boolean }) {
@@ -104,49 +103,46 @@ export function Navbar() {
   const favoriteItemIds = useFavoritesStore((state) => state.itemIds);
 
   return (
-    <>
-      <NavBarBanner />
-      <nav className="bg-background border-b sticky top-0 z-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Left side - Logo and Desktop Navigation */}
-            <div className="flex items-center">
-              <Link href="/" className="flex items-center space-x-2">
-                <FullLogo />
-              </Link>
+    <nav className="bg-background border-b">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Left side - Logo and Desktop Navigation */}
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center space-x-2">
+              <FullLogo />
+            </Link>
 
-              <div className="hidden md:flex items-center space-x-8 ml-8">
-                <CategoryDropdown />
-              </div>
+            <div className="hidden md:flex items-center space-x-8 ml-8">
+              <CategoryDropdown />
             </div>
+          </div>
 
-            {/* Right side - Actions */}
-            <div className="flex items-center gap-1">
-              {!isProduction && <ThemeToggle />}
+          {/* Right side - Actions */}
+          <div className="flex items-center gap-1">
+            {!isProduction && <ThemeToggle />}
 
-              <IconButton
-                href="/favorites"
-                icon={Heart}
-                label="Favorites"
-                count={favoriteItemIds.length}
-                isActive={favoriteItemIds.length > 0}
-              />
+            <IconButton
+              href="/favorites"
+              icon={Heart}
+              label="Favorites"
+              count={favoriteItemIds.length}
+              isActive={favoriteItemIds.length > 0}
+            />
 
-              <IconButton
-                label="Cart"
-                icon={ShoppingCart}
-                count={totalItems}
-                wrapper={CartSheet}
-              />
+            <IconButton
+              label="Cart"
+              icon={ShoppingCart}
+              count={totalItems}
+              wrapper={CartSheet}
+            />
 
-              {/* Mobile Menu */}
-              <div className="md:hidden">
-                <CategoryDropdown isMobile />
-              </div>
+            {/* Mobile Menu */}
+            <div className="md:hidden">
+              <CategoryDropdown isMobile />
             </div>
           </div>
         </div>
-      </nav>
-    </>
+      </div>
+    </nav>
   );
 }
