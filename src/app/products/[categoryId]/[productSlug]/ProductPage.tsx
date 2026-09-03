@@ -308,7 +308,7 @@ export function ProductPage({ params }: ProductPageProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 lg:gap-20">
           {/* Product Images */}
-          <div className="md:sticky md:top-18 md:self-start">
+          <div className="md:sticky md:top-28 md:self-start">
             <ProductPageMediaCarousel
               product={product}
               alt={product.name}

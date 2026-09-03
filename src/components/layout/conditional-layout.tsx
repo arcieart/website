@@ -7,6 +7,18 @@ import { AdminNavbar } from "./admin-navbar";
 
 const LATEST_CART_VERSION = "1";
 
+/**
+ * The promotional banner sits above the navbar on the landing page and across
+ * the whole product tree (listing, category and product detail).
+ */
+function carriesBanner(pathname: string) {
+  return (
+    pathname === "/" ||
+    pathname === "/products" ||
+    pathname.startsWith("/products/")
+  );
+}
+
 // Check and update cart version immediately when module loads on client
 if (typeof window !== "undefined") {
   const cartVersion = localStorage.getItem("cartVersion");
@@ -26,6 +38,7 @@ export function ConditionalLayout({
 }) {
   const pathname = usePathname();
   const isAdminPage = pathname?.startsWith("/admin");
+  const showBanner = carriesBanner(pathname ?? "");
 
   if (isAdminPage) {
     return (
@@ -39,7 +52,7 @@ export function ConditionalLayout({
   return (
     <>
       <div className="sticky top-0 z-50">
-        {banner}
+        {showBanner && banner}
         <Navbar />
       </div>
       <main className="flex-1">{children}</main>
