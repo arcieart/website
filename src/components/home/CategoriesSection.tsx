@@ -21,11 +21,11 @@ export default function CategoriesSection() {
             Product Categories
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Explore Our Collection
+            The rest of the catalog
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            From functional accessories to decorative art pieces, find the
-            perfect product for any occasion
+            Keychains, desk pieces, and accessories, all 3D printed in the same
+            studio as the clickers.
           </p>
         </div>
 
@@ -33,7 +33,9 @@ export default function CategoriesSection() {
           {BaseCategories.map((category) => (
             <Card
               key={category.id}
-              className="group hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col justify-between"
+              className={`group hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col justify-between ${
+                category.id === "clickers" ? "md:col-span-2" : ""
+              }`}
             >
               <CardHeader>
                 <div className="flex items-center justify-between mb-4">

@@ -6,47 +6,34 @@ import { ProductCard } from "@/components/products/ProductCard";
 import { ProductFilters } from "@/components/products/ProductFilters";
 import { useProducts } from "@/hooks/useProducts";
 
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useParams } from "next/navigation";
+import { useMemo } from "react";
 import Link from "next/link";
 import { BaseCategoriesObj } from "@/data/categories";
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { ProductsGridSkeleton } from "@/components/skeletons/ProductsPageSkeleton";
-import { toast } from "sonner";
+import { UIProduct } from "@/types/product";
 
-export function CategoryProductsPage() {
+export function CategoryProductsPage({
+  initialProducts = [],
+}: {
+  initialProducts?: UIProduct[];
+}) {
   const params = useParams();
   const categoryId = params.categoryId as string;
+  const category = BaseCategoriesObj[categoryId];
 
   const { products, isLoading } = useProducts();
-  const router = useRouter();
 
-  const [isCategoryLoading, setIsCategoryLoading] = useState(true);
-
-  useEffect(() => {
-    if (categoryId) {
-      const categoryFromId = BaseCategoriesObj[categoryId];
-      if (!categoryFromId) {
-        toast.error("Category not found, redirecting to products page...");
-        setTimeout(() => {
-          router.replace("/products");
-        }, 2000);
-      } else setIsCategoryLoading(false);
-    }
-  }, [categoryId]);
-
-  // Filter products by category
-  const categoryProducts = useMemo(() => {
+  const liveCategoryProducts = useMemo(() => {
     if (!products || !categoryId) return [];
     return products.filter((product) => product.categoryId === categoryId);
   }, [products, categoryId]);
 
-  const categoryName = useMemo(() => {
-    if (!isCategoryLoading) {
-      const categoryFromId = BaseCategoriesObj[categoryId];
-      if (categoryFromId) return categoryFromId.name;
-    }
-  }, [categoryId, isCategoryLoading]);
+  const categoryProducts =
+    liveCategoryProducts.length > 0 || !isLoading
+      ? liveCategoryProducts
+      : initialProducts;
 
   const {
     sortBy,
@@ -63,17 +50,25 @@ export function CategoryProductsPage() {
     baseUrl: `/products/${categoryId}`,
   });
 
-  if (isCategoryLoading)
+  if (!category) {
     return (
-      <div className="mt-20">
-        <ProductsGridSkeleton showFilters />;
+      <div className="min-h-screen bg-background">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <h1 className="text-2xl font-bold mb-4">Category not found</h1>
+          <Link href="/products">
+            <Button variant="outline">Browse all products</Button>
+          </Link>
+        </div>
       </div>
     );
+  }
+
+  const showGridSkeleton =
+    isLoading && filteredAndSortedProducts.length === 0 && initialProducts.length === 0;
 
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
             <Link href="/products">
@@ -86,16 +81,15 @@ export function CategoryProductsPage() {
             </Link>
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            {categoryName}
+            {category.name}
           </h1>
-          {BaseCategoriesObj[categoryId]?.baseDescription && (
+          {category.baseDescription && (
             <p className="text-muted-foreground max-w-lg text-sm">
-              {BaseCategoriesObj[categoryId].baseDescription}
+              {category.baseDescription}
             </p>
           )}
         </div>
 
-        {/* Show filters only if we have products */}
         {categoryProducts.length > 0 && (
           <ProductFilters
             hideCategories
@@ -110,14 +104,13 @@ export function CategoryProductsPage() {
           />
         )}
 
-        {/* Products Grid */}
         <div className="w-full">
-          {isLoading ? (
-            <ProductsGridSkeleton showFilters={categoryProducts.length === 0} />
+          {showGridSkeleton ? (
+            <ProductsGridSkeleton showFilters={false} />
           ) : filteredAndSortedProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {filteredAndSortedProducts.map((product, index) => (
-                <ProductCard key={product.id + index} product={product} />
+              {filteredAndSortedProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           ) : categoryProducts.length === 0 ? (
@@ -125,15 +118,14 @@ export function CategoryProductsPage() {
               <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                 <Filter className="w-12 h-12 text-muted-foreground" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">
-                Category not found
-              </h3>
+              <h2 className="text-xl font-semibold text-foreground mb-2">
+                No {category.name.toLowerCase()} listed yet
+              </h2>
               <p className="text-muted-foreground mb-4">
-                We couldn&apos;t find any products in the &quot;{categoryName}
-                &quot; category
+                Check back soon, or browse the rest of the shop.
               </p>
               <Link href="/products">
-                <Button variant="outline">Browse All Products</Button>
+                <Button variant="outline">Browse all products</Button>
               </Link>
             </div>
           ) : (
@@ -141,14 +133,14 @@ export function CategoryProductsPage() {
               <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                 <Filter className="w-12 h-12 text-muted-foreground" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">
+              <h2 className="text-xl font-semibold text-foreground mb-2">
                 No products found
-              </h3>
+              </h2>
               <p className="text-muted-foreground mb-4">
-                Try adjusting your filters or search criteria
+                Try adjusting your filters.
               </p>
               <Button onClick={clearFilters} variant="outline">
-                Clear All Filters
+                Clear all filters
               </Button>
             </div>
           )}

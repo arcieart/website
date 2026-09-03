@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ShoppingCart, Package, Phone } from "lucide-react";
+import { MousePointerClick, Printer } from "lucide-react";
 import Link from "next/link";
 
 export default function CTASection() {
@@ -8,31 +8,29 @@ export default function CTASection() {
     <section className="px-4 py-16 md:py-20 bg-gradient-to-r from-primary/10 via-background to-secondary/10">
       <div className="max-w-4xl mx-auto text-center">
         <Badge variant="secondary" className="mb-4">
-          <Sparkles className="w-3 h-3 mr-1" />
-          New Store Launch
+          Arcie Art, Mumbai
         </Badge>
 
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
-          Discover 3D Printed Products
+          Clickers or a custom print
         </h2>
 
         <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Explore our unique collection of custom 3D printed items. From
-          functional products to decorative pieces, find the perfect product for
-          your needs.
+          Shop finished 3D printed clickers, or send a file for a 3D printing
+          job from Byculla.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/products">
+          <Link href="/clicker-switches">
             <Button size="lg" className="px-8">
-              <ShoppingCart className="w-4 h-4" />
-              Shop Now
+              <MousePointerClick className="w-4 h-4" />
+              Shop clickers
             </Button>
           </Link>
-          <Link href="/contact">
+          <Link href="/3d-printing">
             <Button variant="outline" size="lg" className="px-8">
-              <Phone className="w-4 h-4" />
-              Contact Us
+              <Printer className="w-4 h-4" />
+              Get a print quote
             </Button>
           </Link>
         </div>

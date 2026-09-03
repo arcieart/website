@@ -1,28 +1,31 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Palette, Package, Award, Heart, Zap } from "lucide-react";
+import { MapPin, MousePointerClick, Printer, Truck, Zap } from "lucide-react";
 
 const features = [
   {
-    icon: Palette,
-    title: "Fully Customizable",
+    icon: MousePointerClick,
+    title: "Clickers in stock",
     description:
-      "Design your own unique products with our easy customization tools",
+      "Mechanical fidget clickers printed here, sold as finished products.",
   },
   {
-    icon: Package,
-    title: "Fast Shipping",
-    description: "Quick turnaround time with reliable shipping options",
+    icon: Printer,
+    title: "Custom 3D printing",
+    description:
+      "Send an STL or 3MF. We quote, print in PLA+ or PETG, and ship.",
   },
   {
-    icon: Award,
-    title: "Premium Quality",
-    description: "High-quality materials and precise 3D printing technology",
+    icon: MapPin,
+    title: "Byculla, Mumbai",
+    description:
+      "A real studio in the city, not a marketplace listing with no workshop.",
   },
   {
-    icon: Heart,
-    title: "Made with Love",
-    description: "Each product is carefully crafted with attention to detail",
+    icon: Truck,
+    title: "Ships across India",
+    description:
+      "Typical print and finish in 3-5 business days. Free shipping over ₹999.",
   },
 ];
 
@@ -33,17 +36,17 @@ export default function FeaturesSection() {
         <div className="text-center mb-12">
           <Badge variant="outline" className="mb-4">
             <Zap className="w-3 h-3 mr-1" />
-            Why Choose Us
+            Why this shop
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            What Makes Us Special
+            A print studio that also sells clickers
           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {features.map((feature, index) => (
+          {features.map((feature) => (
             <Card
-              key={index}
+              key={feature.title}
               className="text-center border-0 shadow-sm hover:shadow-md transition-shadow"
             >
               <CardContent className="pt-6">

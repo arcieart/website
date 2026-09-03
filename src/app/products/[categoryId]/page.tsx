@@ -2,7 +2,12 @@ import { ProductsGridSkeleton } from "@/components/skeletons/ProductsPageSkeleto
 import { Suspense } from "react";
 import { CategoryProductsPage } from "./ProductsCategoryPage";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { BaseCategoriesObj } from "@/data/categories";
+import { CLICKER_KEYWORDS } from "@/config/site";
+import { pageMetadata, breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
+import { getAvailableProducts } from "@/lib/products";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 type CategoryPageProps = { params: Promise<{ categoryId: string }> };
 
@@ -12,27 +17,70 @@ export async function generateMetadata({
   const categoryId = (await params).categoryId;
   const category = BaseCategoriesObj[categoryId];
 
-  if (category) {
-    const newMetadata: Metadata = {
-      title: category.name + " | " + "by Arcie Art",
-      description: category.baseDescription,
-    };
-
-    if (category.images[0]) {
-      newMetadata.openGraph = { images: [category.images[0]] };
-      newMetadata.twitter = { images: [category.images[0]] };
-    }
-
-    return newMetadata;
+  if (!category) {
+    return pageMetadata({
+      title: "Category not found",
+      description: "This product category does not exist.",
+      path: `/products/${categoryId}`,
+      noIndex: true,
+    });
   }
 
-  return {};
+  const keywords =
+    category.id === "clickers"
+      ? CLICKER_KEYWORDS
+      : [category.name, "3d printed", "arcie art", "mumbai"];
+
+  return pageMetadata({
+    title: category.seoTitle,
+    description: category.seoDescription,
+    path: `/products/${category.id}`,
+    keywords,
+    images: category.images[0]
+      ? [{ url: category.images[0], alt: category.name }]
+      : undefined,
+  });
 }
 
-export default function CategoryProductsPageWrapper() {
+export default async function CategoryProductsPageWrapper({
+  params,
+}: CategoryPageProps) {
+  const categoryId = (await params).categoryId;
+  const category = BaseCategoriesObj[categoryId];
+
+  if (!category) notFound();
+
+  let initialProducts: Awaited<ReturnType<typeof getAvailableProducts>> = [];
+  try {
+    const products = await getAvailableProducts();
+    initialProducts = products.filter(
+      (product) => product.categoryId === categoryId
+    );
+  } catch {
+    initialProducts = [];
+  }
+
   return (
-    <Suspense fallback={<ProductsGridSkeleton />}>
-      <CategoryProductsPage />
-    </Suspense>
+    <>
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Products", path: "/products" },
+          { name: category.name, path: `/products/${category.id}` },
+        ])}
+      />
+      {initialProducts.length > 0 && (
+        <JsonLd
+          data={itemListJsonLd({
+            name: category.name,
+            path: `/products/${category.id}`,
+            products: initialProducts,
+          })}
+        />
+      )}
+      <Suspense fallback={<ProductsGridSkeleton />}>
+        <CategoryProductsPage initialProducts={initialProducts} />
+      </Suspense>
+    </>
   );
 }

@@ -15,7 +15,9 @@ function carriesBanner(pathname: string) {
   return (
     pathname === "/" ||
     pathname === "/products" ||
-    pathname.startsWith("/products/")
+    pathname.startsWith("/products/") ||
+    pathname === "/clicker-switches" ||
+    pathname === "/3d-printing"
   );
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Heart, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,6 +53,7 @@ import { BaseCategoriesObj } from "@/data/categories";
 
 interface ProductPageProps {
   params: Promise<{ productSlug: string }>;
+  initialProduct?: UIProduct;
 }
 
 const CustomizationLabel = ({
@@ -81,7 +82,7 @@ const CustomizationLabel = ({
   </Label>
 );
 
-export function ProductPage({ params }: ProductPageProps) {
+export function ProductPage({ params, initialProduct }: ProductPageProps) {
   const { products, isLoading } = useProducts();
   const { toggleItem, isInFavorites } = useFavoritesStore();
   const addToCart = useCartStore((state) => state.addItem);
@@ -91,7 +92,7 @@ export function ProductPage({ params }: ProductPageProps) {
   const [resolvedParams, setResolvedParams] = useState<{
     productSlug: string;
   }>();
-  const [product, setProduct] = useState<UIProduct>();
+  const [product, setProduct] = useState<UIProduct | undefined>(initialProduct);
   const [quantity, setQuantity] = useState(1);
   const [customizations, setCustomizations] = useState<Record<string, string>>(
     {}
@@ -106,32 +107,40 @@ export function ProductPage({ params }: ProductPageProps) {
 
   useEffect(() => {
     if (products && resolvedParams && !isLoading) {
-      const product = products.find(
+      const found = products.find(
         (p) => p.slug === resolvedParams.productSlug
       );
-      if (product) {
-        setProduct(product);
-
-        // Track product viewed
-        trackProductViewed({
-          productId: product.id,
-          productName: product.name,
-          categoryId: product.categoryId,
-          price: product.price,
-          slug: product.slug,
-          available: product.available,
-          isBestSeller: product.isBestSeller,
-        });
-      } else {
+      if (found) {
+        setProduct(found);
+      } else if (!initialProduct) {
         toast.error("Product not found, redirecting to products page...");
         setTimeout(() => {
           router.replace("/products");
         }, 2000);
       }
     }
-  }, [products, resolvedParams, isLoading]);
+  }, [products, resolvedParams, isLoading, initialProduct, router]);
 
-  if (!resolvedParams || isLoading || !product) {
+  const trackedView = useRef(false);
+  useEffect(() => {
+    if (!product || trackedView.current) return;
+    trackedView.current = true;
+    trackProductViewed({
+      productId: product.id,
+      productName: product.name,
+      categoryId: product.categoryId,
+      price: product.price,
+      slug: product.slug,
+      available: product.available,
+      isBestSeller: product.isBestSeller,
+    });
+  }, [product]);
+
+  if (!product && (isLoading || !resolvedParams)) {
+    return <ProductPageSkeleton />;
+  }
+
+  if (!product) {
     return <ProductPageSkeleton />;
   }
 

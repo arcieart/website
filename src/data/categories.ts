@@ -4,6 +4,8 @@ export type Category = {
   id: string;
   name: string;
   baseDescription: string;
+  seoTitle: string;
+  seoDescription: string;
   images: string[];
   price: number;
   material: "pla" | "petg";
@@ -11,9 +13,25 @@ export type Category = {
 
 const _BaseCategories: Category[] = [
   {
+    id: "clickers",
+    name: "Clickers",
+    baseDescription:
+      "3D printed fidget clickers and switches. Clicky, tactile, pocket-sized, printed in PLA+ in Mumbai.",
+    seoTitle: "3D Printed Fidget Clickers & Switches",
+    seoDescription:
+      "Shop 3D printed fidget clickers, clicker switches, and clicky desk toys from Arcie Art in Mumbai. Tactile PLA+ fidgets, made in India, shipped nationwide.",
+    images: [],
+    price: 200,
+    material: "pla",
+  },
+  {
     id: "keychains",
     name: "Keychains",
-    baseDescription:"Perfect as a meaningful keepsake or a thoughtful gift for loved ones.",
+    baseDescription:
+      "3D printed keychains, including custom name and character designs. Printed in Mumbai.",
+    seoTitle: "3D Printed Keychains",
+    seoDescription:
+      "Shop 3D printed keychains from Arcie Art. Custom names, characters, and keepsakes, printed in Mumbai and shipped across India.",
     images: [],
     price: 150,
     material: "pla",
@@ -21,7 +39,11 @@ const _BaseCategories: Category[] = [
   {
     id: "decor",
     name: "Decor & Gifting",
-    baseDescription: "A collection of beautiful and unique display pieces for your home or office and perfect for gifting",
+    baseDescription:
+      "3D printed desk and shelf pieces for gifting or display, printed in PLA+ in Mumbai.",
+    seoTitle: "3D Printed Decor and Gifts",
+    seoDescription:
+      "3D printed decor and gifts from Arcie Art in Mumbai. Desk pieces, wall art, and personalized showpieces shipped across India.",
     images: [],
     price: 300,
     material: "pla",
@@ -29,7 +51,11 @@ const _BaseCategories: Category[] = [
   {
     id: "desk-accessories",
     name: "Desk Accessories",
-    baseDescription: "A collection of Desk Accessories to help you organize your desk and keep your desk clean and tidy.",
+    baseDescription:
+      "3D printed phone stands and desk organizers. Functional prints for a work or gaming setup.",
+    seoTitle: "3D Printed Desk Accessories",
+    seoDescription:
+      "3D printed desk accessories from Arcie Art. Phone stands, organizers, and setup pieces printed in Mumbai.",
     images: [],
     price: 300,
     material: "pla",
@@ -38,7 +64,10 @@ const _BaseCategories: Category[] = [
     id: "earrings",
     name: "Earrings",
     baseDescription:
-      "A lightweight and comfortable statement piece that brings personality to any outfit. Each design is carefully crafted to catch the eye.",
+      "Lightweight 3D printed earrings. Statement pieces printed in PLA+.",
+    seoTitle: "3D Printed Earrings",
+    seoDescription:
+      "Lightweight 3D printed earrings from Arcie Art in Mumbai. Custom colours and designs.",
     images: [],
     price: 150,
     material: "pla",
@@ -46,26 +75,20 @@ const _BaseCategories: Category[] = [
   {
     id: "accessories",
     name: "Accessories",
-    baseDescription: "A collection of daily use accessories to carry with you",
+    baseDescription:
+      "Everyday 3D printed accessories such as luggage tags and carry-along pieces.",
+    seoTitle: "3D Printed Accessories",
+    seoDescription:
+      "Everyday 3D printed accessories from Arcie Art, including luggage tags and carry-along pieces. Made in Mumbai.",
     images: [],
     price: 300,
     material: "pla",
   },
-  {
-    id: "clickers",
-    name: "Clickers",
-    baseDescription: "A collection of satisfying clickers for fidgeting and stress relief",
-    images: [],
-    price: 200,
-    material: "pla",
-  }
-]
+];
 
-export const BaseCategories: Category[] =
-  isProduction
-    ? _BaseCategories.filter((category) => category.id !== "earrings")
-    : _BaseCategories;
-
+export const BaseCategories: Category[] = isProduction
+  ? _BaseCategories.filter((category) => category.id !== "earrings")
+  : _BaseCategories;
 
 export const BaseCategoriesObj = BaseCategories.reduce(
   (acc: Record<string, Category>, category) => {
@@ -75,4 +98,10 @@ export const BaseCategoriesObj = BaseCategories.reduce(
   {}
 );
 
-export type BaseCategoriesIds = "keychains" | "earrings" | "decor" | "desk-accessories" | "accessories" | "clickers";
+export type BaseCategoriesIds =
+  | "keychains"
+  | "earrings"
+  | "decor"
+  | "desk-accessories"
+  | "accessories"
+  | "clickers";

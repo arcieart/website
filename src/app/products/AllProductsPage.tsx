@@ -8,9 +8,16 @@ import { ProductFilters } from "@/components/products/ProductFilters";
 import { useProducts } from "@/hooks/useProducts";
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { ProductsGridSkeleton } from "@/components/skeletons/ProductsPageSkeleton";
+import { UIProduct } from "@/types/product";
 
-export default function AllProductsPage() {
+export default function AllProductsPage({
+  initialProducts = [],
+}: {
+  initialProducts?: UIProduct[];
+}) {
   const { products, isLoading } = useProducts();
+  const catalog =
+    products.length > 0 || !isLoading ? products : initialProducts;
   const {
     sortBy,
     setSortBy,
@@ -21,7 +28,7 @@ export default function AllProductsPage() {
     activeFiltersCount,
     handleCategoryChange,
     clearFilters,
-  } = useProductFilters({ products });
+  } = useProductFilters({ products: catalog });
 
   return (
     <div className="min-h-screen bg-background">
@@ -29,10 +36,11 @@ export default function AllProductsPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            All Products
+            3D printed products
           </h1>
           <p className="text-muted-foreground">
-            Discover our complete collection of products
+            Clickers, fidget switches, keychains, desk accessories, and decor.
+            Printed in Mumbai, shipped across India.
           </p>
         </div>
 
@@ -50,11 +58,11 @@ export default function AllProductsPage() {
 
         {/* Products Grid */}
         <div className="w-full">
-          {isLoading ? (
+          {isLoading && filteredAndSortedProducts.length === 0 ? (
             <ProductsGridSkeleton />
           ) : filteredAndSortedProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {filteredAndSortedProducts.map((product, index) => (
+              {filteredAndSortedProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>

@@ -27,12 +27,27 @@ function CategoryDropdown({ isMobile = false }: { isMobile?: boolean }) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className={`${textSize} text-foreground`}>
-          {isMobile ? <Menu className="w-5 h-5" /> : "Products"}
+          {isMobile ? <Menu className="w-5 h-5" /> : "Shop"}
           {!isMobile && <ChevronDown className="w-3 h-3 ml-1" />}
           {isMobile && <span className="sr-only">Open menu</span>}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align={isMobile ? "end" : "start"} className="w-56">
+        {isMobile && (
+          <>
+            <DropdownMenuLabel>Highlights</DropdownMenuLabel>
+            <DropdownMenuItem asChild>
+              <Link href="/clicker-switches" className={textSize}>
+                Clickers
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/3d-printing" className={textSize}>
+                3D Printing Services
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuLabel>Products</DropdownMenuLabel>
         <DropdownMenuItem asChild>
           <Link href="/products" className={textSize}>
@@ -112,8 +127,18 @@ export function Navbar() {
               <FullLogo />
             </Link>
 
-            <div className="hidden md:flex items-center space-x-8 ml-8">
+            <div className="hidden md:flex items-center space-x-2 ml-8">
               <CategoryDropdown />
+              <Link href="/clicker-switches">
+                <Button variant="ghost" className="text-sm text-foreground">
+                  Clickers
+                </Button>
+              </Link>
+              <Link href="/3d-printing">
+                <Button variant="ghost" className="text-sm text-foreground">
+                  3D Printing
+                </Button>
+              </Link>
             </div>
           </div>
 

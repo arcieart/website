@@ -49,6 +49,24 @@ export const getWhatsappHelpLink = (order: Order) => {
  * Returns a WhatsApp link for help with customization options for a product.
  * @param product The product for which customization help is needed.
  */
+export const getWhatsappPrintQuoteLink = () => {
+  const message = [
+    "Hi, I want a quote for a custom 3D print from arcie.art.",
+    "",
+    "File: (I'll attach it here)",
+    "Quantity:",
+    "Material (PLA+ / PETG):",
+    "Notes:",
+  ].join("\n");
+  return `https://wa.me/${SUPPORT_PHONE_NUMBER}?text=${encodeURIComponent(message)}`;
+};
+
+export const getWhatsappClickerLink = () => {
+  const message =
+    "Hi, I want to order clickers from arcie.art.";
+  return `https://wa.me/${SUPPORT_PHONE_NUMBER}?text=${encodeURIComponent(message)}`;
+};
+
 export const getWhatsappCustomizationHelpLink = (product: UIProduct) => {
   const message = [
     "Hi, I'm interested in customizing a product.",

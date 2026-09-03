@@ -102,7 +102,7 @@ const defaultProductData: DBProduct = {
   videos: [],
   slug: "",
   price: 0,
-  categoryId: "keychains" as BaseCategoriesIds,
+  categoryId: "clickers" as BaseCategoriesIds,
   customizationOptions: [] as DBCustomization[],
   available: true,
   isBestSeller: false,

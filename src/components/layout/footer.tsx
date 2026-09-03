@@ -4,12 +4,13 @@ import Link from "next/link";
 import { Instagram, Mail, Phone, MapPin } from "lucide-react";
 import { BaseCategories } from "@/data/categories";
 import { FullLogo } from "../logos/FullLogo";
+import { SITE_ADDRESS, SITE_CONTACT } from "@/config/site";
 
 const socialLinks = [
   {
     name: "Instagram",
     icon: Instagram,
-    href: "https://www.instagram.com/arcie.art",
+    href: SITE_CONTACT.instagram,
   },
 ];
 
@@ -41,23 +42,27 @@ export function Footer() {
             <Link href="/" className="flex items-center space-x-2">
               <FullLogo />
             </Link>
-            <p className="text-foreground font-caveat text-2xl mb-4 max-w-md">
+            <p className="text-foreground font-caveat text-2xl mb-2 max-w-md">
               Art that tells your story
+            </p>
+            <p className="text-sm text-muted-foreground mb-4 max-w-md">
+              3D printed clickers and custom 3D printing from Byculla,
+              Mumbai.
             </p>
 
             {/* Contact Info */}
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center space-x-2">
                 <Mail className="w-4 h-4" />
-                <span>myarcieart@gmail.com</span>
+                <span>{SITE_CONTACT.email}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Phone className="w-4 h-4" />
-                <span>+91 9769910657</span>
+                <span>{SITE_CONTACT.phoneDisplay}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <MapPin className="w-4 h-4" />
-                <span>Byculla, Mumbai, Maharashtra, India</span>
+                <span>{SITE_ADDRESS.line}</span>
               </div>
             </div>
           </div>
@@ -95,6 +100,22 @@ export function Footer() {
               Company
             </h3>
             <ul className="space-y-3">
+              <li>
+                <Link
+                  href="/clicker-switches"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Clickers
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/3d-printing"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  3D Printing Services
+                </Link>
+              </li>
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
                   <Link
@@ -113,7 +134,7 @@ export function Footer() {
         <div className="py-6 border-t flex flex-col md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-6">
             <p className="text-sm text-muted-foreground">
-              © 2025 Arcie Art. All rights reserved.
+              © {new Date().getFullYear()} Arcie Art. All rights reserved.
             </p>
             <div className="flex space-x-4">
               {footerLinks.legal.map((link) => (

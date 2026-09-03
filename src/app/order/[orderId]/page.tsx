@@ -17,11 +17,21 @@ import { CustomizationBadge } from "@/components/products/CustomizationBadge";
 import { formatOrderStatus } from "@/data/orderStatuses";
 import { getShippingCost } from "@/config/currency";
 import Markdown from "react-markdown";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Order Details | Arcie Art",
-  description: "View your order details and track your order status",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ orderId: string }>;
+}): Promise<Metadata> {
+  const { orderId } = await params;
+  return pageMetadata({
+    title: "Order details",
+    description: "View your order details and track your order status",
+    path: `/order/${orderId}`,
+    noIndex: true,
+  });
+}
 
 async function getOrder(orderId: string): Promise<Order | null> {
   const order = await getOrderAction(orderId);

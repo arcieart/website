@@ -9,7 +9,7 @@ import {
 import { db } from "@/lib/firebase";
 import { Collections } from "@/constants/Collections";
 import { DBProduct, UIProduct } from "@/types/product";
-import { BaseCategoriesObj } from "@/data/categories";
+import { toUIProduct } from "@/lib/product-map";
 
 const getProductsRef = () => {
   const productsRef = collection(db, Collections.Products);
@@ -50,11 +50,8 @@ export const useProducts = () => {
         const products: UIProduct[] = [];
         snapshot.forEach((doc) => {
           const dbProduct = { id: doc.id, ...doc.data() } as DBProduct;
-          if(BaseCategoriesObj[dbProduct.categoryId]) {
-            const { id, ...restBaseCategory } = BaseCategoriesObj[dbProduct.categoryId];
-            const product: UIProduct = { ...restBaseCategory, ...dbProduct };
-            products.push(product);
-          }
+          const product = toUIProduct(dbProduct);
+          if (product) products.push(product);
         });
         
         // console.log("products", products);
