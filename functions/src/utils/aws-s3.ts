@@ -1,22 +1,12 @@
 import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
-function readEnv(serverName: string, legacyPublicName: string) {
-  return process.env[serverName] || process.env[legacyPublicName] || "";
-}
-
 function getS3Config() {
-  const region = readEnv("AWS_REGION", "NEXT_PUBLIC_AWS_REGION") || "us-east-1";
-  const accessKeyId = readEnv(
-    "AWS_ACCESS_KEY_ID",
-    "NEXT_PUBLIC_AWS_ACCESS_KEY_ID"
-  );
-  const secretAccessKey = readEnv(
-    "AWS_SECRET_ACCESS_KEY",
-    "NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY"
-  );
-  const bucketName = readEnv("S3_BUCKET_NAME", "NEXT_PUBLIC_S3_BUCKET_NAME");
+  const region = process.env.AWS_REGION;
+  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+  const bucketName = process.env.S3_BUCKET_NAME;
 
-  if (!accessKeyId || !secretAccessKey || !bucketName) {
+  if (!region || !accessKeyId || !secretAccessKey || !bucketName) {
     throw new Error("S3 is not configured");
   }
 
