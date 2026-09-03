@@ -36,12 +36,7 @@ import {
   LuggageTagColors,
 } from "@/data/customizations";
 import { DBProduct, ProductImage } from "@/types/product";
-import {
-  uploadImageToS3,
-  generateImageKey,
-  uploadVideoToS3,
-  generateVideoKey,
-} from "@/lib/aws-s3";
+import { uploadProductMedia } from "@/lib/upload-product-media";
 import Image from "next/image";
 import { addProduct, updateProduct } from "@/lib/products";
 import { getNewProductDocId } from "@/lib/firebase";
@@ -218,12 +213,11 @@ export function ProductSheet({
       for (const mediaState of mediaStates) {
         if (mediaState.type === "image") {
           if (mediaState.file) {
-            // Upload new image
-            const imageKey = generateImageKey(mediaState.file.name, productId);
             const compressedImage = await compressImage(mediaState.file);
-            const uploadedUrl = await uploadImageToS3(
+            const uploadedUrl = await uploadProductMedia(
               compressedImage,
-              imageKey
+              "image",
+              productId
             );
 
             finalImageMapping.push({
@@ -239,11 +233,10 @@ export function ProductSheet({
           }
         } else if (mediaState.type === "video") {
           if (mediaState.file) {
-            // Upload new video
-            const videoKey = generateVideoKey(mediaState.file.name, productId);
-            const uploadedUrl = await uploadVideoToS3(
+            const uploadedUrl = await uploadProductMedia(
               mediaState.file,
-              videoKey
+              "video",
+              productId
             );
             finalVideoUrls.push(uploadedUrl);
           } else if (mediaState.existingUrl) {

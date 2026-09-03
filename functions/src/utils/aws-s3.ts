@@ -1,61 +1,69 @@
 import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
-const BUCKET_NAME =
-  process.env.NEXT_PUBLIC_S3_BUCKET_NAME || "your-bucket-name";
-const s3Client = new S3Client({
-  region: process.env.NEXT_PUBLIC_AWS_REGION || "us-east-1",
-  requestChecksumCalculation: "WHEN_REQUIRED",
-  credentials: {
-    accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY || "",
-  },
-});
+function readEnv(serverName: string, legacyPublicName: string) {
+  return process.env[serverName] || process.env[legacyPublicName] || "";
+}
 
-async function _deleteImageFromS3(key: string): Promise<void> {
-  try {
-    const command = new DeleteObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: key,
-    });
+function getS3Config() {
+  const region = readEnv("AWS_REGION", "NEXT_PUBLIC_AWS_REGION") || "us-east-1";
+  const accessKeyId = readEnv(
+    "AWS_ACCESS_KEY_ID",
+    "NEXT_PUBLIC_AWS_ACCESS_KEY_ID"
+  );
+  const secretAccessKey = readEnv(
+    "AWS_SECRET_ACCESS_KEY",
+    "NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY"
+  );
+  const bucketName = readEnv("S3_BUCKET_NAME", "NEXT_PUBLIC_S3_BUCKET_NAME");
 
-    await s3Client.send(command);
-  } catch (error) {
-    console.error("Error deleting from S3:", error);
-    throw new Error("Failed to delete image");
+  if (!accessKeyId || !secretAccessKey || !bucketName) {
+    throw new Error("S3 is not configured");
   }
+
+  return {
+    bucketName,
+    client: new S3Client({
+      region,
+      credentials: { accessKeyId, secretAccessKey },
+      requestChecksumCalculation: "WHEN_REQUIRED",
+    }),
+  };
 }
 
 function extractKeyFromS3Url(url: string): string {
-  try {
-    // Handle URLs in format: https://bucket-name.s3.amazonaws.com/key
-    // or https://s3.amazonaws.com/bucket-name/key
-    const urlObj = new URL(url);
+  const urlObj = new URL(url);
+  const host = urlObj.hostname;
+  const path = urlObj.pathname.replace(/^\/+/, "");
 
-    if (urlObj.hostname.includes(".s3.amazonaws.com")) {
-      // Format: https://bucket-name.s3.amazonaws.com/key
-      return urlObj.pathname.substring(1); // Remove leading slash
-    } else if (urlObj.hostname === "s3.amazonaws.com") {
-      // Format: https://s3.amazonaws.com/bucket-name/key
-      const pathParts = urlObj.pathname.substring(1).split("/");
-      return pathParts.slice(1).join("/"); // Remove bucket name, keep the rest
-    }
-
-    throw new Error("Invalid S3 URL format");
-  } catch (error) {
-    console.error("Error extracting key from S3 URL:", error);
-    throw new Error("Failed to extract key from S3 URL");
+  // https://bucket.s3.amazonaws.com/key
+  // https://bucket.s3.region.amazonaws.com/key
+  if (host.includes(".s3.") && host.endsWith(".amazonaws.com")) {
+    return decodeURIComponent(path);
   }
+
+  // https://s3.amazonaws.com/bucket/key
+  // https://s3.region.amazonaws.com/bucket/key
+  if (host === "s3.amazonaws.com" || /^s3\.[a-z0-9-]+\.amazonaws\.com$/.test(host)) {
+    const pathParts = path.split("/");
+    return decodeURIComponent(pathParts.slice(1).join("/"));
+  }
+
+  throw new Error("Invalid S3 URL format");
 }
 
-export async function deleteImageFromS3(urlOrKey: string): Promise<void> {
-  try {
-    // Check if it's a URL or already a key
-    const key = urlOrKey.startsWith("http")
-      ? extractKeyFromS3Url(urlOrKey)
-      : urlOrKey;
-    await _deleteImageFromS3(key);
-  } catch (error) {
-    console.error("Error deleting from S3:", error);
-    throw new Error("Failed to delete image");
-  }
+async function deleteObject(key: string): Promise<void> {
+  const { bucketName, client } = getS3Config();
+  await client.send(
+    new DeleteObjectCommand({
+      Bucket: bucketName,
+      Key: key,
+    })
+  );
+}
+
+export async function deleteObjectFromS3(urlOrKey: string): Promise<void> {
+  const key = urlOrKey.startsWith("http")
+    ? extractKeyFromS3Url(urlOrKey)
+    : urlOrKey;
+  await deleteObject(key);
 }

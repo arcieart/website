@@ -2,27 +2,58 @@ import {
   FirestoreEvent,
   QueryDocumentSnapshot,
 } from "firebase-functions/v2/firestore";
-import { deleteImageFromS3 } from "./utils/aws-s3";
+import { deleteObjectFromS3 } from "./utils/aws-s3";
 
 type Event = FirestoreEvent<
   QueryDocumentSnapshot | undefined,
   { productId: string }
 >;
 
+type DeletedProduct = {
+  imageMapping?: { url?: unknown }[];
+  videos?: unknown[];
+  images?: unknown[];
+};
+
+function mediaUrls(product: DeletedProduct): string[] {
+  const urls: string[] = [];
+
+  for (const image of product.imageMapping ?? []) {
+    if (typeof image?.url === "string" && image.url) {
+      urls.push(image.url);
+    }
+  }
+
+  for (const video of product.videos ?? []) {
+    if (typeof video === "string" && video) {
+      urls.push(video);
+    }
+  }
+
+  // Pre-migration documents stored a plain URL list.
+  for (const image of product.images ?? []) {
+    if (typeof image === "string" && image) {
+      urls.push(image);
+    }
+  }
+
+  return [...new Set(urls)];
+}
+
 export const onProductDeletedFunction = async (event: Event) => {
   const productId = event.params.productId;
-  const product = event.data?.data();
-  console.log(`starting to remove product ${productId} images`);
+  const product = event.data?.data() as DeletedProduct | undefined;
 
-  if (product && product.images) {
-    // delete all images from S3
-    const images = product.images;
-    for (const image of images) {
-      await deleteImageFromS3(image);
-      console.log(`Image ${image} deleted`);
-    }
+  if (!product) {
+    console.log(`product ${productId} had no snapshot data, skipping media delete`);
+    return;
+  }
 
-    // delete the product
-    console.log(`product ${productId} images deleted`);
+  const urls = mediaUrls(product);
+  console.log(`removing ${urls.length} media object(s) for product ${productId}`);
+
+  for (const url of urls) {
+    await deleteObjectFromS3(url);
+    console.log(`deleted ${url}`);
   }
 };

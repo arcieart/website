@@ -1,74 +1,105 @@
+import "server-only";
+
 import { Collections } from "@/constants/Collections";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { nanoid } from "nanoid";
 
-// Simple S3 configuration
-const s3Client = new S3Client({
-  region: process.env.NEXT_PUBLIC_AWS_REGION || "us-east-1",
-  requestChecksumCalculation: 'WHEN_REQUIRED',
-  credentials: {
-    accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY || "",
-  },
-});
+const CONTENT_TYPE_EXTENSION: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+  "image/avif": "avif",
+  "video/mp4": "mp4",
+  "video/webm": "webm",
+  "video/ogg": "ogg",
+  "video/quicktime": "mov",
+};
 
-const BUCKET_NAME = process.env.NEXT_PUBLIC_S3_BUCKET_NAME || "your-bucket-name";
+const PRODUCT_ID_PATTERN = /^[A-Za-z0-9_-]{8,128}$/;
 
-export async function uploadImageToS3(file: File, key: string): Promise<string> {
-  try {
-    const command = new PutObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: key,
-      Body: file,
-      ContentType: file.type,
-      CacheControl: 'public, max-age=31536000, immutable', // 1 year cache
-      Metadata: {
-        'uploaded-at': new Date().toISOString(),
-      },
-    });
+function readEnv(serverName: string, legacyPublicName: string) {
+  return process.env[serverName] || process.env[legacyPublicName] || "";
+}
 
-    await s3Client.send(command);
-    
-    // Return the public URL of the uploaded image
-    return `https://${BUCKET_NAME}.s3.amazonaws.com/${key}`;
-  } catch (error) {
-    console.error("Error uploading to S3:", error);
-    throw new Error("Failed to upload image");
+function getS3Config() {
+  const region = readEnv("AWS_REGION", "NEXT_PUBLIC_AWS_REGION") || "us-east-1";
+  const accessKeyId = readEnv(
+    "AWS_ACCESS_KEY_ID",
+    "NEXT_PUBLIC_AWS_ACCESS_KEY_ID"
+  );
+  const secretAccessKey = readEnv(
+    "AWS_SECRET_ACCESS_KEY",
+    "NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY"
+  );
+  const bucketName = readEnv("S3_BUCKET_NAME", "NEXT_PUBLIC_S3_BUCKET_NAME");
+
+  if (!accessKeyId || !secretAccessKey || !bucketName) {
+    throw new Error("S3 is not configured");
   }
+
+  return {
+    bucketName,
+    client: new S3Client({
+      region,
+      credentials: { accessKeyId, secretAccessKey },
+      requestChecksumCalculation: "WHEN_REQUIRED",
+    }),
+  };
 }
 
-export async function uploadVideoToS3(file: File, key: string): Promise<string> {
-  try {
-    const command = new PutObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: key,
-      Body: file,
-      ContentType: file.type,
-      CacheControl: 'public, max-age=31536000, immutable', // 1 year cache
-      Metadata: {
-        'uploaded-at': new Date().toISOString(),
-        'file-type': 'video',
-      },
-    });
+function extensionFor(kind: "image" | "video", contentType: string) {
+  const extension = CONTENT_TYPE_EXTENSION[contentType];
+  const isImage = contentType.startsWith("image/");
+  const isVideo = contentType.startsWith("video/");
 
-    await s3Client.send(command);
-    
-    // Return the public URL of the uploaded video
-    return `https://${BUCKET_NAME}.s3.amazonaws.com/${key}`;
-  } catch (error) {
-    console.error("Error uploading video to S3:", error);
-    throw new Error("Failed to upload video");
+  if (!extension || (kind === "image" && !isImage) || (kind === "video" && !isVideo)) {
+    throw new Error("Unsupported file type");
   }
+
+  return extension;
 }
 
-export function generateImageKey(fileName: string, docId: string): string {
-  const extension = fileName.split('.').pop() || '';
-  const imageId = nanoid(12);
-  return `${Collections.Products}/${docId}/${imageId}.${extension}`;
+function objectKey(kind: "image" | "video", productId: string, contentType: string) {
+  if (!PRODUCT_ID_PATTERN.test(productId)) {
+    throw new Error("Invalid product id");
+  }
+
+  const extension = extensionFor(kind, contentType);
+  const id = nanoid(12);
+
+  if (kind === "video") {
+    return `${Collections.Products}/${productId}/videos/${id}.${extension}`;
+  }
+
+  return `${Collections.Products}/${productId}/${id}.${extension}`;
 }
 
-export function generateVideoKey(fileName: string, docId: string): string {
-  const extension = fileName.split('.').pop() || '';
-  const videoId = nanoid(12);
-  return `${Collections.Products}/${docId}/videos/${videoId}.${extension}`;
+export function publicS3Url(key: string) {
+  const { bucketName } = getS3Config();
+  return `https://${bucketName}.s3.amazonaws.com/${key}`;
+}
+
+export async function createPresignedMediaUpload(input: {
+  kind: "image" | "video";
+  contentType: string;
+  productId: string;
+}) {
+  const key = objectKey(input.kind, input.productId, input.contentType);
+  const { bucketName, client } = getS3Config();
+
+  const command = new PutObjectCommand({
+    Bucket: bucketName,
+    Key: key,
+    ContentType: input.contentType,
+  });
+
+  const uploadUrl = await getSignedUrl(client, command, { expiresIn: 300 });
+
+  return {
+    uploadUrl,
+    publicUrl: publicS3Url(key),
+    key,
+  };
 }

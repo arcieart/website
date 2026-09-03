@@ -35,7 +35,7 @@ interface UseProductsReturn {
 export const useProductsAdmin = ({
   pageSize = 10,
   categoryFilter = "all",
-}: UseProductsProps = {}): UseProductsReturn => {
+}: UseProductsProps): UseProductsReturn => {
   const [products, setProducts] = useState<DBProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
