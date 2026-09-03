@@ -25,6 +25,7 @@ import {
 import { Coupon } from "@/types/coupon";
 import { getTimestamp } from "@/utils/misc";
 import { createCouponAdmin, updateCouponAdmin } from "@/actions/coupon";
+import { getAdminIdToken } from "@/lib/auth";
 import { getDate } from "@/utils/date";
 
 const defaultCouponData: Omit<Coupon, "id"> = {
@@ -105,15 +106,15 @@ export function CouponSheet({
     setIsSaving(true);
 
     try {
+      const idToken = await getAdminIdToken();
       if (isEditMode && coupon?.id) {
-        // Update existing coupon
-        await updateCouponAdmin(coupon.id, { ...couponData, id: coupon.id });
-        console.log("Updated coupon:", couponData);
+        await updateCouponAdmin(idToken, coupon.id, {
+          ...couponData,
+          id: coupon.id,
+        });
       } else {
-        // Create new coupon
         const newCoupon: Omit<Coupon, "id"> = { ...couponData };
-        const couponId = await createCouponAdmin(newCoupon);
-        console.log("Created coupon with ID:", couponId);
+        await createCouponAdmin(idToken, newCoupon);
       }
 
       // Trigger callback

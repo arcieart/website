@@ -1,9 +1,8 @@
-
-"use server";
+import "server-only";
 
 import Razorpay from "razorpay";
 
-export const createRazorpayOrder = async (amount: number, dbId: string) => {
+export async function createRazorpayOrder(amount: number, dbId: string) {
   const rzp = new Razorpay({
     key_id: process.env.NEXT_PUBLIC_RZP_KEY_ID!,
     key_secret: process.env.RZP_KEY_SECRET!,
@@ -16,4 +15,4 @@ export const createRazorpayOrder = async (amount: number, dbId: string) => {
   });
 
   return order;
-};
+}

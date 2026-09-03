@@ -26,7 +26,7 @@ import { useRouter } from "next/navigation";
 import OrderCardItem from "./OrderCardItem";
 import { Order } from "@/types/order";
 import { getTimestamp } from "@/utils/misc";
-import { createOrder, updateOrder } from "@/actions/order";
+import { cancelInitiatedOrder, createOrder } from "@/actions/order";
 import { identifyUser, trackPurchaseCompleted } from "@/lib/analytics";
 import {
   RazorpayPaymentGateway,
@@ -34,7 +34,7 @@ import {
 } from "@/components/RzpGateway";
 import OrderConfirmationDialog from "@/components/OrderConfirmationDialog";
 import { useDiscountCoupon } from "@/hooks/useDiscountCoupon";
-import { BRO_DISCOUNT_CODE, calculateDiscountAmount } from "@/utils/coupon";
+import { calculateDiscountAmount } from "@/utils/coupon";
 import { CouponForm } from "./CouponForm";
 import { RequiredStar } from "@/components/misc/RequiredStar";
 import { calculateShippingCost } from "@/utils/shipping";
@@ -277,7 +277,7 @@ export default function CheckoutPage() {
           couponCode: coupon?.code || undefined,
         },
         payment: {
-          method: coupon?.code === BRO_DISCOUNT_CODE ? "cod" : "razorpay",
+          method: "razorpay",
           status: "pending",
         },
         status: "initiated",
@@ -313,7 +313,7 @@ export default function CheckoutPage() {
 
   function handlePaymentCancel(orderId: string) {
     if (!orderId) return;
-    updateOrder(orderId, { status: "cancelled" });
+    cancelInitiatedOrder(orderId);
   }
 
   function handlePaymentFailed() {
@@ -350,7 +350,7 @@ export default function CheckoutPage() {
     router.push(`/order/${orderId}`);
   }
 
-  const isCashOrder = !!(coupon && coupon.code === BRO_DISCOUNT_CODE);
+  const isCashOrder = coupon?.isCashOrder ?? false;
 
   return (
     <>

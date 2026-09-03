@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import { Coupon } from "@/types/coupon";
 import { deleteCouponAdmin, getCouponsAdmin } from "@/actions/coupon";
+import { getAdminIdToken } from "@/lib/auth";
 import { getTimestamp } from "@/utils/misc";
 import { formatDate } from "@/utils/date";
 
@@ -61,7 +62,7 @@ export const CouponManagement = () => {
       setLoading(true);
       setError(null);
 
-      const data = await getCouponsAdmin();
+      const data = await getCouponsAdmin(await getAdminIdToken());
       setCoupons(data as Coupon[]);
     } catch (error) {
       console.error("Error fetching coupons:", error);
@@ -160,7 +161,7 @@ export const CouponManagement = () => {
     try {
       setDeletingIds((prev) => new Set(prev).add(couponId));
 
-      await deleteCouponAdmin(couponId);
+      await deleteCouponAdmin(await getAdminIdToken(), couponId);
 
       setCoupons((prev) => prev.filter((c) => c.id !== couponId));
     } catch (error) {

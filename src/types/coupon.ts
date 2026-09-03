@@ -12,3 +12,8 @@ export type Coupon = {
   maxDiscountAmount: number | null;
   currency: "INR";
 };
+
+export type AppliedCoupon = Coupon & {
+  grantsFreeShipping: boolean;
+  isCashOrder: boolean;
+};

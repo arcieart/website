@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Contact Us | Arcie Art",
   description: "Reach out to us for any inquiries or collaborations",
   alternates: {
-    canonical: "https://myarcieart.com/contact",
+    canonical: "https://arcie.art/contact",
   },
 };
 

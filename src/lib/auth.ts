@@ -17,12 +17,19 @@ export const signInAnonymously = async () => {
 export const signInWithEmailAndPasswordAuth = async (email: string, password: string) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    // console.log("signed in with email and password", userCredential.user);
     return userCredential.user;
   } catch (error) {
     console.error("error while signing in with email and password", error);
     throw error;
   }
+};
+
+export const getAdminIdToken = async () => {
+  const idToken = await auth.currentUser?.getIdToken();
+  if (!idToken) {
+    throw new Error("Admin session expired. Sign in again.");
+  }
+  return idToken;
 };
   
 

@@ -1,11 +1,11 @@
 "use client";
 
 import { validateCouponAndGetSavings } from "@/actions/coupon";
-import { Coupon } from "@/types/coupon";
+import { AppliedCoupon } from "@/types/coupon";
 import { useEffect, useState } from "react";
 
 export const useDiscountCoupon = () => {
-  const [coupon, setCoupon] = useState<Coupon | null>(null);
+  const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 

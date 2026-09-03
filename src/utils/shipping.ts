@@ -1,10 +1,9 @@
 import { Coupon } from "@/types/coupon";
-import { BRO_DISCOUNT_CODE } from "./coupon";
 import { getFreeShippingThreshold, getShippingCost } from "@/config/currency";
 
 export const calculateShippingCost = (
   subtotal: number,
-  coupon: Coupon | null
+  coupon: (Coupon & { grantsFreeShipping?: boolean }) | null
 ) => {
   const freeShippingThreshold = getFreeShippingThreshold();
 
@@ -12,11 +11,7 @@ export const calculateShippingCost = (
     return 0;
   }
 
-  if (coupon && coupon.discountType === "free_shipping") {
-    return 0;
-  }
-
-  if (coupon && coupon.code === BRO_DISCOUNT_CODE) {
+  if (coupon && (coupon.discountType === "free_shipping" || coupon.grantsFreeShipping)) {
     return 0;
   }
 

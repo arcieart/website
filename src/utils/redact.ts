@@ -1,42 +1,72 @@
 export const redactEmail = (email: string): string => {
+  if (!email || !email.includes("@")) return "***";
+
   const [username, domain] = email.split("@");
-  const redactedUsername = `${username[0]}${"*".repeat(username.length - 2)}${
-    username[username.length - 1]
-  }`;
-  const redactedDomain = `${domain[0]}${"*".repeat(domain.length - 2)}${
-    domain[domain.length - 1]
-  }`;
-  return `${redactedUsername}@${redactedDomain}`;
+  if (!username || !domain) return "***";
+
+  const mask = (value: string) => {
+    if (value.length <= 2) return "*".repeat(value.length);
+    return `${value[0]}${"*".repeat(value.length - 2)}${value[value.length - 1]}`;
+  };
+
+  return `${mask(username)}@${mask(domain)}`;
 };
 
 export const redactName = (name: string): string => {
-  // redact all but the first and last characters of each word
-  return name.trim()
+  return name
+    .trim()
     .split(" ")
+    .filter(Boolean)
     .map((word) => {
+      if (word.length <= 2) return "*".repeat(word.length);
       return `${word[0]}${"*".repeat(word.length - 2)}${word[word.length - 1]}`;
     })
     .join(" ");
 };
 
 export const redactPhone = (phone: string): string => {
-  return `${phone.slice(0, 1)}${"*".repeat(phone.length - 4)}${phone.slice(
-    phone.length - 3
-  )}`;
+  if (!phone) return "***";
+  if (phone.length <= 4) return "*".repeat(phone.length);
+  return `${phone.slice(0, 1)}${"*".repeat(phone.length - 4)}${phone.slice(-3)}`;
 };
 
 export const redactAddress = (address: string): string => {
-  // Split address into words and redact most of each word except first character
   return address
     .trim()
     .split(" ")
+    .filter(Boolean)
     .map((word) => {
-      // Keep numbers and special characters as is
       if (/^\d+$/.test(word) || /^[^a-zA-Z0-9]+$/.test(word)) {
         return word;
       }
-      // For words, keep first character and replace rest with asterisks
+      if (word.length <= 1) return "*";
       return `${word[0]}${"*".repeat(Math.max(2, word.length - 1))}`;
     })
     .join(" ");
 };
+
+export const redactPincode = (pincode: string): string => {
+  if (!pincode) return "******";
+  if (pincode.length <= 2) return "*".repeat(pincode.length);
+  return `${pincode[0]}${"*".repeat(pincode.length - 2)}${pincode[pincode.length - 1]}`;
+};
+
+export const redactCustomerInfo = (info: {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  landmark?: string;
+}) => ({
+  name: redactName(info.name),
+  email: redactEmail(info.email),
+  phone: redactPhone(info.phone),
+  address: redactAddress(info.address),
+  city: redactAddress(info.city),
+  state: redactAddress(info.state),
+  pincode: redactPincode(info.pincode),
+  landmark: info.landmark ? redactAddress(info.landmark) : undefined,
+});

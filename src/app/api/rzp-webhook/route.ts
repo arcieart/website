@@ -1,4 +1,4 @@
-import { getOrder, updateOrder } from "@/actions/order";
+import { getOrderById, updateOrderFields } from "@/lib/orders";
 import { sendOrderMessage } from "@/actions/discord";
 import { getDiscordOrderMessage } from "@/utils/discordMessages";
 import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils";
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
         const amount = data.payload.payment.entity.amount;
         const currency = data.payload.payment.entity.currency;
 
-        const updateOrderPromise = updateOrder(dbId, {
+        const updateOrderPromise = updateOrderFields(dbId, {
           "payment.razorpay.razorpayPaymentId": paymentId,
           "payment.razorpay.paymentStatus": paymentStatus,
           "payment.razorpay.paymentMethod": paymentMethod,
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
         });
 
         const sendDiscordMessagePromise = new Promise(async resolve => {
-          const order = await getOrder(dbId);
+          const order = await getOrderById(dbId);
           if (!order) return;
 
           if (order.payment.method === "razorpay") order.payment.razorpay!.paymentMethod = paymentMethod;
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
         const currency = data.payload.payment.entity.currency;
         const failureReason = data.payload.payment.entity.failure_reason;
 
-        await updateOrder(dbId, {
+        await updateOrderFields(dbId, {
           "payment.razorpay.razorpayPaymentId": paymentId,
           "payment.razorpay.paymentStatus": paymentStatus,
           "payment.razorpay.paymentMethod": paymentMethod,

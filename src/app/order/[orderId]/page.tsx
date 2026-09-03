@@ -9,12 +9,6 @@ import { formatDate } from "@/utils/date";
 import { formatPrice } from "@/utils/price";
 import { getOrder as getOrderAction } from "@/actions/order";
 import { getWhatsappHelpLink } from "@/utils/whatsappMessageLinks";
-import {
-  redactEmail,
-  redactName,
-  redactPhone,
-  redactAddress,
-} from "@/utils/redact";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MessageCircleIcon } from "lucide-react";
@@ -86,20 +80,20 @@ export default async function OrderPage({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h3 className="font-medium mb-2">Contact Details</h3>
-              <p>{redactName(order.customerInfo.name)}</p>
-              <p>{redactEmail(order.customerInfo.email)}</p>
-              <p>{redactPhone(order.customerInfo.phone)}</p>
+              <p>{order.customerInfo.name}</p>
+              <p>{order.customerInfo.email}</p>
+              <p>{order.customerInfo.phone}</p>
             </div>
             <div>
               <h3 className="font-medium mb-2">Shipping Address</h3>
-              <p>{redactAddress(order.customerInfo.address)}</p>
+              <p>{order.customerInfo.address}</p>
               <p>
-                {redactAddress(order.customerInfo.city)},{" "}
-                {order.customerInfo.state} {order.customerInfo.pincode}
+                {order.customerInfo.city}, {order.customerInfo.state}{" "}
+                {order.customerInfo.pincode}
               </p>
               {order.customerInfo.landmark && (
                 <p className="text-muted-foreground">
-                  Landmark: {redactAddress(order.customerInfo.landmark)}
+                  Landmark: {order.customerInfo.landmark}
                 </p>
               )}
             </div>

@@ -1,15 +1,12 @@
 import { createMediaUploadUrl } from "@/actions/s3";
-import { auth } from "@/lib/firebase";
+import { getAdminIdToken } from "@/lib/auth";
 
 export async function uploadProductMedia(
   file: File,
   kind: "image" | "video",
   productId: string
 ) {
-  const idToken = await auth.currentUser?.getIdToken();
-  if (!idToken) {
-    throw new Error("Admin session expired. Sign in again.");
-  }
+  const idToken = await getAdminIdToken();
 
   if (!file.type) {
     throw new Error("Unsupported file type");
