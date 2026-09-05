@@ -46,6 +46,8 @@ import { ProductPageSkeleton } from "@/components/skeletons/ProductPageSkeleton"
 import { Materials } from "@/data/materials";
 import { getWhatsappCustomizationHelpLink } from "@/utils/whatsappMessageLinks";
 import { RecommendedProducts } from "@/components/products/RecommendedProducts";
+import { BundlePicker } from "@/components/products/BundlePicker";
+import { applyBundleSelection, getLinkedBundles } from "@/lib/product-bundles";
 import { useRouter } from "next/navigation";
 import { trackProductViewed } from "@/lib/analytics";
 import Markdown from "react-markdown";
@@ -54,6 +56,7 @@ import { BaseCategoriesObj } from "@/data/categories";
 interface ProductPageProps {
   params: Promise<{ productSlug: string }>;
   initialProduct?: UIProduct;
+  initialBundles?: UIProduct[];
 }
 
 const CustomizationLabel = ({
@@ -82,7 +85,11 @@ const CustomizationLabel = ({
   </Label>
 );
 
-export function ProductPage({ params, initialProduct }: ProductPageProps) {
+export function ProductPage({
+  params,
+  initialProduct,
+  initialBundles = [],
+}: ProductPageProps) {
   const { products, isLoading } = useProducts();
   const { toggleItem, isInFavorites } = useFavoritesStore();
   const addToCart = useCartStore((state) => state.addItem);
@@ -94,6 +101,7 @@ export function ProductPage({ params, initialProduct }: ProductPageProps) {
   }>();
   const [product, setProduct] = useState<UIProduct | undefined>(initialProduct);
   const [quantity, setQuantity] = useState(1);
+  const [selectedBundleId, setSelectedBundleId] = useState<string | null>(null);
   const [customizations, setCustomizations] = useState<Record<string, string>>(
     {}
   );
@@ -110,6 +118,13 @@ export function ProductPage({ params, initialProduct }: ProductPageProps) {
       const found = products.find(
         (p) => p.slug === resolvedParams.productSlug
       );
+      if (found?.parentProductId) {
+        const parent = products.find((p) => p.id === found.parentProductId);
+        if (parent) {
+          router.replace(`/products/${parent.categoryId}/${parent.slug}`);
+          return;
+        }
+      }
       if (found) {
         setProduct(found);
       } else if (!initialProduct) {
@@ -120,6 +135,10 @@ export function ProductPage({ params, initialProduct }: ProductPageProps) {
       }
     }
   }, [products, resolvedParams, isLoading, initialProduct, router]);
+
+  useEffect(() => {
+    setSelectedBundleId(null);
+  }, [product?.id]);
 
   const trackedView = useRef(false);
   useEffect(() => {
@@ -144,6 +163,13 @@ export function ProductPage({ params, initialProduct }: ProductPageProps) {
     return <ProductPageSkeleton />;
   }
 
+  const catalog = products.length > 0 ? products : [product, ...initialBundles];
+  const linkedBundles = getLinkedBundles(product, catalog);
+  const selectedBundle = selectedBundleId
+    ? linkedBundles.find((bundle) => bundle.id === selectedBundleId) ?? null
+    : null;
+  const activeProduct = applyBundleSelection(product, selectedBundle);
+
   const isInWishlist = isInFavorites(product.id);
 
   const handleCustomizationChange = (
@@ -163,7 +189,7 @@ export function ProductPage({ params, initialProduct }: ProductPageProps) {
   };
 
   const calculateTotalPrice = () => {
-    return calculateProductPrice(product.price, customizations, quantity);
+    return calculateProductPrice(activeProduct.price, customizations, quantity);
   };
 
   const handleAddToCart = () => {
@@ -184,9 +210,8 @@ export function ProductPage({ params, initialProduct }: ProductPageProps) {
       return;
     }
 
-    // Add multiple quantities
     for (let i = 0; i < quantity; i++) {
-      addToCart(product, customizations);
+      addToCart(activeProduct, customizations);
     }
 
     setCartOpen(true);
@@ -351,11 +376,11 @@ export function ProductPage({ params, initialProduct }: ProductPageProps) {
               {/* Price */}
               <div className="">
                 <span className="text-sm text-muted-foreground line-through">
-                  {formatPrice(getStrikethroughPrice(product.price))}
+                  {formatPrice(getStrikethroughPrice(activeProduct.price))}
                 </span>
                 <div className="flex items-baseline flex-col gap-2">
                   <span className="text-2xl font-bold text-foreground">
-                    {formatPrice(product.price)}
+                    {formatPrice(activeProduct.price)}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     Free shipping on orders above{" "}
@@ -367,11 +392,24 @@ export function ProductPage({ params, initialProduct }: ProductPageProps) {
               </div>
             </div>
 
+            {linkedBundles.length > 0 && (
+              <BundlePicker
+                parent={product}
+                bundles={linkedBundles}
+                selectedId={selectedBundle?.id ?? product.id}
+                onSelect={(productId) =>
+                  setSelectedBundleId(
+                    productId === product.id ? null : productId
+                  )
+                }
+              />
+            )}
+
             {/* Description */}
             <div className="space-y-2">
-              {product.description && (
+              {activeProduct.description && (
                 <div className="text-sm text-muted-foreground space-y-2">
-                  <Markdown>{product.description}</Markdown>
+                  <Markdown>{activeProduct.description}</Markdown>
                 </div>
               )}
               <p className="text-sm text-muted-foreground">
@@ -449,13 +487,13 @@ export function ProductPage({ params, initialProduct }: ProductPageProps) {
                 Product Details
               </h2>
 
-              {product.weight && (
+              {activeProduct.weight && (
                 <div className="flex py-2">
                   <span className="font-medium text-foreground text-sm w-24">
                     Weight:
                   </span>
                   <span className="text-muted-foreground text-sm">
-                    {product.weight}g
+                    {activeProduct.weight}g
                   </span>
                 </div>
               )}
@@ -488,7 +526,7 @@ export function ProductPage({ params, initialProduct }: ProductPageProps) {
               <h3 className="text-lg font-semibold text-foreground">
                 Product Specifications
               </h3>
-              <ProductSpecAccordion product={product} />
+              <ProductSpecAccordion product={activeProduct} />
             </div>
           </div>
         </div>

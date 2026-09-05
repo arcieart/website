@@ -15,6 +15,7 @@ import {
   pageMetadata,
 } from "@/lib/seo";
 import { getAvailableProducts } from "@/lib/products";
+import { getDiscoverableProducts } from "@/lib/product-bundles";
 import { getWhatsappClickerLink } from "@/utils/whatsappMessageLinks";
 
 export const revalidate = 3600;
@@ -30,7 +31,7 @@ export const metadata: Metadata = pageMetadata({
 export default async function ClickerSwitchesPage() {
   let clickers: Awaited<ReturnType<typeof getAvailableProducts>> = [];
   try {
-    const products = await getAvailableProducts();
+    const products = getDiscoverableProducts(await getAvailableProducts());
     clickers = products.filter((product) => product.categoryId === "clickers");
   } catch {
     clickers = [];

@@ -7,6 +7,7 @@ import { BaseCategoriesObj } from "@/data/categories";
 import { CLICKER_KEYWORDS } from "@/config/site";
 import { pageMetadata, breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 import { getAvailableProducts } from "@/lib/products";
+import { getDiscoverableProducts } from "@/lib/product-bundles";
 import { JsonLd } from "@/components/seo/JsonLd";
 
 type CategoryPageProps = { params: Promise<{ categoryId: string }> };
@@ -52,7 +53,7 @@ export default async function CategoryProductsPageWrapper({
 
   let initialProducts: Awaited<ReturnType<typeof getAvailableProducts>> = [];
   try {
-    const products = await getAvailableProducts();
+    const products = getDiscoverableProducts(await getAvailableProducts());
     initialProducts = products.filter(
       (product) => product.categoryId === categoryId
     );

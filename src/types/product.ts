@@ -22,6 +22,10 @@ export type BaseProduct = {
   dimensions?: string;
   weight?: number;
   customizationOptions: DBCustomization[];
+  /** Parent only. Ordered IDs of hidden bundle SKUs shown on this product page. */
+  bundleIds?: string[];
+  /** Bundle only. Product whose page offers this SKU. */
+  parentProductId?: string;
 };
 
 export type DBProduct = BaseProduct & {
@@ -31,4 +35,6 @@ export type DBProduct = BaseProduct & {
 export type UIProduct = BaseProduct & Category & {
   price: number;
   material: string;
+  /** Set on the PDP merge when a pack is selected. Not stored on the Firestore product. */
+  bundleName?: string;
 };

@@ -34,6 +34,9 @@ export const getDiscordOrderMessage = (order: Order) => {
                 // Create the product link
                 const productLink = `[${product.name}](${getProductUrl(product.categoryId, product.productSlug)})`;
                 let productLine = `**${product.quantity}x** ${productLink}`;
+                if (product.bundleName) {
+                  productLine += `\n   **Bundle**: ${product.bundleName}`;
+                }
                 
                 // Format customizations if they exist
                 if (product.customizations && Object.keys(product.customizations).length > 0) {

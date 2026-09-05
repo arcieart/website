@@ -12,6 +12,9 @@ import {
   query,
   getDocs,
   limit,
+  writeBatch,
+  deleteField,
+  arrayRemove,
 } from "firebase/firestore";
 import { doc } from "firebase/firestore";
 import { toUIProduct } from "./product-map";
@@ -48,6 +51,21 @@ export const getProductBySlug = cache(async (slug: string) => {
   } as DBProduct;
   return product;
 });
+
+export const getAllProducts = async (): Promise<DBProduct[]> => {
+  const snapshot = await getDocs(collection(db, Collections.Products));
+  const products: DBProduct[] = [];
+  snapshot.forEach((docSnap) => {
+    products.push({ id: docSnap.id, ...docSnap.data() } as DBProduct);
+  });
+  return products;
+};
+
+export const getProductsByIds = async (ids: string[]): Promise<DBProduct[]> => {
+  if (ids.length === 0) return [];
+  const docs = await Promise.all(ids.map((id) => getProductById(id)));
+  return docs.filter((product): product is DBProduct => product !== null);
+};
 
 export const getAvailableProducts = cache(async (): Promise<UIProduct[]> => {
   const productsRef = collection(db, Collections.Products);
@@ -90,10 +108,81 @@ export const updateProduct = async (
   }
 };
 
+export const syncBundleLinks = async (
+  parentId: string,
+  nextBundleIds: string[],
+  previousBundleIds: string[] = []
+) => {
+  const next = [...new Set(nextBundleIds.filter(Boolean))];
+  const previous = new Set(previousBundleIds.filter(Boolean));
+  const nextSet = new Set(next);
+  const added = next.filter((id) => !previous.has(id));
+  const removed = previousBundleIds.filter((id) => id && !nextSet.has(id));
+
+  if (added.length === 0 && removed.length === 0) return;
+
+  const [addedDocs, removedDocs] = await Promise.all([
+    Promise.all(added.map((id) => getProductById(id))),
+    Promise.all(removed.map((id) => getProductById(id))),
+  ]);
+
+  const batch = writeBatch(db);
+  let operations = 0;
+
+  addedDocs.forEach((child, index) => {
+    if (!child) return;
+    batch.update(doc(db, Collections.Products, added[index]), {
+      parentProductId: parentId,
+      isDiscoverable: false,
+    });
+    operations += 1;
+  });
+
+  removedDocs.forEach((child, index) => {
+    if (!child) return;
+    batch.update(doc(db, Collections.Products, removed[index]), {
+      parentProductId: deleteField(),
+    });
+    operations += 1;
+  });
+
+  if (operations === 0) return;
+  await batch.commit();
+};
+
 export const deleteProduct = async (id: string) => {
   try {
+    const product = await getProductById(id);
     const productRef = doc(db, Collections.Products, id);
-    await deleteDoc(productRef);
+
+    if (!product) {
+      await deleteDoc(productRef);
+      return;
+    }
+
+    const batch = writeBatch(db);
+    batch.delete(productRef);
+
+    if (product.bundleIds?.length) {
+      for (const bundleId of product.bundleIds) {
+        const child = await getProductById(bundleId);
+        if (!child) continue;
+        batch.update(doc(db, Collections.Products, bundleId), {
+          parentProductId: deleteField(),
+        });
+      }
+    }
+
+    if (product.parentProductId) {
+      const parent = await getProductById(product.parentProductId);
+      if (parent) {
+        batch.update(doc(db, Collections.Products, product.parentProductId), {
+          bundleIds: arrayRemove(id),
+        });
+      }
+    }
+
+    await batch.commit();
   } catch (error) {
     console.error("Error deleting product", error);
     throw error;

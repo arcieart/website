@@ -8,6 +8,8 @@ import {
   Image as ImageIcon,
   Loader2,
   Video,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -38,13 +40,19 @@ import {
 import { DBProduct, ProductImage } from "@/types/product";
 import { uploadProductMedia } from "@/lib/upload-product-media";
 import Image from "next/image";
-import { addProduct, updateProduct } from "@/lib/products";
+import {
+  addProduct,
+  updateProduct,
+  getAllProducts,
+  syncBundleLinks,
+} from "@/lib/products";
+import { isBundleProduct, isEligibleBundle } from "@/lib/product-bundles";
 import { getNewProductDocId } from "@/lib/firebase";
 import { compressImage } from "@/lib/images";
 import { validateVideoFile } from "@/lib/videos";
 import { DBCustomization } from "@/types/customization";
 import { getTimestamp } from "@/utils/misc";
-import { getCurrencySymbol } from "@/utils/price";
+import { formatPrice, getCurrencySymbol } from "@/utils/price";
 
 // Helper function to clean object of undefined/empty values
 const cleanObject = (obj: unknown): unknown => {
@@ -108,6 +116,7 @@ const defaultProductData: DBProduct = {
   isBestSeller: false,
   isDiscoverable: true,
   createdAt: 0,
+  bundleIds: [],
 };
 
 interface ProductSheetProps {
@@ -128,6 +137,8 @@ export function ProductSheet({
   const [internalOpen, setInternalOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [productData, setProductData] = useState(defaultProductData);
+  const [catalog, setCatalog] = useState<DBProduct[]>([]);
+  const [catalogReady, setCatalogReady] = useState(false);
 
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const onOpenChange =
@@ -147,10 +158,13 @@ export function ProductSheet({
     if (isOpen) {
       if (product) {
         // Edit mode - load existing product data
-        setProductData(product);
+        setProductData({
+          ...product,
+          bundleIds: product.bundleIds ?? [],
+        });
 
         // Initialize media states with existing images and videos
-        const existingImageStates: MediaState[] = product.imageMapping.map(
+        const existingImageStates: MediaState[] = (product.imageMapping ?? []).map(
           (productImage) => ({
             file: null,
             preview: productImage.url,
@@ -160,12 +174,14 @@ export function ProductSheet({
           })
         );
 
-        const existingVideoStates: MediaState[] = product.videos.map((url) => ({
-          file: null,
-          preview: url,
-          existingUrl: url,
-          type: "video" as const,
-        }));
+        const existingVideoStates: MediaState[] = (product.videos ?? []).map(
+          (url) => ({
+            file: null,
+            preview: url,
+            existingUrl: url,
+            type: "video" as const,
+          })
+        );
 
         const existingMediaStates: MediaState[] = [
           ...existingImageStates,
@@ -185,6 +201,24 @@ export function ProductSheet({
       }
     }
   }, [isOpen, product]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setCatalogReady(false);
+      return;
+    }
+    setCatalogReady(false);
+    getAllProducts()
+      .then((items) => {
+        setCatalog(items);
+        setCatalogReady(true);
+      })
+      .catch((error) => {
+        console.error("Error loading product catalog", error);
+        setCatalog([]);
+        setCatalogReady(true);
+      });
+  }, [isOpen]);
 
   // Reset form when sheet closes
   useEffect(() => {
@@ -300,6 +334,12 @@ export function ProductSheet({
             productId;
 
       // Update product data with final media URLs
+      const isEditingBundle = Boolean(productData.parentProductId);
+      const previousBundleIds = product?.bundleIds ?? [];
+      const nextBundleIds = isEditingBundle
+        ? []
+        : [...new Set((productData.bundleIds ?? []).filter(Boolean))];
+
       const finalProductData: DBProduct = {
         ...productData,
         id: productId,
@@ -307,7 +347,17 @@ export function ProductSheet({
         imageMapping: finalImageMapping,
         videos: finalVideoUrls,
         createdAt: productData.createdAt || getTimestamp(),
+        bundleIds: nextBundleIds,
+        isDiscoverable: isEditingBundle
+          ? false
+          : productData.isDiscoverable,
       };
+
+      if (isEditingBundle) {
+        delete finalProductData.bundleIds;
+      } else {
+        delete finalProductData.parentProductId;
+      }
 
       const cleanedData: DBProduct = cleanObject(finalProductData) as DBProduct;
       console.log("Clean Product data:", cleanedData);
@@ -316,13 +366,13 @@ export function ProductSheet({
       const { id: _, ...cleanedDataWithoutId } = cleanedData;
 
       if (isEditMode) {
-        // Update existing product
         await updateProduct(productId, cleanedDataWithoutId);
-        console.log("Updated product:", cleanedDataWithoutId);
       } else {
-        // Add new product
         await addProduct(productId, cleanedDataWithoutId);
-        console.log("Added product:", cleanedDataWithoutId);
+      }
+
+      if (!isEditingBundle) {
+        await syncBundleLinks(productId, nextBundleIds, previousBundleIds);
       }
 
       // Trigger callback
@@ -465,6 +515,44 @@ export function ProductSheet({
       }));
     }
   };
+
+  const addBundleId = (bundleId: string) => {
+    if (!bundleId) return;
+    setProductData((prev) => {
+      if ((prev.bundleIds ?? []).includes(bundleId)) return prev;
+      return { ...prev, bundleIds: [...(prev.bundleIds ?? []), bundleId] };
+    });
+  };
+
+  const removeBundleId = (bundleId: string) => {
+    setProductData((prev) => ({
+      ...prev,
+      bundleIds: (prev.bundleIds ?? []).filter((id) => id !== bundleId),
+    }));
+  };
+
+  const moveBundleId = (index: number, direction: -1 | 1) => {
+    setProductData((prev) => {
+      const ids = [...(prev.bundleIds ?? [])];
+      const nextIndex = index + direction;
+      if (nextIndex < 0 || nextIndex >= ids.length) return prev;
+      [ids[index], ids[nextIndex]] = [ids[nextIndex], ids[index]];
+      return { ...prev, bundleIds: ids };
+    });
+  };
+
+  const isEditingBundle = isBundleProduct(productData);
+  const parentFromCatalog = catalog.find(
+    (item) => item.id === productData.parentProductId
+  );
+  const linkedBundleDocs = (productData.bundleIds ?? []).map(
+    (id) => catalog.find((item) => item.id === id) ?? null
+  );
+  const eligibleBundles = catalog.filter(
+    (item) =>
+      isEligibleBundle(item, productData.id || "__new__") &&
+      !(productData.bundleIds ?? []).includes(item.id)
+  );
 
   const sheetContent = (
     <SheetContent className="w-[700px] sm:max-w-none overflow-y-auto p-8">
@@ -646,13 +734,18 @@ export function ProductSheet({
               Discoverable
             </label>
             <Select
-              value={productData.isDiscoverable?.toString()}
+              value={
+                isEditingBundle
+                  ? "false"
+                  : productData.isDiscoverable?.toString()
+              }
               onValueChange={(value) =>
                 setProductData((prev) => ({
                   ...prev,
                   isDiscoverable: value === "true",
                 }))
               }
+              disabled={isEditingBundle}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -662,8 +755,111 @@ export function ProductSheet({
                 <SelectItem value="false">No</SelectItem>
               </SelectContent>
             </Select>
+            {isEditingBundle && (
+              <p className="text-xs text-muted-foreground">
+                Shown on{" "}
+                {parentFromCatalog
+                  ? parentFromCatalog.name
+                  : "a parent product"}
+                . Bundle name, price, and description are used there. Weight, media, and
+                customizations come from the parent.
+              </p>
+            )}
           </div>
         </div>
+
+        {!isEditingBundle && (
+          <div className="space-y-6 p-6 border rounded-lg">
+            <div>
+              <h3 className="text-lg font-semibold">Bundles</h3>
+              <p className="text-sm text-muted-foreground">
+                Hidden SKUs selectable on this product page. Create the bundle as
+                its own product first, then attach it here.
+              </p>
+            </div>
+
+            {(productData.bundleIds ?? []).length > 0 && (
+              <div className="space-y-2">
+                {linkedBundleDocs.map((bundle, index) => (
+                  <div
+                    key={productData.bundleIds?.[index] ?? index}
+                    className="flex items-center gap-2 border rounded-md p-2"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">
+                        {bundle?.name ?? productData.bundleIds?.[index]}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {typeof bundle?.price === "number"
+                          ? formatPrice(bundle.price)
+                          : "No price"}
+                        {bundle && !bundle.isDiscoverable ? " · Hidden" : ""}
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => moveBundleId(index, -1)}
+                      disabled={index === 0}
+                    >
+                      <ChevronUp className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => moveBundleId(index, 1)}
+                      disabled={
+                        index === (productData.bundleIds ?? []).length - 1
+                      }
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        removeBundleId(productData.bundleIds?.[index] ?? "")
+                      }
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <Select
+              key={(productData.bundleIds ?? []).join("-")}
+              onValueChange={addBundleId}
+              disabled={!catalogReady || eligibleBundles.length === 0}
+            >
+              <SelectTrigger>
+                <SelectValue
+                  placeholder={
+                    !catalogReady
+                      ? "Loading products..."
+                      : eligibleBundles.length === 0
+                        ? "No eligible products"
+                        : "Add a bundle product"
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {eligibleBundles.map((item) => (
+                  <SelectItem key={item.id} value={item.id}>
+                    {item.name}
+                    {typeof item.price === "number"
+                      ? ` · ${formatPrice(item.price)}`
+                      : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {/* Product Media */}
         <div className="space-y-6 p-6 border rounded-lg">

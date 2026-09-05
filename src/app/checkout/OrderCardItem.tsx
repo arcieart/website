@@ -3,6 +3,7 @@ import { formatPriceLocalized } from "@/utils/price";
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
 import { CustomizationBadge } from "@/components/products/CustomizationBadge";
+import { BundleNameBadge } from "@/components/products/BundleNameBadge";
 import Link from "next/link";
 
 export default function OrderCardItem({ item }: { item: CartItem }) {
@@ -37,6 +38,7 @@ export default function OrderCardItem({ item }: { item: CartItem }) {
             {item.product.name}
           </Link>
         </h4>
+        <BundleNameBadge name={item.product.bundleName} />
 
         {/* Customizations */}
         {Object.keys(item.customizations).length > 0 && (

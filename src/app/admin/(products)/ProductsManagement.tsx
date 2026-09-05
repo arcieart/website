@@ -238,7 +238,7 @@ export const ProductsManagement = () => {
                 <TableRow key={product.id}>
                   <TableCell>{product.id}</TableCell>
                   <TableCell>
-                    {product.imageMapping[0].url ? (
+                    {product.imageMapping?.[0]?.url ? (
                       <div className="relative w-12 h-12 rounded-md overflow-hidden">
                         <Image
                           src={product.imageMapping[0].url}
@@ -283,6 +283,11 @@ export const ProductsManagement = () => {
                       >
                         {product.isDiscoverable ? "Discoverable" : "Hidden"}
                       </span>
+                      {product.parentProductId && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+                          Bundle
+                        </span>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell className="max-w-xs">

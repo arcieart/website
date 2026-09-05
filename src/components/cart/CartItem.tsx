@@ -10,6 +10,7 @@ import { BaseCustomizationsObj } from "@/data/customizations";
 import Link from "next/link";
 import { type CartItem } from "@/stores/cart";
 import { CustomizationBadge } from "../products/CustomizationBadge";
+import { BundleNameBadge } from "../products/BundleNameBadge";
 
 interface CartItemProps {
   item: CartItem;
@@ -52,6 +53,11 @@ export default function CartItem({
               {item.product.name}
             </h4>
           </Link>
+          {item.product.bundleName && (
+            <div className="mt-1">
+              <BundleNameBadge name={item.product.bundleName} />
+            </div>
+          )}
         </div>
         {Object.keys(item.customizations).length > 0 && (
           <div className="space-y-1">

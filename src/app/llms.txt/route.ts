@@ -9,6 +9,7 @@ import {
   SITE_URL,
 } from "@/config/site";
 import { getAvailableProducts } from "@/lib/products";
+import { getDiscoverableProducts } from "@/lib/product-bundles";
 import { BaseCategories } from "@/data/categories";
 
 export const revalidate = 3600;
@@ -25,7 +26,7 @@ export async function GET() {
   let productLines: string[] = [];
 
   try {
-    const products = await getAvailableProducts();
+    const products = getDiscoverableProducts(await getAvailableProducts());
     const clickers = products.filter((product) => product.categoryId === "clickers");
     const others = products.filter((product) => product.categoryId !== "clickers");
 

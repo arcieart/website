@@ -14,9 +14,9 @@ import { Button } from "@/components/ui/button";
 import { MessageCircleIcon } from "lucide-react";
 import { Metadata } from "next";
 import { CustomizationBadge } from "@/components/products/CustomizationBadge";
+import { BundleNameBadge } from "@/components/products/BundleNameBadge";
 import { formatOrderStatus } from "@/data/orderStatuses";
 import { getShippingCost } from "@/config/currency";
-import Markdown from "react-markdown";
 import { pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -138,10 +138,10 @@ export default async function OrderPage({
                 </Link>
                 <div className="flex-1">
                   <h3 className="font-medium">{product.name}</h3>
-                  {product.description && (
-                    <span className="text-sm text-muted-foreground line-clamp-2 max-w-[75%]">
-                      <Markdown>{product.description}</Markdown>
-                    </span>
+                  {product.bundleName && (
+                    <div className="mt-1">
+                      <BundleNameBadge name={product.bundleName} />
+                    </div>
                   )}
                   <div className="mt-2 flex flex-col gap-2">
                     {product.customizations &&

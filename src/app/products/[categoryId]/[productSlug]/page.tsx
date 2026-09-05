@@ -1,9 +1,15 @@
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ProductPageSkeleton } from "@/components/skeletons/ProductPageSkeleton";
 import { ProductPage } from "./ProductPage";
 import { Metadata } from "next";
-import { getProductBySlug, toUIProduct } from "@/lib/products";
+import {
+  getProductById,
+  getProductBySlug,
+  getProductsByIds,
+  toUIProduct,
+} from "@/lib/products";
+import { getLinkedBundles, isBundleProduct } from "@/lib/product-bundles";
 import { BaseCategoriesObj } from "@/data/categories";
 import removeMd from "remove-markdown";
 import {
@@ -14,6 +20,7 @@ import {
 } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { CLICKER_KEYWORDS } from "@/config/site";
+import { UIProduct } from "@/types/product";
 
 interface ProductPageProps {
   params: Promise<{ productSlug: string; categoryId?: string }>;
@@ -34,9 +41,21 @@ export async function generateMetadata({
     });
   }
 
+  if (isBundleProduct(product)) {
+    return pageMetadata({
+      title: product.name,
+      description: "This bundle is available from the product page.",
+      path: `/products/${product.categoryId}/${product.slug}`,
+      noIndex: true,
+    });
+  }
+
   const category = BaseCategoriesObj[product.categoryId];
   const rawDescription = removeMd(
-    product.description ?? category?.seoDescription ?? category?.baseDescription ?? product.name
+    product.description ??
+      category?.seoDescription ??
+      category?.baseDescription ??
+      product.name
   );
   const isClicker = product.categoryId === "clickers";
   const title = isClicker
@@ -69,9 +88,23 @@ export async function generateMetadata({
 export default async function ProductPageWrapper({ params }: ProductPageProps) {
   const resolved = await params;
   const dbProduct = await getProductBySlug(resolved.productSlug);
-  const initialProduct = dbProduct ? toUIProduct(dbProduct) : null;
 
+  if (!dbProduct) notFound();
+
+  if (isBundleProduct(dbProduct) && dbProduct.parentProductId) {
+    const parent = await getProductById(dbProduct.parentProductId);
+    if (!parent) notFound();
+    redirect(`/products/${parent.categoryId}/${parent.slug}`);
+  }
+
+  const initialProduct = toUIProduct(dbProduct);
   if (!initialProduct) notFound();
+
+  const bundleDocs = await getProductsByIds(initialProduct.bundleIds ?? []);
+  const bundleUi = bundleDocs
+    .map((doc) => toUIProduct(doc))
+    .filter((item): item is UIProduct => item !== null);
+  const initialBundles = getLinkedBundles(initialProduct, bundleUi);
 
   const category = BaseCategoriesObj[initialProduct.categoryId];
 
@@ -93,7 +126,11 @@ export default async function ProductPageWrapper({ params }: ProductPageProps) {
         ])}
       />
       <Suspense fallback={<ProductPageSkeleton />}>
-        <ProductPage params={params} initialProduct={initialProduct} />
+        <ProductPage
+          params={params}
+          initialProduct={initialProduct}
+          initialBundles={initialBundles}
+        />
       </Suspense>
     </>
   );

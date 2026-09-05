@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 import { BaseCategories } from "@/data/categories";
 import { getAvailableProducts } from "@/lib/products";
+import { getDiscoverableProducts } from "@/lib/product-bundles";
 import { SITE_URL } from "@/config/site";
 
 export const revalidate = 86400;
@@ -58,7 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let productPages: MetadataRoute.Sitemap = [];
 
   try {
-    const products = await getAvailableProducts();
+    const products = getDiscoverableProducts(await getAvailableProducts());
     productPages = products.map((product) => ({
       url: `${SITE_URL}/products/${product.categoryId}/${product.slug}`,
       lastModified: lastModifiedFromTimestamp(product.createdAt),

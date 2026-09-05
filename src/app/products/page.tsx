@@ -5,6 +5,7 @@ import { Metadata } from "next";
 import { pageMetadata, itemListJsonLd, breadcrumbJsonLd } from "@/lib/seo";
 import { CLICKER_KEYWORDS } from "@/config/site";
 import { getAvailableProducts } from "@/lib/products";
+import { getDiscoverableProducts } from "@/lib/product-bundles";
 import { JsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = pageMetadata({
@@ -24,7 +25,7 @@ export const metadata: Metadata = pageMetadata({
 export default async function ProductsPageWrapper() {
   let products: Awaited<ReturnType<typeof getAvailableProducts>> = [];
   try {
-    products = await getAvailableProducts();
+    products = getDiscoverableProducts(await getAvailableProducts());
   } catch {
     products = [];
   }

@@ -24,6 +24,7 @@ export type OrderProduct = {
   total: number; // price * quantity
   imageUrl?: string;
   customizations?: Record<keyof typeof BaseCustomizationsObj, string>;
+  bundleName?: string;
 };
 
 export type ShippingInfo = {

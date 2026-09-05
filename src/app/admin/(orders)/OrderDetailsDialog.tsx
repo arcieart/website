@@ -37,6 +37,7 @@ import { Collections } from "@/constants/Collections";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CustomizationBadge } from "@/components/products/CustomizationBadge";
+import { BundleNameBadge } from "@/components/products/BundleNameBadge";
 import { formatDate, getTimestamp } from "@/utils/date";
 import { getPaymentStatusConfig } from "@/config/payment";
 
@@ -239,12 +240,8 @@ export function OrderDetailsDialog({
                           Qty: {product.quantity}
                         </Badge>
                       </div>
-
-                      {product.description && (
-                        <p className="text-muted-foreground text-sm leading-relaxed">
-                          {product.description.slice(0, 50)}
-                          {product.description.length > 50 && "..."}
-                        </p>
+                      {product.bundleName && (
+                        <BundleNameBadge name={product.bundleName} />
                       )}
 
                       {product.customizations &&

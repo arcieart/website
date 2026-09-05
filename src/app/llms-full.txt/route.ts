@@ -9,6 +9,7 @@ import {
   SITE_URL,
 } from "@/config/site";
 import { getAvailableProducts } from "@/lib/products";
+import { getDiscoverableProducts } from "@/lib/product-bundles";
 
 export const revalidate = 3600;
 
@@ -16,7 +17,7 @@ export async function GET() {
   let catalog = "See https://arcie.art/products for the live catalog.";
 
   try {
-    const products = await getAvailableProducts();
+    const products = getDiscoverableProducts(await getAvailableProducts());
     catalog = products
       .map((product) => {
         const url = `${SITE_URL}/products/${product.categoryId}/${product.slug}`;

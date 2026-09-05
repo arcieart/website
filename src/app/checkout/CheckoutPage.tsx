@@ -268,6 +268,7 @@ export default function CheckoutPage() {
           sku: item.id,
           description: item.product.description,
           customizations: item.customizations,
+          bundleName: item.product.bundleName,
         })),
         pricing: {
           subtotal,
